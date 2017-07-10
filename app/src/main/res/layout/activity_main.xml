@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
 
-    tools:context="com.hpcnt.autodelivery.MainActivity">
+    tools:context="com.hpcnt.autodelivery.ui.MainActivity">
 
     <LinearLayout
         android:layout_width="match_parent"

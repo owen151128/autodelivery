@@ -1,9 +1,11 @@
-package com.hpcnt.autodelivery;
+package com.hpcnt.autodelivery.ui;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
+
+import com.hpcnt.autodelivery.R;
 
 public class MainActivity extends AppCompatActivity {
 
