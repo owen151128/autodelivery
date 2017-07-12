@@ -1,10 +1,16 @@
 package com.hpcnt.autodelivery.ui;
 
+import android.app.DownloadManager;
+import android.net.Uri;
+import android.os.Environment;
+
 import com.hpcnt.autodelivery.BaseApplication;
 import com.hpcnt.autodelivery.StringFetchListener;
 import com.hpcnt.autodelivery.model.Build;
 import com.hpcnt.autodelivery.model.BuildList;
 import com.hpcnt.autodelivery.network.BuildFetcher;
+
+import java.util.List;
 
 public class MainPresenter implements MainContract.Presenter {
     private MainContract.View mView;
@@ -19,6 +25,26 @@ public class MainPresenter implements MainContract.Presenter {
         mView.showLoading();
         BuildFetcher buildFetcher = new BuildFetcher();
         buildFetcher.fetchBuildList(new LastestBuildFetchListener(), "");
+    }
+
+    @Override
+    public void downloadApk() {
+        Uri apkUri = Uri.parse(mLastestBuild.getApkUrl());
+        List<String> pathSegments = apkUri.getPathSegments();
+        DownloadManager.Request request = new DownloadManager.Request(apkUri);
+        request.setTitle(mLastestBuild.getVersionName());
+        request.setDescription(mLastestBuild.getDate());
+        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS,
+                mLastestBuild.getVersionName() + pathSegments.get(pathSegments.size() - 1));
+        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).mkdirs();
+        mView.showDownloading();
+        mView.addDownloadRequest(request);
+    }
+
+    @Override
+    public void downloadComplete() {
+        mView.showInstall();
     }
 
     private class LastestBuildFetchListener implements StringFetchListener {

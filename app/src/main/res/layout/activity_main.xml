@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.hpcnt.autodelivery.ui.MainActivity">
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="action"
+            type="com.hpcnt.autodelivery.ui.MainActivity" />
+    </data>
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -46,6 +52,7 @@
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="100dp"
             android:background="@drawable/round_button"
+            android:onClick="@{action::onClickBtnAction}"
             android:textAllCaps="false"
             android:textSize="24sp"
             android:textStyle="bold"
