@@ -10,8 +10,8 @@ public class BuildFetcher {
     private static final String TAG = BuildFetcher.class.getSimpleName();
     private RequestQueue mQueue = BaseApplication.getRequestQueue();
 
-    public void fetchBuildList(StringFetchListener buildFetcherListener) {
-        StringRequest request = new StringRequest(Method.GET, BaseApplication.BUILD_SERVER_URL, response -> {
+    public void fetchBuildList(StringFetchListener buildFetcherListener, String path) {
+        StringRequest request = new StringRequest(Method.GET, BaseApplication.BUILD_SERVER_URL + path, response -> {
             buildFetcherListener.onStringFetched(response);
         }, error -> {
             buildFetcherListener.onStringError(error.toString());
