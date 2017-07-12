@@ -13,15 +13,17 @@
             android:layout_marginBottom="60dp"
             android:layout_marginTop="36dp"
             android:gravity="center"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:padding="16dp">
 
             <TextView
                 android:id="@+id/main_version_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
+                android:gravity="center"
                 android:textColor="@android:color/black"
-                android:textSize="36sp"
+                android:textSize="30sp"
                 android:textStyle="bold"
                 tools:text="3.18.0-alpha-2" />
 
@@ -29,6 +31,7 @@
                 android:id="@+id/main_date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:gravity="center"
                 android:textColor="@android:color/black"
                 android:textSize="24sp"
                 android:textStyle="bold"
