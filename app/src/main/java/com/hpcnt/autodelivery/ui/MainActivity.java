@@ -42,4 +42,16 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     public void showToast(String response) {
         Toast.makeText(getApplicationContext(), response, Toast.LENGTH_SHORT).show();
     }
+
+    @Override
+    public void showDownload() {
+        binding.mainBtnAction.setEnabled(true);
+        binding.mainBtnAction.setText("Download");
+    }
+
+    @Override
+    public void showLoading() {
+        binding.mainBtnAction.setEnabled(false);
+        binding.mainBtnAction.setText("Loading");
+    }
 }

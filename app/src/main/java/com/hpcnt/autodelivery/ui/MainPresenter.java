@@ -16,6 +16,7 @@ public class MainPresenter implements MainContract.Presenter {
 
     @Override
     public void loadLastestBuild() {
+        mView.showLoading();
         BuildFetcher buildFetcher = new BuildFetcher();
         buildFetcher.fetchBuildList(new LastestBuildFetchListener(), "");
     }
@@ -43,6 +44,7 @@ public class MainPresenter implements MainContract.Presenter {
             } else {
                 mLastestBuild.setApkUrl(BaseApplication.BUILD_SERVER_URL + mFullVersionName.toString());
                 mView.showLastestBuild(mLastestBuild);
+                mView.showDownload();
             }
         }
 

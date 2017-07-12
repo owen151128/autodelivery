@@ -9,6 +9,10 @@ public interface MainContract {
         void showLastestBuild(Build lastestBuild);
 
         void showToast(String response);
+
+        void showDownload();
+
+        void showLoading();
     }
 
     interface Presenter {
