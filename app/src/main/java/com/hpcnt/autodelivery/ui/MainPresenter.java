@@ -10,6 +10,7 @@ import com.hpcnt.autodelivery.model.Build;
 import com.hpcnt.autodelivery.model.BuildList;
 import com.hpcnt.autodelivery.network.BuildFetcher;
 
+import java.io.File;
 import java.util.List;
 
 public class MainPresenter implements MainContract.Presenter {
@@ -70,7 +71,14 @@ public class MainPresenter implements MainContract.Presenter {
             } else {
                 mLastestBuild.setApkUrl(BaseApplication.BUILD_SERVER_URL + mFullVersionName.toString());
                 mView.showLastestBuild(mLastestBuild);
-                mView.showDownload();
+
+                File buildFile = new File(Environment.getExternalStoragePublicDirectory(
+                        Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "/" + mLastestBuild.getVersionName());
+                if (buildFile.exists()) {
+                    mView.showInstall();
+                } else {
+                    mView.showDownload();
+                }
             }
         }
 
