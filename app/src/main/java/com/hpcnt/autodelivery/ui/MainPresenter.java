@@ -43,9 +43,14 @@ public class MainPresenter implements MainContract.Presenter {
         mView.addDownloadRequest(request);
     }
 
+    // FIXME: 2017. 7. 12. 네이밍이 마음에 안든다.
     @Override
     public void downloadComplete() {
-        mView.showInstall();
+        if (hasLastestFile()) {
+            mView.showInstall();
+        } else {
+            mView.showDownload();
+        }
     }
 
     private class LastestBuildFetchListener implements StringFetchListener {
@@ -61,24 +66,38 @@ public class MainPresenter implements MainContract.Presenter {
             }
 
             String versionName = mLastestBuild.getVersionName();
-            mLastestBuild.setVersionName(mFullVersionName.toString());
-            mFullVersionName.append(versionName);
 
             // 마지막 문자가 '/'라면 즉, 버전 이름이 디렉토리를 나타낸다면
             if (versionName.charAt(versionName.length() - 1) == '/') {
+                mFullVersionName.append(versionName);
                 BuildFetcher buildFetcher = new BuildFetcher();
                 buildFetcher.fetchBuildList(this, mFullVersionName.toString());
             } else {
-                mLastestBuild.setApkUrl(BaseApplication.BUILD_SERVER_URL + mFullVersionName.toString());
+                String myAbi = "";
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                    myAbi = android.os.Build.SUPPORTED_ABIS[0] + "-qatest";
+                } else {
+                    myAbi = android.os.Build.CPU_ABI + "-qatest";
+                }
+                String apkName = "";
+                boolean hasCorrectApk = false;
+                for (int i = 0; i < buildList.size(); i++) {
+                    apkName = buildList.get(i).getVersionName();
+                    if (apkName.contains(myAbi)) {
+                        hasCorrectApk = true;
+                        break;
+                    }
+                }
+                if (!hasCorrectApk) {
+                    mView.showToast("단말기에 맞는 APK가 없습니다");
+                    return;
+                }
+
+                mLastestBuild.setVersionName(mFullVersionName.toString());
+                mLastestBuild.setApkUrl(BaseApplication.BUILD_SERVER_URL + mLastestBuild.getVersionName() + apkName);
                 mView.showLastestBuild(mLastestBuild);
 
-                File buildFile = new File(Environment.getExternalStoragePublicDirectory(
-                        Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "/" + mLastestBuild.getVersionName());
-                if (buildFile.exists()) {
-                    mView.showInstall();
-                } else {
-                    mView.showDownload();
-                }
+                downloadComplete();
             }
         }
 
@@ -86,5 +105,11 @@ public class MainPresenter implements MainContract.Presenter {
         public void onStringError(String response) {
             mView.showToast(response);
         }
+    }
+
+    private boolean hasLastestFile() {
+        File buildFile = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "/" + mLastestBuild.getVersionName());
+        return buildFile.exists() ? true : false;
     }
 }
