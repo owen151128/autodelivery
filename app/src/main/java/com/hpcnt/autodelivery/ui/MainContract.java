@@ -23,6 +23,8 @@ public interface MainContract {
         void addDownloadRequest(DownloadManager.Request request);
 
         void showInstall();
+
+        void showApkInstall(String apkPath);
     }
 
     interface Presenter {
@@ -32,5 +34,7 @@ public interface MainContract {
         void downloadApk();
 
         void downloadComplete();
+
+        void installApk();
     }
 }

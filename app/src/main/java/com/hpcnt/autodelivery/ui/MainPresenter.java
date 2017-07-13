@@ -43,6 +43,13 @@ public class MainPresenter implements MainContract.Presenter {
         mView.addDownloadRequest(request);
     }
 
+    @Override
+    public void installApk() {
+        String apkPath = "file://" + Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "/" + mLastestBuild.getVersionName() + mLastestBuild.getApkName();
+        mView.showApkInstall(apkPath);
+    }
+
     // FIXME: 2017. 7. 12. 네이밍이 마음에 안든다.
     @Override
     public void downloadComplete() {

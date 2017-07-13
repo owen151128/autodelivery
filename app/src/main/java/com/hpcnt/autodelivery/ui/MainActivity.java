@@ -8,10 +8,12 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.databinding.DataBindingUtil;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -72,6 +74,8 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
                         new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                         MainContract.PERMISSION_REQUEST_WRITE_EXTERNAL_STORAGE);
             }
+        } else if (button.getText().toString().equals("Install")) {
+            mPresenter.installApk();
         }
     }
 
@@ -109,6 +113,13 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     public void showInstall() {
         binding.mainBtnAction.setEnabled(true);
         binding.mainBtnAction.setText("Install");
+    }
+
+    @Override
+    public void showApkInstall(String apkPath) {
+        Intent installIntent = new Intent(Intent.ACTION_VIEW);
+        installIntent.setDataAndType(Uri.parse(apkPath), "application/vnd.android.package-archive");
+        startActivity(installIntent);
     }
 
     @Override
