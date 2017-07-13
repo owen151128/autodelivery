@@ -21,25 +21,12 @@ public class BuildList {
 
     public Build getLastestBuild() {
         if (buildList.size() == 0) return null;
-        SimpleDateFormat format = new SimpleDateFormat("yy년 MMM dd일 kk시 mm분", Locale.KOREAN);
 
-        List<Date> dates = new ArrayList<>();
-        for (Build build : buildList) {
-            try {
-                String dateStr = build.getDate();
-                Date date = format.parse(dateStr);
-
-                dates.add(date);
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-        }
-
-        Date lastestDate = dates.get(0);
+        String lastestDate = buildList.get(0).getDate();
         int lastestIndex = 0;
-        for (int i = 1; i < dates.size(); i++) {
-            if (lastestDate.compareTo(dates.get(i)) < 0) {
-                lastestDate = dates.get(i);
+        for (int i = 1; i < buildList.size(); i++) {
+            if (lastestDate.compareTo(buildList.get(i).getDate()) < 0) {
+                lastestDate = buildList.get(i).getDate();
                 lastestIndex = i;
             }
         }
@@ -64,12 +51,13 @@ public class BuildList {
             builds.add(build);
         }
 
+        SimpleDateFormat inputFormat = new SimpleDateFormat("dd-MMM-yyyy kk:mm", Locale.US);
+        SimpleDateFormat transFormat = new SimpleDateFormat("yy년 MM월 dd일 kk시 mm분", Locale.KOREAN);
+
         List<TextNode> textNodes = preElement.textNodes();
         for (int i = 1; i <= builds.size(); i++) {
             TextNode textNode = textNodes.get(i);
             String date = textNode.text().split(" -")[0].trim();
-            SimpleDateFormat inputFormat = new SimpleDateFormat("dd-MMM-yyyy kk:mm", Locale.US);
-            SimpleDateFormat transFormat = new SimpleDateFormat("yy년 MMM dd일 kk시 mm분", Locale.KOREAN);
 
             Date inputDate = null;
             try {
