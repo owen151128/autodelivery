@@ -4,7 +4,6 @@ import android.app.DownloadManager;
 import android.net.Uri;
 import android.os.Environment;
 
-import com.hpcnt.autodelivery.BaseApplication;
 import com.hpcnt.autodelivery.StringFetchListener;
 import com.hpcnt.autodelivery.model.Build;
 import com.hpcnt.autodelivery.model.BuildList;
@@ -45,7 +44,7 @@ public class MainPresenter implements MainContract.Presenter {
 
     @Override
     public void installApk() {
-        String apkPath = "file://" + Environment.getExternalStoragePublicDirectory(
+        String apkPath = Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "/" + mLastestBuild.getVersionName() + mLastestBuild.getApkName();
         mView.showApkInstall(apkPath);
     }

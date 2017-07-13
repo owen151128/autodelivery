@@ -25,6 +25,8 @@ import com.hpcnt.autodelivery.R;
 import com.hpcnt.autodelivery.databinding.ActivityMainBinding;
 import com.hpcnt.autodelivery.model.Build;
 
+import java.io.File;
+
 public class MainActivity extends AppCompatActivity implements MainContract.View {
     private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -117,8 +119,16 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
 
     @Override
     public void showApkInstall(String apkPath) {
+        Uri uri = null;
+        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.N) {
+            uri = Uri.parse("file://" + apkPath);
+        } else {
+            File file = new File(apkPath);
+            uri = FileProvider.getUriForFile(this, getApplicationContext().getPackageName() + ".provider", file);
+        }
         Intent installIntent = new Intent(Intent.ACTION_VIEW);
-        installIntent.setDataAndType(Uri.parse(apkPath), "application/vnd.android.package-archive");
+        installIntent.setDataAndType(uri, "application/vnd.android.package-archive");
+        installIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         startActivity(installIntent);
     }
 
