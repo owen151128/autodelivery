@@ -1,9 +1,11 @@
 package com.hpcnt.autodelivery.model;
 
+import com.hpcnt.autodelivery.BaseApplication;
+
 public class Build {
     private String versionName = "";
     private String date = "";
-    private String apkUrl = "";
+    private String apkName = "";
 
     public void setVersionName(String versionName) {
         this.versionName = versionName;
@@ -13,8 +15,8 @@ public class Build {
         this.date = date;
     }
 
-    public void setApkUrl(String apkUrl) {
-        this.apkUrl = apkUrl;
+    public void setApkName(String apkName) {
+        this.apkName = apkName;
     }
 
     public String getVersionName() {
@@ -25,7 +27,11 @@ public class Build {
         return date;
     }
 
+    public String getApkName() {
+        return apkName;
+    }
+
     public String getApkUrl() {
-        return apkUrl;
+        return BaseApplication.BUILD_SERVER_URL + versionName + apkName;
     }
 }

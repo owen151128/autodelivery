@@ -94,7 +94,7 @@ public class MainPresenter implements MainContract.Presenter {
                 }
 
                 mLastestBuild.setVersionName(mFullVersionName.toString());
-                mLastestBuild.setApkUrl(BaseApplication.BUILD_SERVER_URL + mLastestBuild.getVersionName() + apkName);
+                mLastestBuild.setApkName(apkName);
                 mView.showLastestBuild(mLastestBuild);
 
                 downloadComplete();
