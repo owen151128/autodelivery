@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
 
     public void onClickBtnAction(View view) {
         Button button = (Button) view;
-        String downloadString = getResources().getString(R.string.btn_download);
+        String downloadString = getResources().getString(R.string.download);
         if (button.getText().toString().equals(downloadString)) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     == PackageManager.PERMISSION_GRANTED) {
@@ -90,26 +90,26 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     @Override
     public void showDownload() {
         binding.mainBtnAction.setEnabled(true);
-        binding.mainBtnAction.setText(R.string.btn_download);
+        binding.mainBtnAction.setText(R.string.download);
     }
 
     @Override
     public void showLoading() {
         binding.mainBtnAction.setEnabled(false);
-        binding.mainBtnAction.setText(R.string.btn_loading);
+        binding.mainBtnAction.setText(R.string.loading);
     }
 
     @Override
     public void showDownloading() {
         binding.mainBtnAction.setEnabled(false);
-        binding.mainBtnAction.setText(R.string.btn_downloading);
+        binding.mainBtnAction.setText(R.string.downloading);
 
     }
 
     @Override
     public void showInstall() {
         binding.mainBtnAction.setEnabled(true);
-        binding.mainBtnAction.setText(R.string.btn_install);
+        binding.mainBtnAction.setText(R.string.install);
     }
 
     @Override
@@ -132,7 +132,7 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
                 mPresenter.downloadApk();
             } else {
                 binding.mainBtnAction.setEnabled(false);
-                binding.mainBtnAction.setText(R.string.btn_permission_denied);
+                binding.mainBtnAction.setText(R.string.permission_denied);
             }
         }
     }

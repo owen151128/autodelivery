@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">AutoDelivery</string>
-    <string name="btn_download">Download</string>
-    <string name="btn_loading">Loading...</string>
-    <string name="btn_downloading">Downloading...</string>
-    <string name="btn_install">Install</string>
-    <string name="btn_permission_denied">Permission Denied</string>
+    <string name="download">Download</string>
+    <string name="loading">Loading…</string>
+    <string name="downloading">Downloading…</string>
+    <string name="install">Install</string>
+    <string name="permission_denied">Permission Denied</string>
 </resources>
