@@ -6,8 +6,8 @@ import com.hpcnt.autodelivery.model.Build;
 
 public interface MainContract {
 
-    enum STATE{
-        DOWNLOAD,LOADING,DOWNLOADING,INSTALL
+    enum STATE {
+        DOWNLOAD, LOADING, DOWNLOADING, INSTALL
     }
 
     int PERMISSION_REQUEST_WRITE_EXTERNAL_STORAGE = 0;

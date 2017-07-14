@@ -96,25 +96,25 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     }
 
     @Override
-    public void showButton(MainContract.STATE state){
+    public void showButton(MainContract.STATE state) {
         int stringResId = 0;
         boolean isEnable = false;
-        switch (state){
+        switch (state) {
             case DOWNLOAD:
-                isEnable=true;
-                stringResId=R.string.download;
+                isEnable = true;
+                stringResId = R.string.download;
                 break;
             case DOWNLOADING:
-                isEnable=false;
-                stringResId=R.string.downloading;
+                isEnable = false;
+                stringResId = R.string.downloading;
                 break;
             case LOADING:
-                isEnable=false;
-                stringResId=R.string.loading;
+                isEnable = false;
+                stringResId = R.string.loading;
                 break;
             case INSTALL:
-                isEnable=true;
-                stringResId=R.string.install;
+                isEnable = true;
+                stringResId = R.string.install;
                 break;
         }
         binding.mainBtnAction.setEnabled(isEnable);
