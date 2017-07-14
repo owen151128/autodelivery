@@ -67,7 +67,8 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
 
     public void onClickBtnAction(View view) {
         Button button = (Button) view;
-        if (button.getText().toString().equals("Download")) {
+        String downloadString = getResources().getString(R.string.download);
+        if (button.getText().toString().equals(downloadString)) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     == PackageManager.PERMISSION_GRANTED) {
                 mPresenter.downloadApk();
@@ -93,28 +94,29 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     }
 
     @Override
-    public void showDownload() {
-        binding.mainBtnAction.setEnabled(true);
-        binding.mainBtnAction.setText("Download");
-    }
-
-    @Override
-    public void showLoading() {
-        binding.mainBtnAction.setEnabled(false);
-        binding.mainBtnAction.setText("Loading...");
-    }
-
-    @Override
-    public void showDownloading() {
-        binding.mainBtnAction.setEnabled(false);
-        binding.mainBtnAction.setText("Downloading...");
-
-    }
-
-    @Override
-    public void showInstall() {
-        binding.mainBtnAction.setEnabled(true);
-        binding.mainBtnAction.setText("Install");
+    public void showButton(MainContract.STATE state){
+        int stringResId = 0;
+        boolean isEnable = false;
+        switch (state){
+            case DOWNLOAD:
+                isEnable=true;
+                stringResId=R.string.download;
+                break;
+            case DOWNLOADING:
+                isEnable=false;
+                stringResId=R.string.downloading;
+                break;
+            case LOADING:
+                isEnable=false;
+                stringResId=R.string.loading;
+                break;
+            case INSTALL:
+                isEnable=true;
+                stringResId=R.string.install;
+                break;
+        }
+        binding.mainBtnAction.setEnabled(isEnable);
+        binding.mainBtnAction.setText(stringResId);
     }
 
     @Override
@@ -152,7 +154,7 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
                 mPresenter.downloadApk();
             } else {
                 binding.mainBtnAction.setEnabled(false);
-                binding.mainBtnAction.setText("Permission Denied");
+                binding.mainBtnAction.setText(R.string.permission_denied);
             }
         }
     }

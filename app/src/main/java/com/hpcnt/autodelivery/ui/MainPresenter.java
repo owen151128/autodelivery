@@ -22,7 +22,7 @@ public class MainPresenter implements MainContract.Presenter {
 
     @Override
     public void loadLastestBuild() {
-        mView.showLoading();
+        mView.showButton(MainContract.STATE.LOADING);
         BuildFetcher buildFetcher = new BuildFetcher();
         buildFetcher.fetchBuildList(new LastestBuildFetchListener(), "");
     }
@@ -38,7 +38,7 @@ public class MainPresenter implements MainContract.Presenter {
         request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS,
                 mLastestBuild.getVersionName() + pathSegments.get(pathSegments.size() - 1));
         Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).mkdirs();
-        mView.showDownloading();
+        mView.showButton(MainContract.STATE.DOWNLOADING);
         mView.addDownloadRequest(request);
     }
 
@@ -53,9 +53,9 @@ public class MainPresenter implements MainContract.Presenter {
     @Override
     public void downloadComplete() {
         if (hasLastestFile()) {
-            mView.showInstall();
+            mView.showButton(MainContract.STATE.INSTALL);
         } else {
-            mView.showDownload();
+            mView.showButton(MainContract.STATE.DOWNLOAD);
         }
     }
 

@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">AutoDelivery</string>
+    <string name="download">Download</string>
+    <string name="loading">Loading…</string>
+    <string name="downloading">Downloading…</string>
+    <string name="install">Install</string>
+    <string name="permission_denied">Permission Denied</string>
 </resources>
