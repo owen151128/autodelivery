@@ -19,12 +19,12 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.Toast;
 
 import com.hpcnt.autodelivery.R;
 import com.hpcnt.autodelivery.databinding.ActivityMainBinding;
 import com.hpcnt.autodelivery.model.Build;
+import com.hpcnt.autodelivery.ui.dialog.BuildEditDialog;
 
 import java.io.File;
 
@@ -56,7 +56,10 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_refresh:
-                mPresenter.loadLastestBuild();
+                mPresenter.loadLatestBuild();
+                return true;
+            case R.id.menu_edit:
+                mPresenter.setEditBuild();
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -129,6 +132,12 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
         installIntent.setDataAndType(uri, "application/vnd.android.package-archive");
         installIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         startActivity(installIntent);
+    }
+
+    @Override
+    public void showEditDialog() {
+        BuildEditDialog buildEditDialog = BuildEditDialog.newInstance();
+        buildEditDialog.show(getSupportFragmentManager(), BuildEditDialog.class.getSimpleName());
     }
 
     @Override
