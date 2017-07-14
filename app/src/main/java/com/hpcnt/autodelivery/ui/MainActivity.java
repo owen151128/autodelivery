@@ -66,9 +66,11 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     }
 
     public void onClickBtnAction(View view) {
-        Button button = (Button) view;
+        String buttonString = ((Button) view).getText().toString();
         String downloadString = getResources().getString(R.string.download);
-        if (button.getText().toString().equals(downloadString)) {
+        String installString = getResources().getString(R.string.install);
+
+        if (buttonString.equals(downloadString)) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     == PackageManager.PERMISSION_GRANTED) {
                 mPresenter.downloadApk();
@@ -77,7 +79,7 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
                         new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                         MainContract.PERMISSION_REQUEST_WRITE_EXTERNAL_STORAGE);
             }
-        } else if (button.getText().toString().equals("Install")) {
+        } else if (buttonString.equals(installString)) {
             mPresenter.installApk();
         }
     }
