@@ -6,6 +6,10 @@ import com.hpcnt.autodelivery.model.Build;
 
 public interface MainContract {
 
+    enum STATE{
+        DOWNLOAD,LOADING,DOWNLOADING,INSTALL
+    }
+
     int PERMISSION_REQUEST_WRITE_EXTERNAL_STORAGE = 0;
 
     interface View {
@@ -14,15 +18,9 @@ public interface MainContract {
 
         void showToast(String response);
 
-        void showDownload();
-
-        void showLoading();
-
-        void showDownloading();
+        void showButton(STATE state);
 
         void addDownloadRequest(DownloadManager.Request request);
-
-        void showInstall();
     }
 
     interface Presenter {

@@ -88,28 +88,29 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     }
 
     @Override
-    public void showDownload() {
-        binding.mainBtnAction.setEnabled(true);
-        binding.mainBtnAction.setText(R.string.download);
-    }
-
-    @Override
-    public void showLoading() {
-        binding.mainBtnAction.setEnabled(false);
-        binding.mainBtnAction.setText(R.string.loading);
-    }
-
-    @Override
-    public void showDownloading() {
-        binding.mainBtnAction.setEnabled(false);
-        binding.mainBtnAction.setText(R.string.downloading);
-
-    }
-
-    @Override
-    public void showInstall() {
-        binding.mainBtnAction.setEnabled(true);
-        binding.mainBtnAction.setText(R.string.install);
+    public void showButton(MainContract.STATE state){
+        int stringResId = 0;
+        boolean isEnable = false;
+        switch (state){
+            case DOWNLOAD:
+                isEnable=true;
+                stringResId=R.string.download;
+                break;
+            case DOWNLOADING:
+                isEnable=false;
+                stringResId=R.string.downloading;
+                break;
+            case LOADING:
+                isEnable=false;
+                stringResId=R.string.loading;
+                break;
+            case INSTALL:
+                isEnable=true;
+                stringResId=R.string.install;
+                break;
+        }
+        binding.mainBtnAction.setEnabled(isEnable);
+        binding.mainBtnAction.setText(stringResId);
     }
 
     @Override
