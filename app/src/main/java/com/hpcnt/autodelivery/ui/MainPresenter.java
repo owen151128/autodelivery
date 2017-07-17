@@ -22,7 +22,7 @@ public class MainPresenter implements MainContract.Presenter {
     }
 
     @Override
-    public void loadLastestBuild() {
+    public void loadLatestBuild() {
         mState = MainContract.STATE.LOADING;
         mView.showButton(mState);
         BuildFetcher buildFetcher = new BuildFetcher();

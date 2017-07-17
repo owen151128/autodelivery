@@ -27,7 +27,7 @@ public interface MainContract {
 
     interface Presenter {
 
-        void loadLastestBuild();
+        void loadLatestBuild();
 
         void downloadApk();
 

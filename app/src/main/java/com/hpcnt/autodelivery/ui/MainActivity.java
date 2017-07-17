@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
         binding.setAction(this);
         downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
         mPresenter = new MainPresenter(this);
-        mPresenter.loadLastestBuild();
+        mPresenter.loadLatestBuild();
     }
 
     @Override
