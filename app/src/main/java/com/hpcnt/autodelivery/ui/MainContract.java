@@ -6,8 +6,8 @@ import com.hpcnt.autodelivery.model.Build;
 
 public interface MainContract {
 
-    enum STATE{
-        DOWNLOAD,LOADING,DOWNLOADING,INSTALL
+    enum STATE {
+        DOWNLOAD, LOADING, DOWNLOADING, INSTALL
     }
 
     int PERMISSION_REQUEST_WRITE_EXTERNAL_STORAGE = 0;
@@ -21,14 +21,20 @@ public interface MainContract {
         void showButton(STATE state);
 
         void addDownloadRequest(DownloadManager.Request request);
+
+        void showApkInstall(String apkPath);
     }
 
     interface Presenter {
 
-        void loadLastestBuild();
+        void loadLatestBuild();
 
         void downloadApk();
 
         void downloadComplete();
+
+        void installApk();
+
+        void onClickButton();
     }
 }

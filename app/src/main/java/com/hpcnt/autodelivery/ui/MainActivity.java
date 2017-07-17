@@ -8,10 +8,12 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.databinding.DataBindingUtil;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -22,6 +24,8 @@ import android.widget.Toast;
 import com.hpcnt.autodelivery.R;
 import com.hpcnt.autodelivery.databinding.ActivityMainBinding;
 import com.hpcnt.autodelivery.model.Build;
+
+import java.io.File;
 
 public class MainActivity extends AppCompatActivity implements MainContract.View {
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -37,7 +41,7 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
         binding.setAction(this);
         downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
         mPresenter = new MainPresenter(this);
-        mPresenter.loadLastestBuild();
+        mPresenter.loadLatestBuild();
     }
 
     @Override
@@ -62,18 +66,7 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     }
 
     public void onClickBtnAction(View view) {
-        Button button = (Button) view;
-        String downloadString = getResources().getString(R.string.download);
-        if (button.getText().toString().equals(downloadString)) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                    == PackageManager.PERMISSION_GRANTED) {
-                mPresenter.downloadApk();
-            } else {
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                        MainContract.PERMISSION_REQUEST_WRITE_EXTERNAL_STORAGE);
-            }
-        }
+        mPresenter.onClickButton();
     }
 
     @Override
@@ -88,29 +81,44 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     }
 
     @Override
-    public void showButton(MainContract.STATE state){
+    public void showButton(MainContract.STATE state) {
         int stringResId = 0;
         boolean isEnable = false;
-        switch (state){
+        switch (state) {
             case DOWNLOAD:
-                isEnable=true;
-                stringResId=R.string.download;
+                isEnable = true;
+                stringResId = R.string.download;
                 break;
             case DOWNLOADING:
-                isEnable=false;
-                stringResId=R.string.downloading;
+                isEnable = false;
+                stringResId = R.string.downloading;
                 break;
             case LOADING:
-                isEnable=false;
-                stringResId=R.string.loading;
+                isEnable = false;
+                stringResId = R.string.loading;
                 break;
             case INSTALL:
-                isEnable=true;
-                stringResId=R.string.install;
+                isEnable = true;
+                stringResId = R.string.install;
                 break;
         }
         binding.mainBtnAction.setEnabled(isEnable);
         binding.mainBtnAction.setText(stringResId);
+    }
+
+    @Override
+    public void showApkInstall(String apkPath) {
+        Uri uri = null;
+        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.N) {
+            uri = Uri.parse("file://" + apkPath);
+        } else {
+            File file = new File(apkPath);
+            uri = FileProvider.getUriForFile(this, getApplicationContext().getPackageName() + ".provider", file);
+        }
+        Intent installIntent = new Intent(Intent.ACTION_VIEW);
+        installIntent.setDataAndType(uri, "application/vnd.android.package-archive");
+        installIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        startActivity(installIntent);
     }
 
     @Override

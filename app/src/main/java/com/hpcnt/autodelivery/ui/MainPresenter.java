@@ -4,7 +4,6 @@ import android.app.DownloadManager;
 import android.net.Uri;
 import android.os.Environment;
 
-import com.hpcnt.autodelivery.BaseApplication;
 import com.hpcnt.autodelivery.StringFetchListener;
 import com.hpcnt.autodelivery.model.Build;
 import com.hpcnt.autodelivery.model.BuildList;
@@ -16,20 +15,24 @@ import java.util.List;
 public class MainPresenter implements MainContract.Presenter {
     private MainContract.View mView;
     private Build mLastestBuild;
+    private MainContract.STATE mState;
 
     public MainPresenter(MainContract.View view) {
         mView = view;
     }
 
     @Override
-    public void loadLastestBuild() {
-        mView.showButton(MainContract.STATE.LOADING);
+    public void loadLatestBuild() {
+        mState = MainContract.STATE.LOADING;
+        mView.showButton(mState);
         BuildFetcher buildFetcher = new BuildFetcher();
         buildFetcher.fetchBuildList(new LastestBuildFetchListener(), "");
     }
 
     @Override
     public void downloadApk() {
+        if (mState != MainContract.STATE.DOWNLOAD) return;
+        mState = MainContract.STATE.DOWNLOADING;
         Uri apkUri = Uri.parse(mLastestBuild.getApkUrl());
         List<String> pathSegments = apkUri.getPathSegments();
         DownloadManager.Request request = new DownloadManager.Request(apkUri);
@@ -39,17 +42,36 @@ public class MainPresenter implements MainContract.Presenter {
         request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS,
                 mLastestBuild.getVersionName() + pathSegments.get(pathSegments.size() - 1));
         Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).mkdirs();
-        mView.showButton(MainContract.STATE.DOWNLOADING);
+        mView.showButton(mState);
         mView.addDownloadRequest(request);
+    }
+
+    @Override
+    public void installApk() {
+        if (mState != MainContract.STATE.INSTALL) return;
+        String apkPath = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "/" + mLastestBuild.getVersionName() + mLastestBuild.getApkName();
+        mView.showApkInstall(apkPath);
+    }
+
+    @Override
+    public void onClickButton() {
+        if (mState == MainContract.STATE.DOWNLOAD) {
+            downloadApk();
+        } else if (mState == MainContract.STATE.INSTALL) {
+            installApk();
+        }
     }
 
     // FIXME: 2017. 7. 12. 네이밍이 마음에 안든다.
     @Override
     public void downloadComplete() {
         if (hasLastestFile()) {
-            mView.showButton(MainContract.STATE.INSTALL);
+            mState = MainContract.STATE.INSTALL;
+            mView.showButton(mState);
         } else {
-            mView.showButton(MainContract.STATE.DOWNLOAD);
+            mState = MainContract.STATE.DOWNLOAD;
+            mView.showButton(mState);
         }
     }
 
@@ -94,7 +116,7 @@ public class MainPresenter implements MainContract.Presenter {
                 }
 
                 mLastestBuild.setVersionName(mFullVersionName.toString());
-                mLastestBuild.setApkUrl(BaseApplication.BUILD_SERVER_URL + mLastestBuild.getVersionName() + apkName);
+                mLastestBuild.setApkName(apkName);
                 mView.showLastestBuild(mLastestBuild);
 
                 downloadComplete();
