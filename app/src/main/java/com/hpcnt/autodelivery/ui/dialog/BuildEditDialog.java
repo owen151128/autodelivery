@@ -44,6 +44,7 @@ public class BuildEditDialog extends DialogFragment implements BuildEditContract
 
         BuildEditAdapter adapter = new BuildEditAdapter();
         mPresenter.setList(adapter);
+        adapter.setOnClickListener(v -> mPresenter.onItemClick(v));
 
         mPresenter.loadBuildList();
     }
@@ -58,5 +59,10 @@ public class BuildEditDialog extends DialogFragment implements BuildEditContract
     @Override
     public void showToast(String response) {
         Toast.makeText(getContext(), response, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void showVersionTitle(String versionTitle) {
+        binding.editDialogCurrentTitle.setText(versionTitle);
     }
 }

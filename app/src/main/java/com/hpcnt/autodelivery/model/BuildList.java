@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class BuildList {
     private List<Build> buildList = new ArrayList<>();
@@ -79,5 +81,64 @@ public class BuildList {
 
     public Build get(int index) {
         return buildList.get(index);
+    }
+
+    public Set<String> getVersionSet(List<String> separateName, int index) {
+        Set<String> versionSet = new TreeSet<>((o1, o2) -> {
+            try {
+                int first = Integer.parseInt(o1);
+                int second = Integer.parseInt(o2);
+                if (first > second) return -1;
+                else if (first < second) return 1;
+                else return 0;
+            } catch (NumberFormatException e) {
+                if (o1.compareTo(o2) > 0) return -1;
+                else if (o1.compareTo(o2) < 0) return 1;
+                else return 0;
+            }
+        });
+
+        for (Build build : buildList) {
+            int listSize = build.getSeparateName().size();
+            if (index < listSize) {
+                // 인자로 받은 separateName의 모든것이 build.separateName에 포함되어있는지 확인
+                boolean isContain = true;
+                for (int i = 0; i < separateName.size(); i++) {
+                    if (!build.getSeparateName().get(i).equals(separateName.get(i))) {
+                        isContain = false;
+                        break;
+                    }
+                }
+                if (isContain || separateName.size() == 0)
+                    versionSet.add(build.getSeparateName().get(index));
+            }
+        }
+        return versionSet;
+    }
+
+    public Build get(List<String> separateName) {
+        for (Build build : buildList) {
+            if (build.getSeparateName().size() != separateName.size()) continue;
+            List<String> buildSeparateName = new ArrayList<>();
+            buildSeparateName.addAll(build.getSeparateName());
+            buildSeparateName.removeAll(separateName);
+            if (buildSeparateName.size() == 0)
+                return build;
+        }
+        return null;
+    }
+
+    public List<Build> getList() {
+        return buildList;
+    }
+
+    public Build get(String selectedVersion) {
+        Build build = new Build();
+        build.setVersionName(selectedVersion);
+        return get(build.getSeparateName());
+    }
+
+    public void remove(Build build) {
+        buildList.remove(build);
     }
 }

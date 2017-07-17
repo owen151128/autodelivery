@@ -7,6 +7,8 @@ interface BuildEditContract {
         void setList(BuildEditAdapter adapter);
 
         void showToast(String response);
+
+        void showVersionTitle(String versionTitle);
     }
 
     interface Presenter {
@@ -14,5 +16,7 @@ interface BuildEditContract {
         void setList(BuildEditAdapter adapter);
 
         void loadBuildList();
+
+        void onItemClick(android.view.View v);
     }
 }

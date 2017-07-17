@@ -5,15 +5,21 @@
     <data>
 
         <variable
-            name="build"
-            type="com.hpcnt.autodelivery.model.Build" />
+            name="version"
+            type="java.lang.String" />
+
+        <variable
+            name="onClickListener"
+            type="android.view.View.OnClickListener" />
     </data>
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:clickable="true"
+        android:onClick="@{(view) -> onClickListener.onClick(view)}"
         android:padding="8dp"
-        android:text="@{build.versionName}"
+        android:text="@{version}"
         android:textColor="@android:color/black"
         android:textSize="24sp"
         android:textStyle="bold"

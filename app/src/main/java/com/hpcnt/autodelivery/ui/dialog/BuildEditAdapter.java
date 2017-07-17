@@ -7,14 +7,19 @@ import android.view.ViewGroup;
 
 import com.hpcnt.autodelivery.R;
 import com.hpcnt.autodelivery.databinding.ItemEditRowBinding;
-import com.hpcnt.autodelivery.model.Build;
-import com.hpcnt.autodelivery.model.BuildList;
+
+import java.util.ArrayList;
+import java.util.List;
 
 class BuildEditAdapter extends RecyclerView.Adapter<BuildEditAdapter.ViewHolder>
         implements BuildEditAdapterContract.Model, BuildEditAdapterContract.View {
     private static final String TAG = BuildEditAdapter.class.getSimpleName();
 
-    BuildList mBuildList = new BuildList();
+    private List<String> mRecommendVersions = new ArrayList<>();
+
+    private View.OnClickListener mOnClickListener;
+
+    private String mSelectedVersion = "";
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -24,24 +29,38 @@ class BuildEditAdapter extends RecyclerView.Adapter<BuildEditAdapter.ViewHolder>
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        Build build = mBuildList.get(position);
-        holder.binding.setBuild(build);
-
+        String recommend = mRecommendVersions.get(position);
+        holder.binding.setVersion(recommend);
+        holder.binding.setOnClickListener(mOnClickListener);
     }
 
     @Override
     public int getItemCount() {
-        return mBuildList.size();
+        return mRecommendVersions.size();
     }
 
     @Override
-    public void setList(BuildList buildList) {
-        mBuildList = buildList;
+    public void setList(List<String> recommendVersions) {
+        mRecommendVersions = recommendVersions;
+    }
+
+    @Override
+    public void setSelectedVersion(String version) {
+        mSelectedVersion = version;
+    }
+
+    @Override
+    public String getSelectedVersion() {
+        return mSelectedVersion;
     }
 
     @Override
     public void refresh() {
         notifyDataSetChanged();
+    }
+
+    void setOnClickListener(View.OnClickListener onClickListener) {
+        mOnClickListener = onClickListener;
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {

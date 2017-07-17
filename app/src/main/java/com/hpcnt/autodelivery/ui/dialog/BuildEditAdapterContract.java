@@ -1,6 +1,6 @@
 package com.hpcnt.autodelivery.ui.dialog;
 
-import com.hpcnt.autodelivery.model.BuildList;
+import java.util.List;
 
 public interface BuildEditAdapterContract {
 
@@ -11,6 +11,10 @@ public interface BuildEditAdapterContract {
 
     interface Model {
 
-        void setList(BuildList buildList);
+        void setList(List<String> recommendVersions);
+
+        void setSelectedVersion(String version);
+
+        String getSelectedVersion();
     }
 }
