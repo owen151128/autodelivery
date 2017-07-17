@@ -34,5 +34,7 @@ public interface MainContract {
         void downloadComplete();
 
         void installApk();
+
+        void onClickButton();
     }
 }
