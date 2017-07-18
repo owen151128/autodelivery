@@ -1,6 +1,7 @@
 package com.hpcnt.autodelivery.ui.dialog;
 
 
+import android.content.DialogInterface;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -14,12 +15,14 @@ import android.widget.Toast;
 
 import com.hpcnt.autodelivery.R;
 import com.hpcnt.autodelivery.databinding.DialogBuildEditBinding;
+import com.hpcnt.autodelivery.model.BuildList;
 
 public class BuildEditDialog extends DialogFragment implements BuildEditContract.View {
     private static final String TAG = BuildEditDialog.class.getSimpleName();
 
     private DialogBuildEditBinding binding;
     private BuildEditContract.Presenter mPresenter;
+    private BuildEditContract.OnDismissListener mOnDismissListener;
 
     public BuildEditDialog() {
     }
@@ -35,6 +38,11 @@ public class BuildEditDialog extends DialogFragment implements BuildEditContract
         View view = inflater.inflate(R.layout.dialog_build_edit, container, false);
         binding = DataBindingUtil.bind(view);
         return view;
+    }
+
+    @Override
+    public void onDismiss(DialogInterface dialog) {
+        super.onDismiss(dialog);
     }
 
     @Override
@@ -64,5 +72,15 @@ public class BuildEditDialog extends DialogFragment implements BuildEditContract
     @Override
     public void showVersionTitle(String versionTitle) {
         binding.editDialogCurrentTitle.setText(versionTitle);
+    }
+
+    @Override
+    public void showOnDismiss(BuildList buildList, String versionName) {
+        mOnDismissListener.onDismiss(buildList, versionName);
+        dismiss();
+    }
+
+    public void setOnDismissListener(BuildEditContract.OnDismissListener onDismissListener) {
+        mOnDismissListener = onDismissListener;
     }
 }
