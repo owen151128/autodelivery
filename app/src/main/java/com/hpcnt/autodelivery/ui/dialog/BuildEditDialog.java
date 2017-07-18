@@ -27,8 +27,12 @@ public class BuildEditDialog extends DialogFragment implements BuildEditContract
     public BuildEditDialog() {
     }
 
-    public static BuildEditDialog newInstance() {
+    public static BuildEditDialog newInstance(String versionPath, BuildEditContract.FLAG flag) {
         BuildEditDialog fragment = new BuildEditDialog();
+        Bundle bundle = new Bundle();
+        bundle.putString(BuildEditContract.KEY_VERSION_PATH, versionPath);
+        bundle.putSerializable(BuildEditContract.KEY_FLAG, flag);
+        fragment.setArguments(bundle);
         return fragment;
     }
 
@@ -48,13 +52,13 @@ public class BuildEditDialog extends DialogFragment implements BuildEditContract
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mPresenter = new BuildEditPresenter(this);
+        mPresenter = new BuildEditPresenter(this, getArguments());
 
         BuildEditAdapter adapter = new BuildEditAdapter();
         mPresenter.setList(adapter);
         adapter.setOnClickListener(v -> mPresenter.onItemClick(v));
 
-        mPresenter.loadBuildList();
+        mPresenter.loadBuildList(getArguments().getString(BuildEditContract.KEY_VERSION_PATH));
     }
 
     @Override

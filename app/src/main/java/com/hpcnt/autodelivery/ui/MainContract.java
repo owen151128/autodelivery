@@ -4,6 +4,7 @@ import android.app.DownloadManager;
 
 import com.hpcnt.autodelivery.model.Build;
 import com.hpcnt.autodelivery.model.BuildList;
+import com.hpcnt.autodelivery.ui.dialog.BuildEditContract;
 
 public interface MainContract {
 
@@ -25,7 +26,7 @@ public interface MainContract {
 
         void showApkInstall(String apkPath);
 
-        void showEditDialog();
+        void showEditDialog(String versionPath, BuildEditContract.FLAG flag);
     }
 
     interface Presenter {
@@ -40,8 +41,8 @@ public interface MainContract {
 
         void onClickButton();
 
-        void setEditBuild();
-
         void setEditedBuild(BuildList buildList, String versionName);
+
+        void setEditBuild(String versionPath, BuildEditContract.FLAG flag);
     }
 }

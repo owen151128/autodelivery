@@ -24,6 +24,7 @@ import android.widget.Toast;
 import com.hpcnt.autodelivery.R;
 import com.hpcnt.autodelivery.databinding.ActivityMainBinding;
 import com.hpcnt.autodelivery.model.Build;
+import com.hpcnt.autodelivery.ui.dialog.BuildEditContract;
 import com.hpcnt.autodelivery.ui.dialog.BuildEditDialog;
 
 import java.io.File;
@@ -59,7 +60,7 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
                 mPresenter.loadLatestBuild();
                 return true;
             case R.id.menu_edit:
-                mPresenter.setEditBuild();
+                mPresenter.setEditBuild("", BuildEditContract.FLAG.EDIT);
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -134,9 +135,8 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
         startActivity(installIntent);
     }
 
-    @Override
-    public void showEditDialog() {
-        BuildEditDialog buildEditDialog = BuildEditDialog.newInstance();
+    public void showEditDialog(String versionPath, BuildEditContract.FLAG flag) {
+        BuildEditDialog buildEditDialog = BuildEditDialog.newInstance(versionPath, flag);
         buildEditDialog.setOnDismissListener((buildList, versionName) -> mPresenter.setEditedBuild(buildList, versionName));
         buildEditDialog.show(getSupportFragmentManager(), BuildEditDialog.class.getSimpleName());
     }

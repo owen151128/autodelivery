@@ -8,6 +8,7 @@ import com.hpcnt.autodelivery.StringFetchListener;
 import com.hpcnt.autodelivery.model.Build;
 import com.hpcnt.autodelivery.model.BuildList;
 import com.hpcnt.autodelivery.network.BuildFetcher;
+import com.hpcnt.autodelivery.ui.dialog.BuildEditContract;
 
 import java.io.File;
 import java.util.List;
@@ -64,8 +65,8 @@ public class MainPresenter implements MainContract.Presenter {
     }
 
     @Override
-    public void setEditBuild() {
-        mView.showEditDialog();
+    public void setEditBuild(String versionPath, BuildEditContract.FLAG flag) {
+        mView.showEditDialog(versionPath, flag);
     }
 
     @Override

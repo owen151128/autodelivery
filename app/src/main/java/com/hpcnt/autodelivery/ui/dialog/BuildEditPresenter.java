@@ -1,5 +1,6 @@
 package com.hpcnt.autodelivery.ui.dialog;
 
+import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
@@ -20,9 +21,11 @@ class BuildEditPresenter implements BuildEditContract.Presenter {
     private BuildEditAdapterContract.Model mAdapterModel;
 
     private BuildList mBuildList;
+    private BuildEditContract.FLAG mFlag;
 
-    BuildEditPresenter(BuildEditContract.View view) {
+    BuildEditPresenter(BuildEditContract.View view, Bundle arguments) {
         mView = view;
+        mFlag = (BuildEditContract.FLAG) arguments.getSerializable(BuildEditContract.KEY_FLAG);
     }
 
     @Override
@@ -33,9 +36,9 @@ class BuildEditPresenter implements BuildEditContract.Presenter {
     }
 
     @Override
-    public void loadBuildList() {
+    public void loadBuildList(String versionPath) {
         BuildFetcher fetcher = new BuildFetcher();
-        fetcher.fetchBuildList(nextBuildListFetchListener, "");
+        fetcher.fetchBuildList(nextBuildListFetchListener, versionPath);
     }
 
     @Override

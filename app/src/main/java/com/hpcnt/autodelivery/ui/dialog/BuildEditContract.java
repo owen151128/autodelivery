@@ -2,7 +2,15 @@ package com.hpcnt.autodelivery.ui.dialog;
 
 import com.hpcnt.autodelivery.model.BuildList;
 
-interface BuildEditContract {
+public interface BuildEditContract {
+
+    enum FLAG {
+        EDIT, APK
+    }
+
+    String KEY_VERSION_PATH = "KEY_VERSION_PATH";
+
+    String KEY_FLAG = "KEY_FLAG";
 
     interface View {
 
@@ -19,7 +27,7 @@ interface BuildEditContract {
 
         void setList(BuildEditAdapter adapter);
 
-        void loadBuildList();
+        void loadBuildList(String versionPath);
 
         void onItemClick(android.view.View v);
     }
