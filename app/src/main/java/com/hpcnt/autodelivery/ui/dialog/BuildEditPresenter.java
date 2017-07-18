@@ -92,8 +92,10 @@ class BuildEditPresenter implements BuildEditContract.Presenter {
             buildList.reverse();
             String buildVersionName = buildList.get(0).getVersionName();
             // 마지막 문자가 '/'라면 즉, 버전 이름이 디렉토리를 나타낸다면
-            if (buildVersionName.charAt(buildVersionName.length() - 1) != '/')
+            if (buildVersionName.charAt(buildVersionName.length() - 1) != '/') {
+                mView.showOnDismiss(buildList, selectedVersion);
                 return;
+            }
 
             Build build = mBuildList.get(selectedVersion);
             mBuildList.remove(build);
