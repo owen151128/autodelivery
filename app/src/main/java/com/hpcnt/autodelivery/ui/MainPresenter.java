@@ -70,7 +70,10 @@ public class MainPresenter implements MainContract.Presenter {
 
     @Override
     public void setEditedBuild(BuildList buildList, String versionName) {
-        mView.showToast(buildList.get(0).getVersionName());
+        mBuild.setDate(buildList.get(0).getDate());
+        if (versionName.charAt(versionName.length() - 1) != '/')
+            versionName += "/";
+        selectBuild(buildList, versionName);
     }
 
     // FIXME: 2017. 7. 12. 네이밍이 마음에 안든다.
