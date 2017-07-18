@@ -8,6 +8,7 @@ import org.jsoup.nodes.TextNode;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -140,5 +141,9 @@ public class BuildList {
 
     public void remove(Build build) {
         buildList.remove(build);
+    }
+
+    public void reverse() {
+        Collections.reverse(buildList);
     }
 }
