@@ -1,8 +1,6 @@
 package com.hpcnt.autodelivery.ui.dialog;
 
 import android.os.Bundle;
-import android.view.View;
-import android.widget.TextView;
 
 import com.hpcnt.autodelivery.StringFetchListener;
 import com.hpcnt.autodelivery.model.Build;
@@ -42,8 +40,7 @@ class BuildEditPresenter implements BuildEditContract.Presenter {
     }
 
     @Override
-    public void onItemClick(View v) {
-        String currentVersion = ((TextView) v).getText().toString();
+    public void onItemClick(String currentVersion) {
         Build build = new Build();
         build.setVersionName(currentVersion);
         int separateSize = build.getSeparateName().size();

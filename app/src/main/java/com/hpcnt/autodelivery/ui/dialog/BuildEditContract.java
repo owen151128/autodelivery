@@ -29,7 +29,7 @@ public interface BuildEditContract {
 
         void loadBuildList(String versionPath);
 
-        void onItemClick(android.view.View v);
+        void onItemClick(String currentVersion);
     }
 
     interface OnDismissListener {

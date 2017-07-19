@@ -11,6 +11,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.hpcnt.autodelivery.R;
@@ -56,7 +57,7 @@ public class BuildEditDialog extends DialogFragment implements BuildEditContract
 
         BuildEditAdapter adapter = new BuildEditAdapter();
         mPresenter.setList(adapter);
-        adapter.setOnClickListener(v -> mPresenter.onItemClick(v));
+        adapter.setOnClickListener(v -> mPresenter.onItemClick(((TextView) v).getText().toString()));
 
         mPresenter.loadBuildList(getArguments().getString(BuildEditContract.KEY_VERSION_PATH));
     }
