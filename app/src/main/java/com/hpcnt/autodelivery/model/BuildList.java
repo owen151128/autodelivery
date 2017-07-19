@@ -116,11 +116,14 @@ public class BuildList {
     public Build get(List<String> separateName) {
         for (Build build : buildList) {
             if (build.getSeparateName().size() != separateName.size()) continue;
-            List<String> buildSeparateName = new ArrayList<>();
-            buildSeparateName.addAll(build.getSeparateName());
-            buildSeparateName.removeAll(separateName);
-            if (buildSeparateName.size() == 0)
-                return build;
+            boolean isEqual = true;
+            for (int i = 0; i < separateName.size(); i++) {
+                if (!build.getSeparateName().get(i).equals(separateName.get(i))) {
+                    isEqual = false;
+                    break;
+                }
+            }
+            if (isEqual) return build;
         }
         return null;
     }
