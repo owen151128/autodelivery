@@ -44,5 +44,7 @@ public interface MainContract {
         void setEditedBuild(BuildList buildList, String versionName);
 
         void setEditBuild(String versionPath, BuildEditContract.FLAG flag);
+
+        void setApkName(String apkName);
     }
 }

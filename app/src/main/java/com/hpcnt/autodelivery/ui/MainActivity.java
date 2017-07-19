@@ -138,6 +138,7 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     public void showEditDialog(String versionPath, BuildEditContract.FLAG flag) {
         BuildEditDialog buildEditDialog = BuildEditDialog.newInstance(versionPath, flag);
         buildEditDialog.setOnDismissListener((buildList, versionName) -> mPresenter.setEditedBuild(buildList, versionName));
+        buildEditDialog.setOnDismissApkListener(apkName -> mPresenter.setApkName(apkName));
         buildEditDialog.show(getSupportFragmentManager(), BuildEditDialog.class.getSimpleName());
     }
 

@@ -36,6 +36,7 @@ class BuildEditPresenter implements BuildEditContract.Presenter {
     @Override
     public void loadBuildList(String versionPath) {
         BuildFetcher fetcher = new BuildFetcher();
+        mAdapterModel.setSelectedVersion(versionPath);
         fetcher.fetchBuildList(nextBuildListFetchListener, versionPath);
     }
 
@@ -71,9 +72,14 @@ class BuildEditPresenter implements BuildEditContract.Presenter {
             mAdapterView.refresh();
             mView.showVersionTitle(versionTitle.toString());
         } else {
-            mAdapterModel.setSelectedVersion(versionTitle.toString());
+            if (mFlag == BuildEditContract.FLAG.APK) {
+                mView.showOnDismiss(versionTitle.toString());
+                return;
+            }
+            String version = mBuildList.get(versionTitle.toString()).getVersionName();
+            mAdapterModel.setSelectedVersion(version);
             BuildFetcher fetcher = new BuildFetcher();
-            fetcher.fetchBuildList(nextBuildListFetchListener, mBuildList.get(separateName).getVersionName());
+            fetcher.fetchBuildList(nextBuildListFetchListener, version);
         }
     }
 
@@ -89,29 +95,43 @@ class BuildEditPresenter implements BuildEditContract.Presenter {
             }
 
             BuildList buildList = BuildList.fromHtml(response);
+            if (buildList.size() == 0) {
+                mView.showToast("APK가 없습니다");
+                mView.hideDialog();
+                return;
+            }
             buildList.reverse();
             String buildVersionName = buildList.get(0).getVersionName();
             // 마지막 문자가 '/'라면 즉, 버전 이름이 디렉토리를 나타낸다면
-            if (buildVersionName.charAt(buildVersionName.length() - 1) != '/') {
+            if (buildVersionName.charAt(buildVersionName.length() - 1) != '/' && mFlag == BuildEditContract.FLAG.EDIT) {
                 mView.showOnDismiss(buildList, selectedVersion);
                 return;
             }
 
-            Build build = mBuildList.get(selectedVersion);
-            mBuildList.remove(build);
+            if (mFlag == BuildEditContract.FLAG.EDIT) {
+                Build build = mBuildList.get(selectedVersion);
+                selectedVersion = build.getVersionName();
+                mBuildList.remove(build);
+            } else if (mFlag == BuildEditContract.FLAG.APK) {
+                mBuildList = buildList;
+            }
 
             // mBuildList 갱신 및, adapterList 갱신
             List<String> adapterList = new ArrayList<>();
             for (Build nextBuild : buildList.getList()) {
                 String version = nextBuild.getVersionName();
-                nextBuild.setVersionName(build.getVersionName() + version);
-                mBuildList.add(nextBuild);
+                if (mFlag == BuildEditContract.FLAG.APK) {
+                    nextBuild.setVersionName(version);
+                } else if (mFlag == BuildEditContract.FLAG.EDIT) {
+                    nextBuild.setVersionName(selectedVersion + version);
+                    mBuildList.add(nextBuild);
+                }
                 adapterList.add(nextBuild.getVersionName());
             }
 
             mAdapterModel.setList(adapterList);
             mAdapterView.refresh();
-            mView.showVersionTitle(build.getVersionName());
+            mView.showVersionTitle(selectedVersion);
         }
 
         @Override

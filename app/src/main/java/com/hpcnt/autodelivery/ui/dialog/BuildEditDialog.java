@@ -24,6 +24,7 @@ public class BuildEditDialog extends DialogFragment implements BuildEditContract
     private DialogBuildEditBinding binding;
     private BuildEditContract.Presenter mPresenter;
     private BuildEditContract.OnDismissListener mOnDismissListener;
+    private BuildEditContract.OnDismissApkListener mOnDismissApkListener;
 
     public BuildEditDialog() {
     }
@@ -85,7 +86,22 @@ public class BuildEditDialog extends DialogFragment implements BuildEditContract
         dismiss();
     }
 
+    @Override
+    public void showOnDismiss(String apkName) {
+        mOnDismissApkListener.onDismiss(apkName);
+        dismiss();
+    }
+
+    @Override
+    public void hideDialog() {
+        dismiss();
+    }
+
     public void setOnDismissListener(BuildEditContract.OnDismissListener onDismissListener) {
         mOnDismissListener = onDismissListener;
+    }
+
+    public void setOnDismissApkListener(BuildEditContract.OnDismissApkListener onDismissApkListener) {
+        mOnDismissApkListener = onDismissApkListener;
     }
 }

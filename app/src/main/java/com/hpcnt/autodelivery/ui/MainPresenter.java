@@ -33,6 +33,10 @@ public class MainPresenter implements MainContract.Presenter {
     @Override
     public void downloadApk() {
         if (mState != MainContract.STATE.DOWNLOAD) return;
+        if (mBuild.getApkName().equals("")) {
+            setEditBuild(mBuild.getVersionName(), BuildEditContract.FLAG.APK);
+            return;
+        }
         mState = MainContract.STATE.DOWNLOADING;
         Uri apkUri = Uri.parse(mBuild.getApkUrl());
         List<String> pathSegments = apkUri.getPathSegments();
@@ -67,6 +71,12 @@ public class MainPresenter implements MainContract.Presenter {
     @Override
     public void setEditBuild(String versionPath, BuildEditContract.FLAG flag) {
         mView.showEditDialog(versionPath, flag);
+    }
+
+    @Override
+    public void setApkName(String apkName) {
+        mBuild.setApkName(apkName);
+        downloadApk();
     }
 
     @Override
@@ -105,13 +115,12 @@ public class MainPresenter implements MainContract.Presenter {
                 break;
             }
         }
-        if (!hasCorrectApk) {
-            mView.showToast("단말기에 맞는 APK가 없습니다");
-            return;
-        }
 
+        if (hasCorrectApk)
+            mBuild.setApkName(apkName);
+        else
+            mBuild.setApkName("");
         mBuild.setVersionName(versionName);
-        mBuild.setApkName(apkName);
         mView.showLastestBuild(mBuild);
 
         downloadComplete();

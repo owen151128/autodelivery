@@ -21,6 +21,10 @@ public interface BuildEditContract {
         void showVersionTitle(String versionTitle);
 
         void showOnDismiss(BuildList buildList, String versionName);
+
+        void showOnDismiss(String apkName);
+
+        void hideDialog();
     }
 
     interface Presenter {
@@ -34,5 +38,9 @@ public interface BuildEditContract {
 
     interface OnDismissListener {
         void onDismiss(BuildList buildList, String versionName);
+    }
+
+    interface OnDismissApkListener {
+        void onDismiss(String apkName);
     }
 }
