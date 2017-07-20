@@ -63,6 +63,11 @@ public class MainPresenter implements MainContract.Presenter {
         }
     }
 
+    @Override
+    public void setEditBuild() {
+        mView.showEditDialog();
+    }
+
     // FIXME: 2017. 7. 12. 네이밍이 마음에 안든다.
     @Override
     public void downloadComplete() {

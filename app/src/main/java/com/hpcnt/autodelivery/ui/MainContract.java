@@ -23,6 +23,8 @@ public interface MainContract {
         void addDownloadRequest(DownloadManager.Request request);
 
         void showApkInstall(String apkPath);
+
+        void showEditDialog();
     }
 
     interface Presenter {
@@ -36,5 +38,7 @@ public interface MainContract {
         void installApk();
 
         void onClickButton();
+
+        void setEditBuild();
     }
 }
