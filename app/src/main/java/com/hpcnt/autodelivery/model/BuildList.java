@@ -89,13 +89,9 @@ public class BuildList {
             try {
                 int first = Integer.parseInt(o1);
                 int second = Integer.parseInt(o2);
-                if (first > second) return -1;
-                else if (first < second) return 1;
-                else return 0;
+                return second - first;
             } catch (NumberFormatException e) {
-                if (o1.compareTo(o2) > 0) return -1;
-                else if (o1.compareTo(o2) < 0) return 1;
-                else return 0;
+                return -o1.compareTo(o2); 
             }
         });
 
