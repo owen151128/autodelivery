@@ -26,7 +26,6 @@ import com.trello.rxlifecycle2.components.support.RxDialogFragment;
  */
 
 public class BuildEditDialog extends RxDialogFragment implements BuildEditContract.View {
-    private static final String TAG = BuildEditDialog.class.getSimpleName();
 
     private DialogBuildEditBinding binding;
     private BuildEditContract.Presenter mPresenter;
@@ -65,7 +64,8 @@ public class BuildEditDialog extends RxDialogFragment implements BuildEditContra
 
         BuildEditAdapter adapter = new BuildEditAdapter();
         mPresenter.setList(adapter);
-        adapter.setOnClickListener(v -> mPresenter.onItemClick(((TextView) v).getText().toString()));
+        adapter.setOnClickListener(
+                v -> mPresenter.onItemClick(((TextView) v).getText().toString()));
 
         mPresenter.loadBuildList(getArguments().getString(BuildEditContract.KEY_VERSION_PATH));
     }
@@ -73,7 +73,8 @@ public class BuildEditDialog extends RxDialogFragment implements BuildEditContra
     @Override
     public void setList(BuildEditAdapter adapter) {
         binding.editDialogList.setLayoutManager(new LinearLayoutManager(getContext()));
-        binding.editDialogList.addItemDecoration(new DividerItemDecoration(getContext(), LinearLayoutManager.VERTICAL));
+        binding.editDialogList.addItemDecoration(new DividerItemDecoration(getContext(),
+                LinearLayoutManager.VERTICAL));
         binding.editDialogList.setAdapter(adapter);
     }
 
@@ -114,7 +115,8 @@ public class BuildEditDialog extends RxDialogFragment implements BuildEditContra
         mOnDismissListener = onDismissListener;
     }
 
-    public void setOnDismissApkListener(BuildEditContract.OnDismissApkListener onDismissApkListener) {
+    public void setOnDismissApkListener(
+            BuildEditContract.OnDismissApkListener onDismissApkListener) {
         mOnDismissApkListener = onDismissApkListener;
     }
 }

@@ -7,7 +7,7 @@ import com.hpcnt.autodelivery.model.Build;
 import com.hpcnt.autodelivery.model.BuildList;
 import com.hpcnt.autodelivery.ui.dialog.BuildEditContract;
 
-public interface MainContract {
+interface MainContract {
 
     enum STATE {
         DOWNLOAD, LOADING, DOWNLOADING, INSTALL

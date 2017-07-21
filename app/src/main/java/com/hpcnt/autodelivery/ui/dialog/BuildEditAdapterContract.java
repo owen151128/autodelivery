@@ -2,7 +2,7 @@ package com.hpcnt.autodelivery.ui.dialog;
 
 import java.util.List;
 
-public interface BuildEditAdapterContract {
+interface BuildEditAdapterContract {
 
     interface View {
 

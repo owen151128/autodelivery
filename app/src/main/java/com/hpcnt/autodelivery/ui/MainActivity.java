@@ -14,7 +14,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
-import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -31,7 +30,6 @@ import com.trello.rxlifecycle2.components.support.RxAppCompatActivity;
 import java.io.File;
 
 public class MainActivity extends RxAppCompatActivity implements MainContract.View {
-    private static final String TAG = MainActivity.class.getCanonicalName();
 
     private DownloadManager downloadManager;
     private ActivityMainBinding binding;
@@ -63,14 +61,16 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
             case R.id.menu_edit:
                 mPresenter.setEditBuild("", BuildEditContract.FLAG.EDIT);
                 return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
-        return super.onOptionsItemSelected(item);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        IntentFilter downloadCompleteFilter = new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
+        IntentFilter downloadCompleteFilter;
+        downloadCompleteFilter = new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
         registerReceiver(downloadCompleteReceiver, downloadCompleteFilter);
     }
 
@@ -102,8 +102,8 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
 
     @Override
     public void showButton(MainContract.STATE state) {
-        int stringResId = 0;
-        boolean isEnable = false;
+        int stringResId;
+        boolean isEnable;
         switch (state) {
             case DOWNLOAD:
                 isEnable = true;
@@ -121,6 +121,10 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
                 isEnable = true;
                 stringResId = R.string.install;
                 break;
+            default:
+                isEnable = false;
+                stringResId = 0;
+                break;
         }
         binding.mainBtnAction.setEnabled(isEnable);
         binding.mainBtnAction.setText(stringResId);
@@ -128,12 +132,13 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
 
     @Override
     public void showApkInstall(String apkPath) {
-        Uri uri = null;
+        Uri uri;
         if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.N) {
             uri = Uri.parse("file://" + apkPath);
         } else {
             File file = new File(apkPath);
-            uri = FileProvider.getUriForFile(this, getApplicationContext().getPackageName() + ".provider", file);
+            uri = FileProvider.getUriForFile(this,
+                    getApplicationContext().getPackageName() + ".provider", file);
         }
         Intent installIntent = new Intent(Intent.ACTION_VIEW);
         installIntent.setDataAndType(uri, "application/vnd.android.package-archive");
@@ -144,7 +149,8 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
     @Override
     public void showEditDialog(String versionPath, BuildEditContract.FLAG flag) {
         BuildEditDialog buildEditDialog = BuildEditDialog.newInstance(versionPath, flag);
-        buildEditDialog.setOnDismissListener((buildList, versionName) -> mPresenter.setEditedBuild(buildList, versionName));
+        buildEditDialog.setOnDismissListener(
+                (buildList, versionName) -> mPresenter.setEditedBuild(buildList, versionName));
         buildEditDialog.setOnDismissApkListener(apkName -> mPresenter.setApkName(apkName));
         buildEditDialog.show(getSupportFragmentManager(), BuildEditDialog.class.getSimpleName());
     }
@@ -162,7 +168,8 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == MainContract.PERMISSION_REQUEST_WRITE_EXTERNAL_STORAGE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {

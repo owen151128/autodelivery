@@ -1,5 +1,7 @@
 package com.hpcnt.autodelivery.model;
 
+import android.support.annotation.NonNull;
+
 import com.hpcnt.autodelivery.util.StringUtil;
 
 import org.jsoup.Jsoup;
@@ -18,6 +20,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 public class BuildList {
+    @NonNull
     private List<Build> buildList = new ArrayList<>();
 
     public void add(Build build) {
@@ -39,6 +42,7 @@ public class BuildList {
         return buildList.get(lastestIndex);
     }
 
+    @NonNull
     public static BuildList fromHtml(String response) {
         BuildList builds = new BuildList();
         Document document = Jsoup.parse(response);
@@ -62,12 +66,11 @@ public class BuildList {
             TextNode textNode = textNodes.get(i);
             String date = textNode.text().split(" -")[0].trim();
 
-            Date inputDate = null;
+            Date inputDate;
             try {
                 inputDate = inputFormat.parse(date);
             } catch (ParseException e) {
-                e.printStackTrace();
-                return null;
+                inputDate = new Date(0);
             }
 
             String transDate = transFormat.format(inputDate);
@@ -91,7 +94,7 @@ public class BuildList {
                 int second = Integer.parseInt(o2);
                 return second - first;
             } catch (NumberFormatException e) {
-                return -o1.compareTo(o2); 
+                return -o1.compareTo(o2);
             }
         });
 
