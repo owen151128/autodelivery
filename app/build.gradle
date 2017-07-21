@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'me.tatarka.retrolambda'
+apply from: "$project.rootDir/app/quality/quality.gradle"
 
 android {
     compileSdkVersion 25
