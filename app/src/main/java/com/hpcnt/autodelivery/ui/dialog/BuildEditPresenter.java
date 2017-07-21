@@ -88,9 +88,11 @@ class BuildEditPresenter implements BuildEditContract.Presenter {
                 return;
             }
 
+            // FIXME: buildList 가 항상 null 이 아니란 것을 보장할 수 있는지?
             BuildList buildList = BuildList.fromHtml(response);
             buildList.reverse();
             String buildVersionName = buildList.get(0).getVersionName();
+            // FIXME 의도 명확히 드러나는 method 로 변경 필요. MainPresenter 에 중복 로직 존재.
             // 마지막 문자가 '/'라면 즉, 버전 이름이 디렉토리를 나타낸다면
             if (buildVersionName.charAt(buildVersionName.length() - 1) != '/') {
                 mView.showOnDismiss(buildList, selectedVersion);

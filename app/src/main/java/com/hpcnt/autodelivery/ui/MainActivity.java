@@ -29,6 +29,10 @@ import com.hpcnt.autodelivery.ui.dialog.BuildEditDialog;
 import java.io.File;
 
 public class MainActivity extends AppCompatActivity implements MainContract.View {
+    /*
+     * FIXME: Proguard 가 적용될 경우 'MainActivity' 가 'a' 등의 이름으로 바뀔 수 있음.
+     * getCanonicalName 같은 TAG 가 적절하지만, 23자 제한에 주의해야 한다.
+     */
     private static final String TAG = MainActivity.class.getSimpleName();
 
     private DownloadManager downloadManager;

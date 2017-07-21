@@ -25,6 +25,9 @@ public class MainPresenter implements MainContract.Presenter {
     public void loadLatestBuild() {
         mState = MainContract.STATE.LOADING;
         mView.showButton(mState);
+        /*
+         * TODO: member 변수로 뺄 경우, unit test 에 좀더 용이해진다.
+         */
         BuildFetcher buildFetcher = new BuildFetcher();
         buildFetcher.fetchBuildList(new LatestBuildFetchListener(), "");
     }
@@ -41,6 +44,10 @@ public class MainPresenter implements MainContract.Presenter {
         request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
         request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS,
                 mBuild.getVersionName() + pathSegments.get(pathSegments.size() - 1));
+        /*
+         * FIXME: UI thread 에서 mkdir 를 할 경우 performance 에 문제가 생긴다.
+         * StrictMode 활용해서 확인할 것. (특정 디바이스에서는 문제 없다고 나오는 경우도 있음)
+         */
         Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).mkdirs();
         mView.showButton(mState);
         mView.addDownloadRequest(request);
@@ -76,6 +83,10 @@ public class MainPresenter implements MainContract.Presenter {
         selectBuild(buildList, versionName);
     }
 
+    /*
+     * todo/fixme/xxx 같은 주석은 가급적 안 만드는게 좋습니다.
+     * Acceptance 이전에 수정해 주세요.
+     */
     // FIXME: 2017. 7. 12. 네이밍이 마음에 안든다.
     @Override
     public void downloadComplete() {
@@ -93,6 +104,7 @@ public class MainPresenter implements MainContract.Presenter {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
             myAbi = android.os.Build.SUPPORTED_ABIS[0] + "-qatest";
         } else {
+            // FIXME: Warning 최소 scope 이내에서 제거할 수 있는 방향 고민 후 수정할 것.
             myAbi = android.os.Build.CPU_ABI + "-qatest";
         }
         String apkName = "";
@@ -122,14 +134,17 @@ public class MainPresenter implements MainContract.Presenter {
         @Override
         public void onStringFetched(String response) {
             BuildList buildList = BuildList.fromHtml(response);
+            // FIXME: buildList null 상황 수정 필요
             mBuild = buildList.getLastestBuild();
             if (mBuild == null) {
+                // FIXME: 문자열 xml 로 이전
                 mView.showToast("잘못된 접근");
                 return;
             }
 
             String versionName = mBuild.getVersionName();
 
+            // FIXME: 의도를 명확하게 나타내는 method 로 바꾸면 주석이 필요없어짐
             // 마지막 문자가 '/'라면 즉, 버전 이름이 디렉토리를 나타낸다면
             if (versionName.charAt(versionName.length() - 1) == '/') {
                 mFullVersionName.append(versionName);
@@ -147,6 +162,7 @@ public class MainPresenter implements MainContract.Presenter {
     }
 
     private boolean hasLastestFile() {
+        // FIXME UI thread 에서 파일시스템에 접근하려 함.
         File buildFile = new File(Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "/" + mBuild.getVersionName());
         return buildFile.exists() ? true : false;

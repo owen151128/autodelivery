@@ -17,6 +17,8 @@ import com.hpcnt.autodelivery.R;
 import com.hpcnt.autodelivery.databinding.DialogBuildEditBinding;
 import com.hpcnt.autodelivery.model.BuildList;
 
+// FIXME: AlertDialog / Dialog 를 쓰지 않고 DialogFragment 를 사용한 의도는??
+// 의도가 명확하게 나타나도록 javadoc 추가 필요.
 public class BuildEditDialog extends DialogFragment implements BuildEditContract.View {
     private static final String TAG = BuildEditDialog.class.getSimpleName();
 
