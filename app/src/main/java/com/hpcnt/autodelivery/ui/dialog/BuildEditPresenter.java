@@ -3,7 +3,6 @@ package com.hpcnt.autodelivery.ui.dialog;
 import android.view.View;
 import android.widget.TextView;
 
-import com.hpcnt.autodelivery.StringFetchListener;
 import com.hpcnt.autodelivery.model.Build;
 import com.hpcnt.autodelivery.model.BuildList;
 import com.hpcnt.autodelivery.network.BuildFetcher;
@@ -36,7 +35,9 @@ class BuildEditPresenter implements BuildEditContract.Presenter {
     @Override
     public void loadBuildList() {
         BuildFetcher fetcher = new BuildFetcher();
-        fetcher.fetchBuildList(nextBuildListFetchListener, "");
+        fetcher.fetchBuildList("")
+                .subscribe(this::nextBuildListFetch,
+                        throwable -> mView.showToast(throwable.toString()));
     }
 
     @Override
@@ -74,49 +75,43 @@ class BuildEditPresenter implements BuildEditContract.Presenter {
         } else {
             mAdapterModel.setSelectedVersion(versionTitle.toString());
             BuildFetcher fetcher = new BuildFetcher();
-            fetcher.fetchBuildList(nextBuildListFetchListener, mBuildList.get(separateName).getVersionName());
+            fetcher.fetchBuildList(mBuildList.get(separateName).getVersionName())
+                    .subscribe(this::nextBuildListFetch,
+                            throwable -> mView.showToast(throwable.toString()));
         }
     }
 
-    private StringFetchListener nextBuildListFetchListener = new StringFetchListener() {
-
-        @Override
-        public void onStringFetched(String response) {
-            String selectedVersion = mAdapterModel.getSelectedVersion();
-            if (selectedVersion.equals("")) {
-                mBuildList = BuildList.fromHtml(response);
-                setVersionData(new StringBuilder(), new ArrayList<>(), 0);
-                return;
-            }
-
-            BuildList buildList = BuildList.fromHtml(response);
-            buildList.reverse();
-            String buildVersionName = buildList.get(0).getVersionName();
-            if (!StringUtil.isDirectory(buildVersionName)) {
-                mView.showOnDismiss(buildList, selectedVersion);
-                return;
-            }
-
-            Build build = mBuildList.get(selectedVersion);
-            mBuildList.remove(build);
-
-            // mBuildList 갱신 및, adapterList 갱신
-            List<String> adapterList = new ArrayList<>();
-            for (Build nextBuild : buildList.getList()) {
-                String version = nextBuild.getVersionName();
-                nextBuild.setVersionName(build.getVersionName() + version);
-                mBuildList.add(nextBuild);
-                adapterList.add(nextBuild.getVersionName());
-            }
-
-            mAdapterModel.setList(adapterList);
-            mAdapterView.refresh();
-            mView.showVersionTitle(build.getVersionName());
+    private void nextBuildListFetch(String response) {
+        String selectedVersion = mAdapterModel.getSelectedVersion();
+        if (selectedVersion.equals("")) {
+            mBuildList = BuildList.fromHtml(response);
+            setVersionData(new StringBuilder(), new ArrayList<>(), 0);
+            return;
         }
 
-        @Override
-        public void onStringError(String response) {
-            mView.showToast(response);
+        BuildList buildList = BuildList.fromHtml(response);
+        buildList.reverse();
+        String buildVersionName = buildList.get(0).getVersionName();
+        if (!StringUtil.isDirectory(buildVersionName)) {
+            mView.showOnDismiss(buildList, selectedVersion);
+            return;
         }
-    };
+
+        Build build = mBuildList.get(selectedVersion);
+        mBuildList.remove(build);
+
+        // mBuildList 갱신 및, adapterList 갱신
+        List<String> adapterList = new ArrayList<>();
+        for (Build nextBuild : buildList.getList()) {
+            String version = nextBuild.getVersionName();
+            nextBuild.setVersionName(build.getVersionName() + version);
+            mBuildList.add(nextBuild);
+            adapterList.add(nextBuild.getVersionName());
+        }
+
+        mAdapterModel.setList(adapterList);
+        mAdapterView.refresh();
+        mView.showVersionTitle(build.getVersionName());
+
+    }
 }

@@ -5,7 +5,6 @@ import android.net.Uri;
 import android.os.Environment;
 
 import com.hpcnt.autodelivery.R;
-import com.hpcnt.autodelivery.StringFetchListener;
 import com.hpcnt.autodelivery.model.Build;
 import com.hpcnt.autodelivery.model.BuildList;
 import com.hpcnt.autodelivery.network.BuildFetcher;
@@ -28,7 +27,9 @@ public class MainPresenter implements MainContract.Presenter {
     public void loadLatestBuild() {
         mState = MainContract.STATE.LOADING;
         mView.showButton(mState);
-        mBuildFetcher.fetchBuildList(new LatestBuildFetchListener(), "");
+        mBuildFetcher.fetchBuildList("")
+                .subscribe(s -> new LatestBuildFetchListener().onStringFetched(s),
+                        throwable -> mView.showToast(throwable.toString()));
     }
 
     @Override
@@ -122,10 +123,9 @@ public class MainPresenter implements MainContract.Presenter {
         stateSetting();
     }
 
-    private class LatestBuildFetchListener implements StringFetchListener {
+    private class LatestBuildFetchListener {
         private StringBuilder mFullVersionName = new StringBuilder();
 
-        @Override
         public void onStringFetched(String response) {
             BuildList buildList = BuildList.fromHtml(response);
             mBuild = buildList.getLastestBuild();
@@ -139,15 +139,12 @@ public class MainPresenter implements MainContract.Presenter {
             if (StringUtil.isDirectory(versionName)) {
                 mFullVersionName.append(versionName);
                 BuildFetcher buildFetcher = new BuildFetcher();
-                buildFetcher.fetchBuildList(this, mFullVersionName.toString());
+                buildFetcher.fetchBuildList(mFullVersionName.toString())
+                        .subscribe(this::onStringFetched,
+                                throwable -> mView.showToast(throwable.toString()));
             } else {
                 selectBuild(buildList, mFullVersionName.toString());
             }
-        }
-
-        @Override
-        public void onStringError(String response) {
-            mView.showToast(response);
         }
     }
 
