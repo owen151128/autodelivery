@@ -65,7 +65,7 @@ class BuildEditAdapter extends RecyclerView.Adapter<BuildEditAdapter.ViewHolder>
 
     // FIXME static / non-static inner class 의 차이를 알아보고, static inner class 로 변경할 것.
     // 참고로 kotlin 에서는 inner class 는 기본적으로 무조건 static inner class 다.
-    class ViewHolder extends RecyclerView.ViewHolder {
+    static class ViewHolder extends RecyclerView.ViewHolder {
         ItemEditRowBinding binding;
 
         ViewHolder(View itemView) {

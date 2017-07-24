@@ -4,10 +4,12 @@ import android.app.DownloadManager;
 import android.net.Uri;
 import android.os.Environment;
 
+import com.hpcnt.autodelivery.R;
 import com.hpcnt.autodelivery.StringFetchListener;
 import com.hpcnt.autodelivery.model.Build;
 import com.hpcnt.autodelivery.model.BuildList;
 import com.hpcnt.autodelivery.network.BuildFetcher;
+import com.hpcnt.autodelivery.util.StringUtil;
 
 import java.io.File;
 import java.util.List;
@@ -16,6 +18,7 @@ public class MainPresenter implements MainContract.Presenter {
     private MainContract.View mView;
     private Build mBuild;
     private MainContract.STATE mState;
+    private BuildFetcher mBuildFetcher = new BuildFetcher();
 
     public MainPresenter(MainContract.View view) {
         mView = view;
@@ -25,11 +28,7 @@ public class MainPresenter implements MainContract.Presenter {
     public void loadLatestBuild() {
         mState = MainContract.STATE.LOADING;
         mView.showButton(mState);
-        /*
-         * TODO: member 변수로 뺄 경우, unit test 에 좀더 용이해진다.
-         */
-        BuildFetcher buildFetcher = new BuildFetcher();
-        buildFetcher.fetchBuildList(new LatestBuildFetchListener(), "");
+        mBuildFetcher.fetchBuildList(new LatestBuildFetchListener(), "");
     }
 
     @Override
@@ -78,18 +77,13 @@ public class MainPresenter implements MainContract.Presenter {
     @Override
     public void setEditedBuild(BuildList buildList, String versionName) {
         mBuild.setDate(buildList.get(0).getDate());
-        if (versionName.charAt(versionName.length() - 1) != '/')
+        if (!StringUtil.isDirectory(versionName))
             versionName += "/";
         selectBuild(buildList, versionName);
     }
 
-    /*
-     * todo/fixme/xxx 같은 주석은 가급적 안 만드는게 좋습니다.
-     * Acceptance 이전에 수정해 주세요.
-     */
-    // FIXME: 2017. 7. 12. 네이밍이 마음에 안든다.
     @Override
-    public void downloadComplete() {
+    public void stateSetting() {
         if (hasLastestFile()) {
             mState = MainContract.STATE.INSTALL;
             mView.showButton(mState);
@@ -104,7 +98,7 @@ public class MainPresenter implements MainContract.Presenter {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
             myAbi = android.os.Build.SUPPORTED_ABIS[0] + "-qatest";
         } else {
-            // FIXME: Warning 최소 scope 이내에서 제거할 수 있는 방향 고민 후 수정할 것.
+            //noinspection deprecation
             myAbi = android.os.Build.CPU_ABI + "-qatest";
         }
         String apkName = "";
@@ -125,7 +119,7 @@ public class MainPresenter implements MainContract.Presenter {
         mBuild.setApkName(apkName);
         mView.showLastestBuild(mBuild);
 
-        downloadComplete();
+        stateSetting();
     }
 
     private class LatestBuildFetchListener implements StringFetchListener {
@@ -134,19 +128,15 @@ public class MainPresenter implements MainContract.Presenter {
         @Override
         public void onStringFetched(String response) {
             BuildList buildList = BuildList.fromHtml(response);
-            // FIXME: buildList null 상황 수정 필요
             mBuild = buildList.getLastestBuild();
             if (mBuild == null) {
-                // FIXME: 문자열 xml 로 이전
-                mView.showToast("잘못된 접근");
+                mView.showToast(R.string.message_wrong_access);
                 return;
             }
 
             String versionName = mBuild.getVersionName();
 
-            // FIXME: 의도를 명확하게 나타내는 method 로 바꾸면 주석이 필요없어짐
-            // 마지막 문자가 '/'라면 즉, 버전 이름이 디렉토리를 나타낸다면
-            if (versionName.charAt(versionName.length() - 1) == '/') {
+            if (StringUtil.isDirectory(versionName)) {
                 mFullVersionName.append(versionName);
                 BuildFetcher buildFetcher = new BuildFetcher();
                 buildFetcher.fetchBuildList(this, mFullVersionName.toString());

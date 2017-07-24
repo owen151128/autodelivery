@@ -19,6 +19,8 @@ public interface MainContract {
 
         void showToast(String response);
 
+        void showToast(int resoureceId);
+
         void showButton(STATE state);
 
         void addDownloadRequest(DownloadManager.Request request);
@@ -34,7 +36,7 @@ public interface MainContract {
 
         void downloadApk();
 
-        void downloadComplete();
+        void stateSetting();
 
         void installApk();
 
