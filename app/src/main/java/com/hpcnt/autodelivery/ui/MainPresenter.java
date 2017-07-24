@@ -13,6 +13,11 @@ import com.hpcnt.autodelivery.util.StringUtil;
 import java.io.File;
 import java.util.List;
 
+import io.reactivex.Observable;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
+
 public class MainPresenter implements MainContract.Presenter {
     private MainContract.View mView;
     private Build mBuild;
@@ -36,21 +41,26 @@ public class MainPresenter implements MainContract.Presenter {
     public void downloadApk() {
         if (mState != MainContract.STATE.DOWNLOAD) return;
         mState = MainContract.STATE.DOWNLOADING;
-        Uri apkUri = Uri.parse(mBuild.getApkUrl());
-        List<String> pathSegments = apkUri.getPathSegments();
-        DownloadManager.Request request = new DownloadManager.Request(apkUri);
-        request.setTitle(mBuild.getVersionName());
-        request.setDescription(mBuild.getDate());
-        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS,
-                mBuild.getVersionName() + pathSegments.get(pathSegments.size() - 1));
-        /*
-         * FIXME: UI thread 에서 mkdir 를 할 경우 performance 에 문제가 생긴다.
-         * StrictMode 활용해서 확인할 것. (특정 디바이스에서는 문제 없다고 나오는 경우도 있음)
-         */
-        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).mkdirs();
-        mView.showButton(mState);
-        mView.addDownloadRequest(request);
+
+        Observable.create((ObservableOnSubscribe<DownloadManager.Request>) e -> {
+            Uri apkUri = Uri.parse(mBuild.getApkUrl());
+            List<String> pathSegments = apkUri.getPathSegments();
+            DownloadManager.Request request = new DownloadManager.Request(apkUri);
+            request.setTitle(mBuild.getVersionName());
+            request.setDescription(mBuild.getDate());
+            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+            request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS,
+                    mBuild.getVersionName() + pathSegments.get(pathSegments.size() - 1));
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).mkdirs();
+            e.onNext(request);
+            e.onComplete();
+        })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(request -> {
+                    mView.showButton(mState);
+                    mView.addDownloadRequest(request);
+                });
     }
 
     @Override
@@ -85,13 +95,15 @@ public class MainPresenter implements MainContract.Presenter {
 
     @Override
     public void stateSetting() {
-        if (hasLastestFile()) {
-            mState = MainContract.STATE.INSTALL;
-            mView.showButton(mState);
-        } else {
-            mState = MainContract.STATE.DOWNLOAD;
-            mView.showButton(mState);
-        }
+        hasLastestFile().subscribe(hasFile -> {
+            if (hasFile) {
+                mState = MainContract.STATE.INSTALL;
+                mView.showButton(mState);
+            } else {
+                mState = MainContract.STATE.DOWNLOAD;
+                mView.showButton(mState);
+            }
+        });
     }
 
     private void selectBuild(BuildList buildList, String versionName) {
@@ -148,10 +160,14 @@ public class MainPresenter implements MainContract.Presenter {
         }
     }
 
-    private boolean hasLastestFile() {
-        // FIXME UI thread 에서 파일시스템에 접근하려 함.
-        File buildFile = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "/" + mBuild.getVersionName());
-        return buildFile.exists() ? true : false;
+    private Observable<Boolean> hasLastestFile() {
+        return Observable.create((ObservableOnSubscribe<Boolean>) e -> {
+            File buildFile = new File(Environment.getExternalStoragePublicDirectory(
+                    Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "/" + mBuild.getVersionName());
+            e.onNext(buildFile.exists());
+            e.onComplete();
+        })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
     }
 }
