@@ -76,6 +76,7 @@ public class BuildEditDialog extends DialogFragment implements BuildEditContract
 
     @Override
     public void showOnDismiss(BuildList buildList, String versionName) {
+        if (mOnDismissListener == null) return;
         mOnDismissListener.onDismiss(buildList, versionName);
         dismiss();
     }
