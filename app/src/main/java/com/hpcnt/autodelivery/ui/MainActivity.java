@@ -25,10 +25,11 @@ import com.hpcnt.autodelivery.R;
 import com.hpcnt.autodelivery.databinding.ActivityMainBinding;
 import com.hpcnt.autodelivery.model.Build;
 import com.hpcnt.autodelivery.ui.dialog.BuildEditDialog;
+import com.trello.rxlifecycle2.components.support.RxAppCompatActivity;
 
 import java.io.File;
 
-public class MainActivity extends AppCompatActivity implements MainContract.View {
+public class MainActivity extends RxAppCompatActivity implements MainContract.View {
     private static final String TAG = MainActivity.class.getCanonicalName();
 
     private DownloadManager downloadManager;

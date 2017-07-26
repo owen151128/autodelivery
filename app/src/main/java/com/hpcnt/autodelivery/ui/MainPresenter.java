@@ -22,10 +22,11 @@ public class MainPresenter implements MainContract.Presenter {
     private MainContract.View mView;
     private Build mBuild;
     private MainContract.STATE mState;
-    private BuildFetcher mBuildFetcher = new BuildFetcher();
+    private BuildFetcher mBuildFetcher;
 
     public MainPresenter(MainContract.View view) {
         mView = view;
+        mBuildFetcher= new BuildFetcher(view);
     }
 
     @Override
@@ -150,8 +151,7 @@ public class MainPresenter implements MainContract.Presenter {
 
             if (StringUtil.isDirectory(versionName)) {
                 mFullVersionName.append(versionName);
-                BuildFetcher buildFetcher = new BuildFetcher();
-                buildFetcher.fetchBuildList(mFullVersionName.toString())
+                mBuildFetcher.fetchBuildList(mFullVersionName.toString())
                         .subscribe(this::onStringFetched,
                                 throwable -> mView.showToast(throwable.toString()));
             } else {

@@ -18,11 +18,13 @@ class BuildEditPresenter implements BuildEditContract.Presenter {
     private BuildEditContract.View mView;
     private BuildEditAdapterContract.View mAdapterView;
     private BuildEditAdapterContract.Model mAdapterModel;
+    private BuildFetcher mBuildFetcher;
 
     private BuildList mBuildList;
 
     BuildEditPresenter(BuildEditContract.View view) {
         mView = view;
+        mBuildFetcher = new BuildFetcher(view);
     }
 
     @Override
@@ -34,8 +36,7 @@ class BuildEditPresenter implements BuildEditContract.Presenter {
 
     @Override
     public void loadBuildList() {
-        BuildFetcher fetcher = new BuildFetcher();
-        fetcher.fetchBuildList("")
+        mBuildFetcher.fetchBuildList("")
                 .subscribe(this::nextBuildListFetch,
                         throwable -> mView.showToast(throwable.toString()));
     }
@@ -74,8 +75,7 @@ class BuildEditPresenter implements BuildEditContract.Presenter {
             mView.showVersionTitle(versionTitle.toString());
         } else {
             mAdapterModel.setSelectedVersion(versionTitle.toString());
-            BuildFetcher fetcher = new BuildFetcher();
-            fetcher.fetchBuildList(mBuildList.get(separateName).getVersionName())
+            mBuildFetcher.fetchBuildList(mBuildList.get(separateName).getVersionName())
                     .subscribe(this::nextBuildListFetch,
                             throwable -> mView.showToast(throwable.toString()));
         }

@@ -1,9 +1,14 @@
 package com.hpcnt.autodelivery.ui;
 
 import android.app.DownloadManager;
+import android.support.annotation.CheckResult;
+import android.support.annotation.NonNull;
 
+import com.hpcnt.autodelivery.LifeCycleProvider;
 import com.hpcnt.autodelivery.model.Build;
 import com.hpcnt.autodelivery.model.BuildList;
+import com.trello.rxlifecycle2.LifecycleTransformer;
+import com.trello.rxlifecycle2.android.RxLifecycleAndroid;
 
 public interface MainContract {
 
@@ -13,7 +18,7 @@ public interface MainContract {
 
     int PERMISSION_REQUEST_WRITE_EXTERNAL_STORAGE = 0;
 
-    interface View {
+    interface View extends LifeCycleProvider{
 
         void showLastestBuild(Build lastestBuild);
 
