@@ -62,8 +62,8 @@ class BuildEditAdapter extends RecyclerView.Adapter<BuildEditAdapter.ViewHolder>
     void setOnClickListener(View.OnClickListener onClickListener) {
         mOnClickListener = onClickListener;
     }
-
-    class ViewHolder extends RecyclerView.ViewHolder {
+    
+    static class ViewHolder extends RecyclerView.ViewHolder {
         ItemEditRowBinding binding;
 
         ViewHolder(View itemView) {

@@ -1,10 +1,11 @@
 package com.hpcnt.autodelivery.ui.dialog;
 
+import com.hpcnt.autodelivery.LifeCycleProvider;
 import com.hpcnt.autodelivery.model.BuildList;
 
 interface BuildEditContract {
 
-    interface View {
+    interface View extends LifeCycleProvider {
 
         void setList(BuildEditAdapter adapter);
 
