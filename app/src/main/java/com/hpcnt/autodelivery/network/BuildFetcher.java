@@ -13,6 +13,7 @@ import java.net.URL;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
@@ -25,14 +26,13 @@ public class BuildFetcher {
         mLifeCycleProvider = lifeCycleProvider;
     }
 
-    public Observable<String> fetchBuildList(String path) {
-        return Observable.create((ObservableOnSubscribe<String>) e -> {
+    public Single<String> fetchBuildList(String path) {
+        return Single.<String>create(e -> {
             URL url = new URL(BaseApplication.BUILD_SERVER_URL + path);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             InputStream inputStream = connection.getInputStream();
             String response = IOUtils.toString(inputStream, "UTF-8");
-            e.onNext(response);
-            e.onComplete();
+            e.onSuccess(response);
         })
                 .subscribeOn(Schedulers.io())
                 .compose(mLifeCycleProvider.bindToLifecycle())

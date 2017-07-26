@@ -15,6 +15,7 @@ import java.util.List;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
@@ -160,12 +161,11 @@ public class MainPresenter implements MainContract.Presenter {
         }
     }
 
-    private Observable<Boolean> hasLastestFile() {
-        return Observable.create((ObservableOnSubscribe<Boolean>) e -> {
+    private Single<Boolean> hasLastestFile() {
+        return Single.<Boolean>create(e -> {
             File buildFile = new File(Environment.getExternalStoragePublicDirectory(
                     Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "/" + mBuild.getVersionName());
-            e.onNext(buildFile.exists());
-            e.onComplete();
+            e.onSuccess(buildFile.exists());
         })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread());
