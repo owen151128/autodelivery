@@ -14,7 +14,7 @@ import java.util.List;
 
 public class MainPresenter implements MainContract.Presenter {
     private MainContract.View mView;
-    private Build mLastestBuild;
+    private Build mBuild;
     private MainContract.STATE mState;
 
     public MainPresenter(MainContract.View view) {
@@ -26,21 +26,21 @@ public class MainPresenter implements MainContract.Presenter {
         mState = MainContract.STATE.LOADING;
         mView.showButton(mState);
         BuildFetcher buildFetcher = new BuildFetcher();
-        buildFetcher.fetchBuildList(new LastestBuildFetchListener(), "");
+        buildFetcher.fetchBuildList(new LatestBuildFetchListener(), "");
     }
 
     @Override
     public void downloadApk() {
         if (mState != MainContract.STATE.DOWNLOAD) return;
         mState = MainContract.STATE.DOWNLOADING;
-        Uri apkUri = Uri.parse(mLastestBuild.getApkUrl());
+        Uri apkUri = Uri.parse(mBuild.getApkUrl());
         List<String> pathSegments = apkUri.getPathSegments();
         DownloadManager.Request request = new DownloadManager.Request(apkUri);
-        request.setTitle(mLastestBuild.getVersionName());
-        request.setDescription(mLastestBuild.getDate());
+        request.setTitle(mBuild.getVersionName());
+        request.setDescription(mBuild.getDate());
         request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
         request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS,
-                mLastestBuild.getVersionName() + pathSegments.get(pathSegments.size() - 1));
+                mBuild.getVersionName() + pathSegments.get(pathSegments.size() - 1));
         Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).mkdirs();
         mView.showButton(mState);
         mView.addDownloadRequest(request);
@@ -50,7 +50,7 @@ public class MainPresenter implements MainContract.Presenter {
     public void installApk() {
         if (mState != MainContract.STATE.INSTALL) return;
         String apkPath = Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "/" + mLastestBuild.getVersionName() + mLastestBuild.getApkName();
+                Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "/" + mBuild.getVersionName() + mBuild.getApkName();
         mView.showApkInstall(apkPath);
     }
 
@@ -68,6 +68,14 @@ public class MainPresenter implements MainContract.Presenter {
         mView.showEditDialog();
     }
 
+    @Override
+    public void setEditedBuild(BuildList buildList, String versionName) {
+        mBuild.setDate(buildList.get(0).getDate());
+        if (versionName.charAt(versionName.length() - 1) != '/')
+            versionName += "/";
+        selectBuild(buildList, versionName);
+    }
+
     // FIXME: 2017. 7. 12. 네이밍이 마음에 안든다.
     @Override
     public void downloadComplete() {
@@ -80,19 +88,47 @@ public class MainPresenter implements MainContract.Presenter {
         }
     }
 
-    private class LastestBuildFetchListener implements StringFetchListener {
+    private void selectBuild(BuildList buildList, String versionName) {
+        String myAbi = "";
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            myAbi = android.os.Build.SUPPORTED_ABIS[0] + "-qatest";
+        } else {
+            myAbi = android.os.Build.CPU_ABI + "-qatest";
+        }
+        String apkName = "";
+        boolean hasCorrectApk = false;
+        for (int i = 0; i < buildList.size(); i++) {
+            apkName = buildList.get(i).getVersionName();
+            if (apkName.contains(myAbi)) {
+                hasCorrectApk = true;
+                break;
+            }
+        }
+        if (!hasCorrectApk) {
+            mView.showToast("단말기에 맞는 APK가 없습니다");
+            return;
+        }
+
+        mBuild.setVersionName(versionName);
+        mBuild.setApkName(apkName);
+        mView.showLastestBuild(mBuild);
+
+        downloadComplete();
+    }
+
+    private class LatestBuildFetchListener implements StringFetchListener {
         private StringBuilder mFullVersionName = new StringBuilder();
 
         @Override
         public void onStringFetched(String response) {
             BuildList buildList = BuildList.fromHtml(response);
-            mLastestBuild = buildList.getLastestBuild();
-            if (mLastestBuild == null) {
+            mBuild = buildList.getLastestBuild();
+            if (mBuild == null) {
                 mView.showToast("잘못된 접근");
                 return;
             }
 
-            String versionName = mLastestBuild.getVersionName();
+            String versionName = mBuild.getVersionName();
 
             // 마지막 문자가 '/'라면 즉, 버전 이름이 디렉토리를 나타낸다면
             if (versionName.charAt(versionName.length() - 1) == '/') {
@@ -100,31 +136,7 @@ public class MainPresenter implements MainContract.Presenter {
                 BuildFetcher buildFetcher = new BuildFetcher();
                 buildFetcher.fetchBuildList(this, mFullVersionName.toString());
             } else {
-                String myAbi = "";
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-                    myAbi = android.os.Build.SUPPORTED_ABIS[0] + "-qatest";
-                } else {
-                    myAbi = android.os.Build.CPU_ABI + "-qatest";
-                }
-                String apkName = "";
-                boolean hasCorrectApk = false;
-                for (int i = 0; i < buildList.size(); i++) {
-                    apkName = buildList.get(i).getVersionName();
-                    if (apkName.contains(myAbi)) {
-                        hasCorrectApk = true;
-                        break;
-                    }
-                }
-                if (!hasCorrectApk) {
-                    mView.showToast("단말기에 맞는 APK가 없습니다");
-                    return;
-                }
-
-                mLastestBuild.setVersionName(mFullVersionName.toString());
-                mLastestBuild.setApkName(apkName);
-                mView.showLastestBuild(mLastestBuild);
-
-                downloadComplete();
+                selectBuild(buildList, mFullVersionName.toString());
             }
         }
 
@@ -136,7 +148,7 @@ public class MainPresenter implements MainContract.Presenter {
 
     private boolean hasLastestFile() {
         File buildFile = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "/" + mLastestBuild.getVersionName());
+                Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "/" + mBuild.getVersionName());
         return buildFile.exists() ? true : false;
     }
 }

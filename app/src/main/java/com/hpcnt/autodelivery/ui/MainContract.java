@@ -3,6 +3,7 @@ package com.hpcnt.autodelivery.ui;
 import android.app.DownloadManager;
 
 import com.hpcnt.autodelivery.model.Build;
+import com.hpcnt.autodelivery.model.BuildList;
 
 public interface MainContract {
 
@@ -40,5 +41,7 @@ public interface MainContract {
         void onClickButton();
 
         void setEditBuild();
+
+        void setEditedBuild(BuildList buildList, String versionName);
     }
 }
