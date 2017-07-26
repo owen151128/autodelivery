@@ -1,5 +1,6 @@
 package com.hpcnt.autodelivery.ui.dialog;
 
+import com.hpcnt.autodelivery.LifeCycleProvider;
 import com.hpcnt.autodelivery.model.BuildList;
 
 public interface BuildEditContract {
@@ -12,11 +13,13 @@ public interface BuildEditContract {
 
     String KEY_FLAG = "KEY_FLAG";
 
-    interface View {
+    interface View extends LifeCycleProvider {
 
         void setList(BuildEditAdapter adapter);
 
         void showToast(String response);
+
+        void showToast(int resID);
 
         void showVersionTitle(String versionTitle);
 

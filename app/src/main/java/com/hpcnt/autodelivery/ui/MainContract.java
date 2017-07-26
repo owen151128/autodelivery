@@ -2,6 +2,7 @@ package com.hpcnt.autodelivery.ui;
 
 import android.app.DownloadManager;
 
+import com.hpcnt.autodelivery.LifeCycleProvider;
 import com.hpcnt.autodelivery.model.Build;
 import com.hpcnt.autodelivery.model.BuildList;
 import com.hpcnt.autodelivery.ui.dialog.BuildEditContract;
@@ -14,11 +15,13 @@ public interface MainContract {
 
     int PERMISSION_REQUEST_WRITE_EXTERNAL_STORAGE = 0;
 
-    interface View {
+    interface View extends LifeCycleProvider {
 
         void showLastestBuild(Build lastestBuild);
 
         void showToast(String response);
+
+        void showToast(int resoureceId);
 
         void showButton(STATE state);
 
@@ -35,7 +38,7 @@ public interface MainContract {
 
         void downloadApk();
 
-        void downloadComplete();
+        void stateSetting();
 
         void installApk();
 

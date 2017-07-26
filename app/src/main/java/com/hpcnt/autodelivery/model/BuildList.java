@@ -47,6 +47,7 @@ public class BuildList {
             if (element.text().equals("develop/")) continue;
             if (element.text().equals("pr/")) continue;
             if (element.text().equals("qatest/")) continue;
+            if (element.text().equals("apm/")) continue;
 
             Build build = new Build();
             build.setVersionName(element.text());

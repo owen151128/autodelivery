@@ -26,11 +26,12 @@ import com.hpcnt.autodelivery.databinding.ActivityMainBinding;
 import com.hpcnt.autodelivery.model.Build;
 import com.hpcnt.autodelivery.ui.dialog.BuildEditContract;
 import com.hpcnt.autodelivery.ui.dialog.BuildEditDialog;
+import com.trello.rxlifecycle2.components.support.RxAppCompatActivity;
 
 import java.io.File;
 
-public class MainActivity extends AppCompatActivity implements MainContract.View {
-    private static final String TAG = MainActivity.class.getSimpleName();
+public class MainActivity extends RxAppCompatActivity implements MainContract.View {
+    private static final String TAG = MainActivity.class.getCanonicalName();
 
     private DownloadManager downloadManager;
     private ActivityMainBinding binding;
@@ -95,6 +96,11 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     }
 
     @Override
+    public void showToast(int resId) {
+        Toast.makeText(getApplicationContext(), resId, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
     public void showButton(MainContract.STATE state) {
         int stringResId = 0;
         boolean isEnable = false;
@@ -135,6 +141,7 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
         startActivity(installIntent);
     }
 
+    @Override
     public void showEditDialog(String versionPath, BuildEditContract.FLAG flag) {
         BuildEditDialog buildEditDialog = BuildEditDialog.newInstance(versionPath, flag);
         buildEditDialog.setOnDismissListener((buildList, versionName) -> mPresenter.setEditedBuild(buildList, versionName));
@@ -170,7 +177,7 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     private BroadcastReceiver downloadCompleteReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            mPresenter.downloadComplete();
+            mPresenter.stateSetting();
         }
     };
 }
