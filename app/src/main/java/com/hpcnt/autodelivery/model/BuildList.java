@@ -1,5 +1,7 @@
 package com.hpcnt.autodelivery.model;
 
+import com.hpcnt.autodelivery.util.StringUtil;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -42,12 +44,9 @@ public class BuildList {
         Document document = Jsoup.parse(response);
         Element preElement = document.select("pre").first();
         for (Element element : preElement.children()) {
-            if (element.text().equals("../")) continue;
-            if (element.text().equals("china/")) continue;
-            if (element.text().equals("develop/")) continue;
-            if (element.text().equals("pr/")) continue;
-            if (element.text().equals("qatest/")) continue;
-            if (element.text().equals("apm/")) continue;
+            if (!StringUtil.isDigitFirstWord(element.text())
+                    && !StringUtil.isApkFile(element.text()))
+                continue;
 
             Build build = new Build();
             build.setVersionName(element.text());
