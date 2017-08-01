@@ -1,8 +1,8 @@
 package com.hpcnt.autodelivery.ui.dialog;
 
-import android.view.View;
-import android.widget.TextView;
+import android.os.Bundle;
 
+import com.hpcnt.autodelivery.R;
 import com.hpcnt.autodelivery.model.Build;
 import com.hpcnt.autodelivery.model.BuildList;
 import com.hpcnt.autodelivery.network.BuildFetcher;
@@ -21,9 +21,11 @@ class BuildEditPresenter implements BuildEditContract.Presenter {
     private BuildFetcher mBuildFetcher;
 
     private BuildList mBuildList;
+    private BuildEditContract.FLAG mFlag;
 
-    BuildEditPresenter(BuildEditContract.View view) {
+    BuildEditPresenter(BuildEditContract.View view, Bundle arguments) {
         mView = view;
+        mFlag = (BuildEditContract.FLAG) arguments.getSerializable(BuildEditContract.KEY_FLAG);
         mBuildFetcher = new BuildFetcher(view);
     }
 
@@ -35,15 +37,15 @@ class BuildEditPresenter implements BuildEditContract.Presenter {
     }
 
     @Override
-    public void loadBuildList() {
-        mBuildFetcher.fetchBuildList("")
+    public void loadBuildList(String versionPath) {
+        mAdapterModel.setSelectedVersion(versionPath);
+        mBuildFetcher.fetchBuildList(versionPath)
                 .subscribe(this::nextBuildListFetch,
                         throwable -> mView.showToast(throwable.toString()));
     }
 
     @Override
-    public void onItemClick(View v) {
-        String currentVersion = ((TextView) v).getText().toString();
+    public void onItemClick(String currentVersion) {
         Build build = new Build();
         build.setVersionName(currentVersion);
         int separateSize = build.getSeparateName().size();
@@ -74,11 +76,17 @@ class BuildEditPresenter implements BuildEditContract.Presenter {
             mAdapterView.refresh();
             mView.showVersionTitle(versionTitle.toString());
         } else {
-            mAdapterModel.setSelectedVersion(versionTitle.toString());
+            if (mFlag == BuildEditContract.FLAG.APK) {
+                mView.showOnDismiss(versionTitle.toString());
+                return;
+            }
+            String version = mBuildList.get(versionTitle.toString()).getVersionName();
+            mAdapterModel.setSelectedVersion(version);
             mBuildFetcher.fetchBuildList(mBuildList.get(separateName).getVersionName())
                     .subscribe(this::nextBuildListFetch,
                             throwable -> mView.showToast(throwable.toString()));
         }
+
     }
 
     private void nextBuildListFetch(String response) {
@@ -90,28 +98,41 @@ class BuildEditPresenter implements BuildEditContract.Presenter {
         }
 
         BuildList buildList = BuildList.fromHtml(response);
+        if (buildList.size() == 0) {
+            mView.showToast(R.string.message_no_apk);
+            mView.hideDialog();
+            return;
+        }
         buildList.reverse();
         String buildVersionName = buildList.get(0).getVersionName();
-        if (!StringUtil.isDirectory(buildVersionName)) {
+        if (!StringUtil.isDirectory(buildVersionName) && mFlag == BuildEditContract.FLAG.EDIT) {
             mView.showOnDismiss(buildList, selectedVersion);
             return;
         }
 
-        Build build = mBuildList.get(selectedVersion);
-        mBuildList.remove(build);
+        if (mFlag == BuildEditContract.FLAG.EDIT) {
+            Build build = mBuildList.get(selectedVersion);
+            selectedVersion = build.getVersionName();
+            mBuildList.remove(build);
+        } else if (mFlag == BuildEditContract.FLAG.APK) {
+            mBuildList = buildList;
+        }
 
         // mBuildList 갱신 및, adapterList 갱신
         List<String> adapterList = new ArrayList<>();
         for (Build nextBuild : buildList.getList()) {
             String version = nextBuild.getVersionName();
-            nextBuild.setVersionName(build.getVersionName() + version);
-            mBuildList.add(nextBuild);
+            if (mFlag == BuildEditContract.FLAG.APK) {
+                nextBuild.setVersionName(version);
+            } else if (mFlag == BuildEditContract.FLAG.EDIT) {
+                nextBuild.setVersionName(selectedVersion + version);
+                mBuildList.add(nextBuild);
+            }
             adapterList.add(nextBuild.getVersionName());
         }
 
         mAdapterModel.setList(adapterList);
         mAdapterView.refresh();
-        mView.showVersionTitle(build.getVersionName());
-
+        mView.showVersionTitle(selectedVersion);
     }
 }

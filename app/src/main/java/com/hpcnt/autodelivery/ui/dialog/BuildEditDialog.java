@@ -10,6 +10,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.hpcnt.autodelivery.R;
@@ -30,12 +31,17 @@ public class BuildEditDialog extends RxDialogFragment implements BuildEditContra
     private DialogBuildEditBinding binding;
     private BuildEditContract.Presenter mPresenter;
     private BuildEditContract.OnDismissListener mOnDismissListener;
+    private BuildEditContract.OnDismissApkListener mOnDismissApkListener;
 
     public BuildEditDialog() {
     }
 
-    public static BuildEditDialog newInstance() {
+    public static BuildEditDialog newInstance(String versionPath, BuildEditContract.FLAG flag) {
         BuildEditDialog fragment = new BuildEditDialog();
+        Bundle bundle = new Bundle();
+        bundle.putString(BuildEditContract.KEY_VERSION_PATH, versionPath);
+        bundle.putSerializable(BuildEditContract.KEY_FLAG, flag);
+        fragment.setArguments(bundle);
         return fragment;
     }
 
@@ -55,13 +61,13 @@ public class BuildEditDialog extends RxDialogFragment implements BuildEditContra
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mPresenter = new BuildEditPresenter(this);
+        mPresenter = new BuildEditPresenter(this, getArguments());
 
         BuildEditAdapter adapter = new BuildEditAdapter();
         mPresenter.setList(adapter);
-        adapter.setOnClickListener(v -> mPresenter.onItemClick(v));
+        adapter.setOnClickListener(v -> mPresenter.onItemClick(((TextView) v).getText().toString()));
 
-        mPresenter.loadBuildList();
+        mPresenter.loadBuildList(getArguments().getString(BuildEditContract.KEY_VERSION_PATH));
     }
 
     @Override
@@ -77,6 +83,11 @@ public class BuildEditDialog extends RxDialogFragment implements BuildEditContra
     }
 
     @Override
+    public void showToast(int resID) {
+        Toast.makeText(getContext(), resID, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
     public void showVersionTitle(String versionTitle) {
         binding.editDialogCurrentTitle.setText(versionTitle);
     }
@@ -88,7 +99,22 @@ public class BuildEditDialog extends RxDialogFragment implements BuildEditContra
         dismiss();
     }
 
+    @Override
+    public void showOnDismiss(String apkName) {
+        mOnDismissApkListener.onDismiss(apkName);
+        dismiss();
+    }
+
+    @Override
+    public void hideDialog() {
+        dismiss();
+    }
+
     public void setOnDismissListener(BuildEditContract.OnDismissListener onDismissListener) {
         mOnDismissListener = onDismissListener;
+    }
+
+    public void setOnDismissApkListener(BuildEditContract.OnDismissApkListener onDismissApkListener) {
+        mOnDismissApkListener = onDismissApkListener;
     }
 }

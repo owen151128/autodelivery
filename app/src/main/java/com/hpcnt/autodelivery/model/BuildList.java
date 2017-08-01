@@ -1,5 +1,7 @@
 package com.hpcnt.autodelivery.model;
 
+import com.hpcnt.autodelivery.util.StringUtil;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -42,11 +44,9 @@ public class BuildList {
         Document document = Jsoup.parse(response);
         Element preElement = document.select("pre").first();
         for (Element element : preElement.children()) {
-            if (element.text().equals("../")) continue;
-            if (element.text().equals("china/")) continue;
-            if (element.text().equals("develop/")) continue;
-            if (element.text().equals("pr/")) continue;
-            if (element.text().equals("qatest/")) continue;
+            if (!StringUtil.isDigitFirstWord(element.text())
+                    && !StringUtil.isApkFile(element.text()))
+                continue;
 
             Build build = new Build();
             build.setVersionName(element.text());
@@ -116,11 +116,14 @@ public class BuildList {
     public Build get(List<String> separateName) {
         for (Build build : buildList) {
             if (build.getSeparateName().size() != separateName.size()) continue;
-            List<String> buildSeparateName = new ArrayList<>();
-            buildSeparateName.addAll(build.getSeparateName());
-            buildSeparateName.removeAll(separateName);
-            if (buildSeparateName.size() == 0)
-                return build;
+            boolean isEqual = true;
+            for (int i = 0; i < separateName.size(); i++) {
+                if (!build.getSeparateName().get(i).equals(separateName.get(i))) {
+                    isEqual = false;
+                    break;
+                }
+            }
+            if (isEqual) return build;
         }
         return null;
     }

@@ -1,14 +1,11 @@
 package com.hpcnt.autodelivery.ui;
 
 import android.app.DownloadManager;
-import android.support.annotation.CheckResult;
-import android.support.annotation.NonNull;
 
 import com.hpcnt.autodelivery.LifeCycleProvider;
 import com.hpcnt.autodelivery.model.Build;
 import com.hpcnt.autodelivery.model.BuildList;
-import com.trello.rxlifecycle2.LifecycleTransformer;
-import com.trello.rxlifecycle2.android.RxLifecycleAndroid;
+import com.hpcnt.autodelivery.ui.dialog.BuildEditContract;
 
 public interface MainContract {
 
@@ -18,7 +15,7 @@ public interface MainContract {
 
     int PERMISSION_REQUEST_WRITE_EXTERNAL_STORAGE = 0;
 
-    interface View extends LifeCycleProvider{
+    interface View extends LifeCycleProvider {
 
         void showLastestBuild(Build lastestBuild);
 
@@ -32,7 +29,7 @@ public interface MainContract {
 
         void showApkInstall(String apkPath);
 
-        void showEditDialog();
+        void showEditDialog(String versionPath, BuildEditContract.FLAG flag);
     }
 
     interface Presenter {
@@ -47,8 +44,10 @@ public interface MainContract {
 
         void onClickButton();
 
-        void setEditBuild();
-
         void setEditedBuild(BuildList buildList, String versionName);
+
+        void setEditBuild(String versionPath, BuildEditContract.FLAG flag);
+
+        void setApkName(String apkName);
     }
 }
