@@ -9,13 +9,9 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.TextNode;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -58,23 +54,11 @@ public class BuildList {
             builds.add(build);
         }
 
-        SimpleDateFormat inputFormat = new SimpleDateFormat("dd-MMM-yyyy kk:mm", Locale.US);
-        SimpleDateFormat transFormat = new SimpleDateFormat("yy년 MM월 dd일 kk시 mm분", Locale.KOREAN);
-
         List<TextNode> textNodes = preElement.textNodes();
         for (int i = 1; i <= builds.size(); i++) {
-            TextNode textNode = textNodes.get(i);
-            String date = textNode.text().split(" -")[0].trim();
-
-            Date inputDate;
-            try {
-                inputDate = inputFormat.parse(date);
-            } catch (ParseException e) {
-                inputDate = new Date(0);
-            }
-
-            String transDate = transFormat.format(inputDate);
-            builds.get(i - 1).setDate(transDate);
+            String nodeString = textNodes.get(i).text();
+            String date = nodeString.split("\\s(\\p{Punct}|\\p{Alnum}+)\\s")[0].trim();
+            builds.get(i - 1).setDate(date);
         }
         return builds;
     }
