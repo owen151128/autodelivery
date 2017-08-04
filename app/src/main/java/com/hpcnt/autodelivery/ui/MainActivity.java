@@ -23,6 +23,7 @@ import android.widget.Toast;
 import com.hpcnt.autodelivery.R;
 import com.hpcnt.autodelivery.databinding.ActivityMainBinding;
 import com.hpcnt.autodelivery.model.Build;
+import com.hpcnt.autodelivery.network.BuildFetcher;
 import com.hpcnt.autodelivery.ui.dialog.BuildEditContract;
 import com.hpcnt.autodelivery.ui.dialog.BuildEditDialog;
 import com.trello.rxlifecycle2.components.support.RxAppCompatActivity;
@@ -42,6 +43,7 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
         binding.setAction(this);
         downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
         mPresenter = new MainPresenter(this);
+        mPresenter.setBuildFetcher(new BuildFetcher(this));
         mPresenter.loadLatestBuild();
     }
 
@@ -187,4 +189,8 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
             mPresenter.stateSetting();
         }
     };
+
+    ActivityMainBinding getBinding() {
+        return binding;
+    }
 }

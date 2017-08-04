@@ -5,6 +5,7 @@ import android.app.DownloadManager;
 import com.hpcnt.autodelivery.LifeCycleProvider;
 import com.hpcnt.autodelivery.model.Build;
 import com.hpcnt.autodelivery.model.BuildList;
+import com.hpcnt.autodelivery.network.BuildFetcher;
 import com.hpcnt.autodelivery.ui.dialog.BuildEditContract;
 
 interface MainContract {
@@ -49,5 +50,7 @@ interface MainContract {
         void setEditBuild(String versionPath, BuildEditContract.FLAG flag);
 
         void setApkName(String apkName);
+
+        void setBuildFetcher(BuildFetcher buildFetcher);
     }
 }

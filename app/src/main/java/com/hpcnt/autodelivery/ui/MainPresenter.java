@@ -26,14 +26,13 @@ class MainPresenter implements MainContract.Presenter {
 
     MainPresenter(MainContract.View view) {
         mView = view;
-        mBuildFetcher = new BuildFetcher(view);
     }
 
     @Override
     public void loadLatestBuild() {
         mState = MainContract.STATE.LOADING;
         mView.showButton(mState);
-        mBuildFetcher.fetchBuildList("")
+        getFetchedList(mBuildFetcher, "")
                 .subscribe(s -> new LatestBuildFetchListener().onStringFetched(s),
                         throwable -> mView.showToast(throwable.toString()));
     }
@@ -90,10 +89,11 @@ class MainPresenter implements MainContract.Presenter {
 
     @Override
     public void setEditedBuild(BuildList buildList, String versionName) {
-        mBuild.setDate(buildList.get(0).getDate());
         if (!StringUtil.isDirectory(versionName))
             versionName += "/";
-        selectBuild(buildList, versionName);
+        mBuild = selectBuild(buildList, versionName);
+        mView.showLastestBuild(mBuild);
+        stateSetting();
     }
 
     @Override
@@ -109,7 +109,11 @@ class MainPresenter implements MainContract.Presenter {
         });
     }
 
-    private void selectBuild(BuildList buildList, String versionName) {
+    Single<String> getFetchedList(BuildFetcher fetcher, String path) {
+        return fetcher.fetchBuildList(path);
+    }
+
+    private Build selectBuild(BuildList buildList, String versionName) {
         String myAbi;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
             myAbi = android.os.Build.SUPPORTED_ABIS[0] + "-qatest";
@@ -118,24 +122,21 @@ class MainPresenter implements MainContract.Presenter {
             myAbi = android.os.Build.CPU_ABI + "-qatest";
         }
         String apkName = "";
+        String date = "";
         boolean hasCorrectApk = false;
         for (int i = 0; i < buildList.size(); i++) {
             apkName = buildList.get(i).getVersionName();
+            date = buildList.get(i).getDate();
             if (apkName.contains(myAbi)) {
                 hasCorrectApk = true;
                 break;
             }
         }
 
-        if (hasCorrectApk) {
-            mBuild.setApkName(apkName);
-        } else {
-            mBuild.setApkName("");
-        }
-        mBuild.setVersionName(versionName);
-        mView.showLastestBuild(mBuild);
+        if (!hasCorrectApk)
+            apkName = "";
 
-        stateSetting();
+        return new Build(versionName, date, apkName);
     }
 
 
@@ -154,11 +155,13 @@ class MainPresenter implements MainContract.Presenter {
 
             if (StringUtil.isDirectory(versionName)) {
                 mFullVersionName.append(versionName);
-                mBuildFetcher.fetchBuildList(mFullVersionName.toString())
+                getFetchedList(mBuildFetcher, mFullVersionName.toString())
                         .subscribe(this::onStringFetched,
                                 throwable -> mView.showToast(throwable.toString()));
             } else {
-                selectBuild(buildList, mFullVersionName.toString());
+                mBuild = selectBuild(buildList, mFullVersionName.toString());
+                mView.showLastestBuild(mBuild);
+                stateSetting();
             }
         }
     }
@@ -172,5 +175,18 @@ class MainPresenter implements MainContract.Presenter {
         })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread());
+    }
+
+    Build getBuild() {
+        return mBuild;
+    }
+
+    @Override
+    public void setBuildFetcher(BuildFetcher buildFetcher) {
+        mBuildFetcher = buildFetcher;
+    }
+
+    BuildFetcher getBuildFetcher() {
+        return mBuildFetcher;
     }
 }
