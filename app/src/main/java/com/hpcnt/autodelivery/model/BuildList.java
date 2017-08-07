@@ -23,8 +23,9 @@ public class BuildList {
         buildList.add(build);
     }
 
-    public Build getLastestBuild() {
-        if (buildList.size() == 0) return null;
+    @NonNull
+    public Build getLatestBuild() {
+        if (buildList.size() == 0) return Build.EMPTY;
 
         String lastestDate = buildList.get(0).getDate();
         int lastestIndex = 0;

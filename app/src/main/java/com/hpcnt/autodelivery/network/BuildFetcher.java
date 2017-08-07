@@ -1,5 +1,7 @@
 package com.hpcnt.autodelivery.network;
 
+import android.support.annotation.NonNull;
+
 import com.hpcnt.autodelivery.BaseApplication;
 import com.hpcnt.autodelivery.LifeCycleProvider;
 
@@ -14,9 +16,10 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
 public class BuildFetcher {
+    @NonNull
     private LifeCycleProvider mLifeCycleProvider;
 
-    public BuildFetcher(LifeCycleProvider lifeCycleProvider) {
+    public BuildFetcher(@NonNull LifeCycleProvider lifeCycleProvider) {
         mLifeCycleProvider = lifeCycleProvider;
     }
 

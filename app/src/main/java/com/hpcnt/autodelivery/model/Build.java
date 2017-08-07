@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Locale;
 
 public class Build {
+    public static final Build EMPTY = new Build();
     @NonNull
     private String versionName = "";
     @NonNull

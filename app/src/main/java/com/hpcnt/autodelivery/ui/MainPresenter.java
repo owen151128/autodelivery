@@ -3,8 +3,8 @@ package com.hpcnt.autodelivery.ui;
 import android.app.DownloadManager;
 import android.net.Uri;
 import android.os.Environment;
+import android.support.annotation.NonNull;
 
-import com.hpcnt.autodelivery.R;
 import com.hpcnt.autodelivery.model.Build;
 import com.hpcnt.autodelivery.model.BuildList;
 import com.hpcnt.autodelivery.network.BuildFetcher;
@@ -20,9 +20,10 @@ import io.reactivex.schedulers.Schedulers;
 
 class MainPresenter implements MainContract.Presenter {
     private MainContract.View mView;
-    private Build mBuild;
     private MainContract.STATE mState;
     private BuildFetcher mBuildFetcher;
+    @NonNull
+    private Build mBuild = new Build();
 
     MainPresenter(MainContract.View view) {
         mView = view;
@@ -30,8 +31,7 @@ class MainPresenter implements MainContract.Presenter {
 
     @Override
     public void loadLatestBuild() {
-        mState = MainContract.STATE.LOADING;
-        mView.showButton(mState);
+        setState(MainContract.STATE.LOADING);
         getFetchedList(mBuildFetcher, "")
                 .subscribe(s -> new LatestBuildFetchListener().onStringFetched(s),
                         throwable -> mView.showToast(throwable.toString()));
@@ -44,7 +44,7 @@ class MainPresenter implements MainContract.Presenter {
             setEditBuild(mBuild.getVersionName(), BuildEditContract.FLAG.APK);
             return;
         }
-        mState = MainContract.STATE.DOWNLOADING;
+        setState(MainContract.STATE.DOWNLOADING);
         Uri apkUri = Uri.parse(mBuild.getApkUrl());
         List<String> pathSegments = apkUri.getPathSegments();
         DownloadManager.Request request = new DownloadManager.Request(apkUri);
@@ -54,7 +54,6 @@ class MainPresenter implements MainContract.Presenter {
                         DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
                 .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS,
                         mBuild.getVersionName() + pathSegments.get(pathSegments.size() - 1));
-        mView.showButton(mState);
         mView.addDownloadRequest(request);
     }
 
@@ -100,11 +99,9 @@ class MainPresenter implements MainContract.Presenter {
     public void stateSetting() {
         hasLastestFile().subscribe(hasFile -> {
             if (hasFile) {
-                mState = MainContract.STATE.INSTALL;
-                mView.showButton(mState);
+                setState(MainContract.STATE.INSTALL);
             } else {
-                mState = MainContract.STATE.DOWNLOAD;
-                mView.showButton(mState);
+                setState(MainContract.STATE.DOWNLOAD);
             }
         });
     }
@@ -145,11 +142,7 @@ class MainPresenter implements MainContract.Presenter {
 
         void onStringFetched(String response) {
             BuildList buildList = BuildList.fromHtml(response);
-            mBuild = buildList.getLastestBuild();
-            if (mBuild == null) {
-                mView.showToast(R.string.message_wrong_access);
-                return;
-            }
+            mBuild = buildList.getLatestBuild();
 
             String versionName = mBuild.getVersionName();
 
@@ -175,6 +168,11 @@ class MainPresenter implements MainContract.Presenter {
         })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread());
+    }
+
+    private void setState(MainContract.STATE state) {
+        mState = state;
+        mView.showButton(state);
     }
 
     MainContract.STATE getState() {
