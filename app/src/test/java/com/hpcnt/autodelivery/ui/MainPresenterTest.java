@@ -49,23 +49,8 @@ public class MainPresenterTest {
         when(mPresenter.getFetchedList(mPresenter.getBuildFetcher(), "")).thenReturn(Single.just(responseFirst));
         when(mPresenter.getFetchedList(mPresenter.getBuildFetcher(), "3.18.9/")).thenReturn(Single.just(responseApk));
 
-        mPresenter.loadLatestBuild();
-
-        Assert.assertTrue(mActivity.getBinding().mainBtnAction.isEnabled());
-        String btnString = mActivity.getBinding().mainBtnAction.getText().toString();
-        String resString = mActivity.getResources().getString(R.string.download);
-        Assert.assertTrue(btnString.equals(resString));
-
         Build mockBuild = new Build("3.18.9/", "17년 07월 31일 14시 14분", "app-playstore-armeabi-v7a-qatest.apk");
-        Assert.assertTrue(mPresenter.getBuild() != null);
-
-        Assert.assertTrue(mPresenter.getBuild().equals(mockBuild));
-
-        String versionName = mActivity.getBinding().mainVersionName.getText().toString();
-        Assert.assertEquals(mockBuild.getVersionName(), versionName);
-
-        String date = mActivity.getBinding().mainDate.getText().toString();
-        Assert.assertEquals(mockBuild.getDate(), date);
+        executeLoadLatestBuildSuccess(mockBuild);
     }
 
     @Test
@@ -80,14 +65,17 @@ public class MainPresenterTest {
         when(mPresenter.getFetchedList(mPresenter.getBuildFetcher(), "3.18.0/")).thenReturn(Single.just(responseSecond));
         when(mPresenter.getFetchedList(mPresenter.getBuildFetcher(), "3.18.0/201707171052/")).thenReturn(Single.just(responseApk));
 
+        Build mockBuild = new Build("3.18.0/201707171052/", "17년 07월 17일 10시 55분", "app-playstore-armeabi-v7a-qatest.apk");
+
+        executeLoadLatestBuildSuccess(mockBuild);
+    }
+
+    private void executeLoadLatestBuildSuccess(Build mockBuild) {
         mPresenter.loadLatestBuild();
 
-        Assert.assertTrue(mActivity.getBinding().mainBtnAction.isEnabled());
-        String btnString = mActivity.getBinding().mainBtnAction.getText().toString();
-        String resString = mActivity.getResources().getString(R.string.download);
-        Assert.assertTrue(btnString.equals(resString));
+        assertState(mPresenter.getState(), MainContract.STATE.DOWNLOADING);
+        assertState(mPresenter.getState(), MainContract.STATE.DOWNLOAD);
 
-        Build mockBuild = new Build("3.18.0/201707171052/", "17년 07월 17일 10시 55분", "app-playstore-armeabi-v7a-qatest.apk");
         Assert.assertTrue(mPresenter.getBuild() != null);
 
         Assert.assertTrue(mPresenter.getBuild().equals(mockBuild));
@@ -97,6 +85,39 @@ public class MainPresenterTest {
 
         String date = mActivity.getBinding().mainDate.getText().toString();
         Assert.assertEquals(mockBuild.getDate(), date);
+    }
+
+    private void assertState(MainContract.STATE expectedState, MainContract.STATE actualState) {
+        Assert.assertEquals(expectedState, actualState);
+        boolean isEnable;
+        int stringResId;
+        switch (actualState) {
+            case DOWNLOAD:
+                isEnable = true;
+                stringResId = R.string.download;
+                break;
+            case DOWNLOADING:
+                isEnable = false;
+                stringResId = R.string.downloading;
+                break;
+            case LOADING:
+                isEnable = false;
+                stringResId = R.string.loading;
+                break;
+            case INSTALL:
+                isEnable = true;
+                stringResId = R.string.install;
+                break;
+            default:
+                isEnable = false;
+                stringResId = 0;
+                break;
+        }
+
+        Assert.assertEquals(isEnable, mActivity.getBinding().mainBtnAction.isEnabled());
+        String btnString = mActivity.getBinding().mainBtnAction.getText().toString();
+        String resString = mActivity.getResources().getString(stringResId);
+        Assert.assertEquals(resString, btnString);
     }
 
     private String getResString(String resource) {

@@ -177,6 +177,10 @@ class MainPresenter implements MainContract.Presenter {
                 .observeOn(AndroidSchedulers.mainThread());
     }
 
+    MainContract.STATE getState() {
+        return mState;
+    }
+
     Build getBuild() {
         return mBuild;
     }
