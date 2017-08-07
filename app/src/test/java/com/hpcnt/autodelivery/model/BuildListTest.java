@@ -6,13 +6,11 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-
 public class BuildListTest {
 
     @Test
     public void testParseHtmlToBuildList() {
-        String response = StringUtil.getStringFromResource(getClass().getClassLoader(), "ci_index_page_from_html.html");
+        String response = StringUtil.getStringFromResource(getClass().getClassLoader(), "index_from_html.html");
         Assert.assertTrue(!"".equals(response));
 
         BuildList buildListFromTest = new BuildList();

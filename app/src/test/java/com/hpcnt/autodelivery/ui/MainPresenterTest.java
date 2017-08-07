@@ -28,6 +28,7 @@ import static org.mockito.Mockito.when;
 public class MainPresenterTest {
     private MainActivity mActivity = Robolectric.setupActivity(MainActivity.class);
     private MainPresenter mPresenter = new MainPresenter(mActivity);
+
     @Before
     public void setUp() throws Exception {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());

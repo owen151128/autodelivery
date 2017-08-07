@@ -10,7 +10,7 @@ public class BuildTest {
 
     @Test
     public void testGetLatestBuild() {
-        String response = StringUtil.getStringFromResource(getClass().getClassLoader(), "ci_index_page_.html");
+        String response = StringUtil.getStringFromResource(getClass().getClassLoader(), "index_3_18_9.html");
         Assert.assertTrue(!"".equals(response));
         BuildList buildList = BuildList.fromHtml(response);
         Build build = buildList.getLastestBuild();
