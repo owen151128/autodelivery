@@ -11,7 +11,7 @@ import com.hpcnt.autodelivery.ui.dialog.BuildEditContract;
 interface MainContract {
 
     enum STATE {
-        DOWNLOAD, LOADING, DOWNLOADING, INSTALL
+        DOWNLOAD, LOADING, DOWNLOADING, INSTALL, FAIL
     }
 
     int PERMISSION_REQUEST_WRITE_EXTERNAL_STORAGE = 0;

@@ -123,6 +123,10 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
                 isEnable = true;
                 stringResId = R.string.install;
                 break;
+            case FAIL:
+                isEnable = false;
+                stringResId = R.string.fail;
+                break;
             default:
                 isEnable = false;
                 stringResId = 0;

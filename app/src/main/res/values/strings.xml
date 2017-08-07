@@ -4,6 +4,7 @@
     <string name="loading">Loading…</string>
     <string name="downloading">Downloading…</string>
     <string name="install">Install</string>
+    <string name="fail">Fail</string>
     <string name="permission_denied">Permission Denied</string>
     <string name="message_no_apk">APK가 없습니다</string>
 </resources>

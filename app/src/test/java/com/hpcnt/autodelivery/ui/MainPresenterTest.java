@@ -70,6 +70,22 @@ public class MainPresenterTest {
         executeLoadLatestBuildSuccess(mockBuild);
     }
 
+    @Test
+    public void testGetLatestBuildFail() {
+        String responseFirst = getResString("index_3_18_9.html");
+
+        mPresenter.setBuildFetcher(mock(BuildFetcher.class));
+
+        when(mPresenter.getFetchedList(mPresenter.getBuildFetcher(), "")).thenReturn(Single.error(new RuntimeException()));
+        mPresenter.loadLatestBuild();
+        Assert.assertEquals(Build.EMPTY, mPresenter.getBuild());
+
+        when(mPresenter.getFetchedList(mPresenter.getBuildFetcher(), "")).thenReturn(Single.just(responseFirst));
+        when(mPresenter.getFetchedList(mPresenter.getBuildFetcher(), "3.18.9/")).thenReturn(Single.error(new RuntimeException()));
+        mPresenter.loadLatestBuild();
+        Assert.assertEquals(Build.EMPTY, mPresenter.getBuild());
+    }
+
     private void executeLoadLatestBuildSuccess(Build mockBuild) {
         mPresenter.loadLatestBuild();
 
@@ -107,6 +123,10 @@ public class MainPresenterTest {
             case INSTALL:
                 isEnable = true;
                 stringResId = R.string.install;
+                break;
+            case FAIL:
+                isEnable = false;
+                stringResId = R.string.fail;
                 break;
             default:
                 isEnable = false;

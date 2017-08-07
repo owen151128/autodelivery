@@ -34,7 +34,10 @@ class MainPresenter implements MainContract.Presenter {
         setState(MainContract.STATE.LOADING);
         getFetchedList(mBuildFetcher, "")
                 .subscribe(s -> new LatestBuildFetchListener().onStringFetched(s),
-                        throwable -> mView.showToast(throwable.toString()));
+                        throwable -> {
+                            setState(MainContract.STATE.FAIL);
+                            mBuild = Build.EMPTY;
+                        });
     }
 
     @Override
@@ -136,7 +139,6 @@ class MainPresenter implements MainContract.Presenter {
         return new Build(versionName, date, apkName);
     }
 
-
     private class LatestBuildFetchListener {
         private StringBuilder mFullVersionName = new StringBuilder();
 
@@ -150,7 +152,10 @@ class MainPresenter implements MainContract.Presenter {
                 mFullVersionName.append(versionName);
                 getFetchedList(mBuildFetcher, mFullVersionName.toString())
                         .subscribe(this::onStringFetched,
-                                throwable -> mView.showToast(throwable.toString()));
+                                throwable -> {
+                                    setState(MainContract.STATE.FAIL);
+                                    mBuild = Build.EMPTY;
+                                });
             } else {
                 mBuild = selectBuild(buildList, mFullVersionName.toString());
                 mView.showLastestBuild(mBuild);
