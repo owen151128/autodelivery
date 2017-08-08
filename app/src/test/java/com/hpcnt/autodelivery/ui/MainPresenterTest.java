@@ -8,6 +8,8 @@ import com.hpcnt.autodelivery.BuildConfig;
 import com.hpcnt.autodelivery.R;
 import com.hpcnt.autodelivery.model.Build;
 import com.hpcnt.autodelivery.network.BuildFetcher;
+import com.hpcnt.autodelivery.ui.dialog.BuildEditContract;
+import com.hpcnt.autodelivery.ui.dialog.BuildEditDialog;
 import com.hpcnt.autodelivery.util.StringUtil;
 
 import junit.framework.Assert;
@@ -133,6 +135,21 @@ public class MainPresenterTest {
         assertState(mPresenter.getState(), MainContract.STATE.DOWNLOADING);
         mActivity.downloadCompleteReceiver.onReceive(mActivity, new Intent());
         assertState(((MainPresenter) mActivity.getPresenter()).getState(), MainContract.STATE.FAIL);
+    }
+
+    @Test
+    public void testEditCurrentBuild() {
+        String helloWorld = "hello world";
+        mPresenter.editCurrentBuild(helloWorld, BuildEditContract.FLAG.EDIT);
+        BuildEditDialog buildEditDialog = (BuildEditDialog) mActivity.getSupportFragmentManager()
+                .findFragmentByTag(BuildEditDialog.class.getSimpleName());
+
+        Assert.assertNotNull(buildEditDialog);
+        Assert.assertEquals(
+                buildEditDialog.getArguments().get(BuildEditContract.KEY_VERSION_PATH),
+                helloWorld);
+        Assert.assertEquals(buildEditDialog.getArguments().get(BuildEditContract.KEY_FLAG),
+                BuildEditContract.FLAG.EDIT);
     }
 
     private void executeLoadLatestBuildSuccess(Build mockBuild) {
