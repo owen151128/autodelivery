@@ -16,6 +16,7 @@ import java.util.List;
 
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
 class MainPresenter implements MainContract.Presenter {
@@ -32,19 +33,14 @@ class MainPresenter implements MainContract.Presenter {
     @Override
     public void loadLatestBuild() {
         setState(MainContract.STATE.LOADING);
-        getFetchedList(mBuildFetcher, "")
-                .subscribe(s -> new LatestBuildFetchListener().onStringFetched(s),
-                        throwable -> {
-                            setState(MainContract.STATE.FAIL);
-                            mBuild = Build.EMPTY;
-                        });
+        executeBuildFetch("", s -> new LatestBuildFetchListener().onStringFetched(s));
     }
 
     @Override
     public void downloadApk() {
         if (mState != MainContract.STATE.DOWNLOAD) return;
         if (mBuild.getApkName().equals("")) {
-            setEditBuild(mBuild.getVersionName(), BuildEditContract.FLAG.APK);
+            editCurrentBuild(mBuild.getVersionName(), BuildEditContract.FLAG.APK);
             return;
         }
         setState(MainContract.STATE.DOWNLOADING);
@@ -63,10 +59,7 @@ class MainPresenter implements MainContract.Presenter {
     @Override
     public void installApk() {
         if (mState != MainContract.STATE.INSTALL) return;
-        String apkPath = Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "/" + mBuild.getVersionName()
-                + mBuild.getApkName();
-        mView.showApkInstall(apkPath);
+        mView.showApkInstall(mBuild.getApkDownloadedPath());
     }
 
     @Override
@@ -79,7 +72,7 @@ class MainPresenter implements MainContract.Presenter {
     }
 
     @Override
-    public void setEditBuild(String versionPath, BuildEditContract.FLAG flag) {
+    public void editCurrentBuild(String versionPath, BuildEditContract.FLAG flag) {
         mView.showEditDialog(versionPath, flag);
     }
 
@@ -90,12 +83,10 @@ class MainPresenter implements MainContract.Presenter {
     }
 
     @Override
-    public void setEditedBuild(BuildList buildList, String versionName) {
+    public void selectMyAbiBuild(BuildList buildList, String versionName) {
         if (!StringUtil.isDirectory(versionName))
             versionName += "/";
-        mBuild = selectBuild(buildList, versionName);
-        mView.showLastestBuild(mBuild);
-        stateSetting();
+        setupMyAbiBuild(buildList, versionName);
     }
 
     @Override
@@ -113,7 +104,8 @@ class MainPresenter implements MainContract.Presenter {
         return fetcher.fetchBuildList(path);
     }
 
-    private Build selectBuild(BuildList buildList, String versionName) {
+    @NonNull
+    private Build getMyAbiBuild(BuildList buildList, String versionName) {
         String myAbi;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
             myAbi = android.os.Build.SUPPORTED_ABIS[0] + "-qatest";
@@ -144,31 +136,37 @@ class MainPresenter implements MainContract.Presenter {
 
         void onStringFetched(String response) {
             BuildList buildList = BuildList.fromHtml(response);
-            mBuild = buildList.getLatestBuild();
+            setBuild(buildList.getLatestBuild());
 
             String versionName = mBuild.getVersionName();
 
             if (StringUtil.isDirectory(versionName)) {
                 mFullVersionName.append(versionName);
-                getFetchedList(mBuildFetcher, mFullVersionName.toString())
-                        .subscribe(this::onStringFetched,
-                                throwable -> {
-                                    setState(MainContract.STATE.FAIL);
-                                    mBuild = Build.EMPTY;
-                                });
+                executeBuildFetch(mFullVersionName.toString(), this::onStringFetched);
             } else {
-                mBuild = selectBuild(buildList, mFullVersionName.toString());
-                mView.showLastestBuild(mBuild);
-                stateSetting();
+                setupMyAbiBuild(buildList, mFullVersionName.toString());
             }
         }
     }
 
+    private void executeBuildFetch(String path, Consumer<String> consumer) {
+        getFetchedList(mBuildFetcher, path)
+                .subscribe(consumer,
+                        throwable -> {
+                            setState(MainContract.STATE.FAIL);
+                            setBuild(Build.EMPTY);
+                        });
+    }
+
+    private void setupMyAbiBuild(BuildList buildList, String versionName) {
+        setBuild(getMyAbiBuild(buildList, versionName));
+        mView.showLastestBuild(mBuild);
+        stateSetting();
+    }
+
     private Single<Boolean> hasLastestFile() {
         return Single.<Boolean>create(e -> {
-            File buildFile = new File(Environment.getExternalStoragePublicDirectory(
-                    Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "/"
-                    + mBuild.getVersionName());
+            File buildFile = new File(mBuild.getApkDownloadedPath());
             e.onSuccess(buildFile.exists());
         })
                 .subscribeOn(Schedulers.io())
@@ -189,7 +187,7 @@ class MainPresenter implements MainContract.Presenter {
         return mBuild;
     }
 
-    void setBuild(Build build) {
+    void setBuild(@NonNull Build build) {
         mBuild = build;
     }
 

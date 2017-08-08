@@ -45,9 +45,9 @@ interface MainContract {
 
         void onClickButton();
 
-        void setEditedBuild(BuildList buildList, String versionName);
+        void selectMyAbiBuild(BuildList buildList, String versionName);
 
-        void setEditBuild(String versionPath, BuildEditContract.FLAG flag);
+        void editCurrentBuild(String versionPath, BuildEditContract.FLAG flag);
 
         void setApkName(String apkName);
 

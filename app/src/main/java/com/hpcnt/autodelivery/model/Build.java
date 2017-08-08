@@ -1,5 +1,6 @@
 package com.hpcnt.autodelivery.model;
 
+import android.os.Environment;
 import android.support.annotation.NonNull;
 
 import com.hpcnt.autodelivery.BaseApplication;
@@ -87,6 +88,13 @@ public class Build {
     }
 
     @NonNull
+    public String getApkDownloadedPath() {
+        return Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "/" + getVersionName()
+                + getApkName();
+    }
+
+    @NonNull
     public List<String> getSeparateName() {
         return separateName;
     }
@@ -119,5 +127,14 @@ public class Build {
         result = 31 * result + date.hashCode();
         result = 31 * result + apkName.hashCode();
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "Build{"
+                + "versionName='" + versionName + '\''
+                + ", date='" + date + '\''
+                + ", apkName='" + apkName + '\''
+                + '}';
     }
 }
