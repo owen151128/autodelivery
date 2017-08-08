@@ -197,4 +197,8 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
     ActivityMainBinding getBinding() {
         return binding;
     }
+
+    DownloadManager getDownloadManager() {
+        return downloadManager;
+    }
 }

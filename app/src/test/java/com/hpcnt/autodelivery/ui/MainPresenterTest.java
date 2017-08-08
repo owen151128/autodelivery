@@ -1,5 +1,8 @@
 package com.hpcnt.autodelivery.ui;
 
+import android.Manifest;
+import android.app.DownloadManager;
+
 import com.hpcnt.autodelivery.BuildConfig;
 import com.hpcnt.autodelivery.R;
 import com.hpcnt.autodelivery.model.Build;
@@ -15,6 +18,8 @@ import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
+import org.robolectric.shadows.ShadowApplication;
+import org.robolectric.shadows.ShadowDownloadManager;
 
 import io.reactivex.Single;
 import io.reactivex.plugins.RxJavaPlugins;
@@ -22,6 +27,7 @@ import io.reactivex.schedulers.Schedulers;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.robolectric.Shadows.shadowOf;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(constants = BuildConfig.class)
@@ -86,10 +92,37 @@ public class MainPresenterTest {
         Assert.assertEquals(Build.EMPTY, mPresenter.getBuild());
     }
 
+    @Test
+    public void testDownloadApkSuccess() {
+        String responseFirst = getResString("index_3_18_9.html");
+        String responseApk = getResString("index_3_18_9_apk.html");
+
+        mPresenter.setBuildFetcher(mock(BuildFetcher.class));
+
+        when(mPresenter.getFetchedList(mPresenter.getBuildFetcher(), "")).thenReturn(Single.just(responseFirst));
+        when(mPresenter.getFetchedList(mPresenter.getBuildFetcher(), "3.18.9/")).thenReturn(Single.just(responseApk));
+
+        Build mockBuild = new Build("3.18.9/", "17년 07월 31일 14시 14분", "app-playstore-armeabi-v7a-qatest.apk");
+        mPresenter.loadLatestBuild();
+
+        ShadowApplication shadowApplication = shadowOf(mActivity.getApplication());
+        shadowApplication.grantPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        mPresenter.downloadApk();
+
+        assertState(mPresenter.getState(), MainContract.STATE.DOWNLOADING);
+        DownloadManager downloadManager = mActivity.getDownloadManager();
+        ShadowDownloadManager shadowDownloadManager = shadowOf(downloadManager);
+        Assert.assertTrue(shadowDownloadManager.getRequestCount() > 0);
+        ShadowDownloadManager.ShadowRequest shadowRequest = shadowOf(shadowDownloadManager.getRequest(0));
+        Assert.assertNotNull(shadowRequest);
+        Assert.assertEquals(shadowRequest.getTitle(), mockBuild.getVersionName());
+        Assert.assertEquals(shadowRequest.getDescription(), mockBuild.getDate());
+        Assert.assertEquals(shadowRequest.getNotificationVisibility(), DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+    }
+
     private void executeLoadLatestBuildSuccess(Build mockBuild) {
         mPresenter.loadLatestBuild();
 
-        assertState(mPresenter.getState(), MainContract.STATE.DOWNLOADING);
         assertState(mPresenter.getState(), MainContract.STATE.DOWNLOAD);
 
         Assert.assertTrue(mPresenter.getBuild() != null);
