@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.Bundle;
@@ -33,6 +34,7 @@ import java.io.File;
 public class MainActivity extends RxAppCompatActivity implements MainContract.View {
 
     private DownloadManager downloadManager;
+    private long downloadQueueId;
     private ActivityMainBinding binding;
     private MainContract.Presenter mPresenter;
 
@@ -165,7 +167,7 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
     public void addDownloadRequest(DownloadManager.Request request) {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 == PackageManager.PERMISSION_GRANTED) {
-            downloadManager.enqueue(request);
+            downloadQueueId = downloadManager.enqueue(request);
         } else {
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
@@ -187,10 +189,22 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
         }
     }
 
-    private BroadcastReceiver downloadCompleteReceiver = new BroadcastReceiver() {
+    BroadcastReceiver downloadCompleteReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            mPresenter.stateSetting();
+            DownloadManager.Query query = new DownloadManager.Query();
+            query.setFilterById(downloadQueueId);
+            Cursor cursor = downloadManager.query(query);
+            cursor.moveToFirst();
+            int status = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS));
+            switch (status) {
+                case DownloadManager.STATUS_SUCCESSFUL:
+                    mPresenter.stateSetting();
+                    break;
+                default:
+                    mPresenter.setState(MainContract.STATE.FAIL);
+                    break;
+            }
         }
     };
 
@@ -200,5 +214,9 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
 
     DownloadManager getDownloadManager() {
         return downloadManager;
+    }
+
+    MainContract.Presenter getPresenter() {
+        return mPresenter;
     }
 }

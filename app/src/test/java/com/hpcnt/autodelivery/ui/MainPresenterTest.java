@@ -2,6 +2,7 @@ package com.hpcnt.autodelivery.ui;
 
 import android.Manifest;
 import android.app.DownloadManager;
+import android.content.Intent;
 
 import com.hpcnt.autodelivery.BuildConfig;
 import com.hpcnt.autodelivery.R;
@@ -118,6 +119,20 @@ public class MainPresenterTest {
         Assert.assertEquals(shadowRequest.getTitle(), mockBuild.getVersionName());
         Assert.assertEquals(shadowRequest.getDescription(), mockBuild.getDate());
         Assert.assertEquals(shadowRequest.getNotificationVisibility(), DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+    }
+
+    @Test
+    public void testDownloadApkFail() {
+        mPresenter.setBuild(new Build("", "", "asdf"));
+        mPresenter.setState(MainContract.STATE.DOWNLOAD);
+
+        ShadowApplication shadowApplication = shadowOf(mActivity.getApplication());
+        shadowApplication.grantPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        mPresenter.downloadApk();
+
+        assertState(mPresenter.getState(), MainContract.STATE.DOWNLOADING);
+        mActivity.downloadCompleteReceiver.onReceive(mActivity, new Intent());
+        assertState(((MainPresenter) mActivity.getPresenter()).getState(), MainContract.STATE.FAIL);
     }
 
     private void executeLoadLatestBuildSuccess(Build mockBuild) {

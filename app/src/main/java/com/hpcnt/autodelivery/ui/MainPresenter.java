@@ -175,7 +175,8 @@ class MainPresenter implements MainContract.Presenter {
                 .observeOn(AndroidSchedulers.mainThread());
     }
 
-    private void setState(MainContract.STATE state) {
+    @Override
+    public void setState(MainContract.STATE state) {
         mState = state;
         mView.showButton(state);
     }
@@ -186,6 +187,10 @@ class MainPresenter implements MainContract.Presenter {
 
     Build getBuild() {
         return mBuild;
+    }
+
+    void setBuild(Build build) {
+        mBuild = build;
     }
 
     @Override
