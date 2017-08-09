@@ -46,6 +46,11 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
         downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
         mPresenter = new MainPresenter(this);
         mPresenter.setBuildFetcher(new BuildFetcher(this));
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
         mPresenter.loadLatestBuild();
     }
 

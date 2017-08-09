@@ -36,7 +36,7 @@ import static org.robolectric.Shadows.shadowOf;
 @RunWith(RobolectricTestRunner.class)
 @Config(constants = BuildConfig.class)
 public class MainPresenterTest {
-    private MainActivity mActivity = Robolectric.setupActivity(MainActivity.class);
+    private MainActivity mActivity = Robolectric.buildActivity(MainActivity.class).create().get();
     private MainPresenter mPresenter = new MainPresenter(mActivity);
 
     @Before
