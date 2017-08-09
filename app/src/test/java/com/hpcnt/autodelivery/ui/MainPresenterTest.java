@@ -180,6 +180,21 @@ public class MainPresenterTest {
         Assert.assertEquals(mockBuild, presenterBuild);
     }
 
+    @Test
+    public void testSelectMyAbiBuild() {
+        BuildList buildList = new BuildList();
+        buildList.add(new Build("app-playstore-arm64-v8a-qatest.apk", "31-Jul-2017 14:14", ""));
+        buildList.add(new Build("app-playstore-armeabi-v7a-qatest.apk", "31-Jul-2017 14:14", ""));
+        buildList.add(new Build("app-playstore-x86-qatest.apk", "31-Jul-2017 14:14", ""));
+        buildList.add(new Build("app-playstore-x86_64-qatest.apk", "31-Jul-2017 14:14", ""));
+
+        mPresenter.selectMyAbiBuild(buildList, "3.18.9/");
+        Build mockBuild = new Build("3.18.9/", "17년 07월 31일 14시 14분", "app-playstore-armeabi-v7a-qatest.apk");
+        Assert.assertEquals(mockBuild, mPresenter.getBuild());
+        Assert.assertEquals(mockBuild.getVersionName(), mActivity.getBinding().mainVersionName.getText().toString());
+        Assert.assertEquals(mockBuild.getDate(), mActivity.getBinding().mainDate.getText().toString());
+    }
+
     private void executeLoadLatestBuildSuccess(Build mockBuild) {
         mPresenter.loadLatestBuild();
 
