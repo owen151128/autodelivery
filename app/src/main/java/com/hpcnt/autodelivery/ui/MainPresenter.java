@@ -105,7 +105,7 @@ class MainPresenter implements MainContract.Presenter {
     }
 
     @NonNull
-    private Build getMyAbiBuild(BuildList buildList, String versionName) {
+    Build getMyAbiBuild(BuildList buildList, String versionName) {
         String myAbi;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
             myAbi = android.os.Build.SUPPORTED_ABIS[0] + "-qatest";
