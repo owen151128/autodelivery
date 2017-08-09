@@ -113,15 +113,15 @@ public class MainPresenterTest {
         shadowApplication.grantPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE);
         mPresenter.downloadApk();
 
-        assertState(mPresenter.getState(), MainContract.STATE.DOWNLOADING);
+        assertState(MainContract.STATE.DOWNLOADING, mPresenter.getState());
         DownloadManager downloadManager = mActivity.getDownloadManager();
         ShadowDownloadManager shadowDownloadManager = shadowOf(downloadManager);
         Assert.assertTrue(shadowDownloadManager.getRequestCount() > 0);
         ShadowDownloadManager.ShadowRequest shadowRequest = shadowOf(shadowDownloadManager.getRequest(0));
         Assert.assertNotNull(shadowRequest);
-        Assert.assertEquals(shadowRequest.getTitle(), mockBuild.getVersionName());
-        Assert.assertEquals(shadowRequest.getDescription(), mockBuild.getDate());
-        Assert.assertEquals(shadowRequest.getNotificationVisibility(), DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+        Assert.assertEquals(mockBuild.getVersionName(), shadowRequest.getTitle());
+        Assert.assertEquals(mockBuild.getDate(), shadowRequest.getDescription());
+        Assert.assertEquals(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED, shadowRequest.getNotificationVisibility());
     }
 
     @Test
@@ -133,9 +133,9 @@ public class MainPresenterTest {
         shadowApplication.grantPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE);
         mPresenter.downloadApk();
 
-        assertState(mPresenter.getState(), MainContract.STATE.DOWNLOADING);
+        assertState(MainContract.STATE.DOWNLOADING, mPresenter.getState());
         mActivity.downloadCompleteReceiver.onReceive(mActivity, new Intent());
-        assertState(((MainPresenter) mActivity.getPresenter()).getState(), MainContract.STATE.FAIL);
+        assertState(MainContract.STATE.FAIL, ((MainPresenter) mActivity.getPresenter()).getState());
     }
 
     @Test
@@ -146,11 +146,10 @@ public class MainPresenterTest {
                 .findFragmentByTag(BuildEditDialog.class.getSimpleName());
 
         Assert.assertNotNull(buildEditDialog);
-        Assert.assertEquals(
-                buildEditDialog.getArguments().get(BuildEditContract.KEY_VERSION_PATH),
-                helloWorld);
-        Assert.assertEquals(buildEditDialog.getArguments().get(BuildEditContract.KEY_FLAG),
-                BuildEditContract.FLAG.EDIT);
+        Assert.assertEquals(helloWorld,
+                buildEditDialog.getArguments().get(BuildEditContract.KEY_VERSION_PATH));
+        Assert.assertEquals(BuildEditContract.FLAG.EDIT,
+                buildEditDialog.getArguments().get(BuildEditContract.KEY_FLAG));
     }
 
     @Test
@@ -184,11 +183,11 @@ public class MainPresenterTest {
     private void executeLoadLatestBuildSuccess(Build mockBuild) {
         mPresenter.loadLatestBuild();
 
-        assertState(mPresenter.getState(), MainContract.STATE.DOWNLOAD);
+        assertState(MainContract.STATE.DOWNLOAD, mPresenter.getState());
 
-        Assert.assertTrue(mPresenter.getBuild() != null);
+        Assert.assertNotNull(mPresenter.getBuild());
 
-        Assert.assertTrue(mPresenter.getBuild().equals(mockBuild));
+        Assert.assertEquals(mockBuild, mPresenter.getBuild());
 
         String versionName = mActivity.getBinding().mainVersionName.getText().toString();
         Assert.assertEquals(mockBuild.getVersionName(), versionName);
@@ -236,7 +235,7 @@ public class MainPresenterTest {
 
     private String getResString(String resource) {
         String responseFirst = StringUtil.getStringFromResource(getClass().getClassLoader(), resource);
-        Assert.assertTrue(!"".equals(responseFirst));
+        Assert.assertNotSame("", responseFirst);
         return responseFirst;
     }
 }
