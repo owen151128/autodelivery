@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Set;
 
 class BuildEditPresenter implements BuildEditContract.Presenter {
-    private static final String TAG = BuildEditPresenter.class.getSimpleName();
 
     private BuildEditContract.View mView;
     private BuildEditAdapterContract.View mAdapterView;
@@ -68,8 +67,9 @@ class BuildEditPresenter implements BuildEditContract.Presenter {
             setVersionData(versionTitle, separateName, index + 1);
         } else if (versionSet.size() > 1) {
             List<String> versionList = new ArrayList<>();
-            for (String version : versionSet)
+            for (String version : versionSet) {
                 versionList.add(versionTitle + "." + version);
+            }
 
             mAdapterModel.setList(versionList);
             mAdapterModel.setSelectedVersion(versionTitle.toString());
@@ -91,7 +91,7 @@ class BuildEditPresenter implements BuildEditContract.Presenter {
 
     private void nextBuildListFetch(String response) {
         String selectedVersion = mAdapterModel.getSelectedVersion();
-        if (selectedVersion.equals("")) {
+        if ("".equals(selectedVersion)) {
             mBuildList = BuildList.fromHtml(response);
             setVersionData(new StringBuilder(), new ArrayList<>(), 0);
             return;

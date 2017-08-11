@@ -1,0 +1,65 @@
+/*
+ * @author Francesco Jo(nimbusob@gmail.com)
+ * @since 09 - Oct - 2016
+ */
+apply plugin: "findbugs"
+apply plugin: "pmd"
+apply plugin: "checkstyle"
+
+def qualityConfigDir = "$project.rootDir/app/quality";
+def reportsDir = "$project.buildDir/reports"
+
+check.dependsOn "findbugs", "pmd", "checkstyle"
+
+task findbugs(type: FindBugs,
+        group: "Verification",
+        description: "Inspect java bytecode for bugs",
+        dependsOn: ["compileDebugSources"]) {
+
+    ignoreFailures = true
+    effort = "max"
+    reportLevel = "medium"
+
+    classes = files("$project.buildDir/intermediates/classes")
+    excludeFilter = file("$qualityConfigDir/android-exclude-filter.xml")
+    source = files("src/main/java")
+    classpath = files()
+
+    reports {
+        // Only one of HTML or XML can be turned on at the same time
+        html.enabled = true
+        xml.enabled = false
+        xml.withMessages = true
+
+        html.destination = "$reportsDir/findbugs-report.html"
+        xml.destination = "$reportsDir/findbugs-report.xml"
+    }
+}
+
+task pmd(type: Pmd,
+        group: "Verification",
+        description: "Inspect sourcecode for bugs") {
+    ruleSetFiles = files("$qualityConfigDir/pmd-ruleset.xml")
+    ignoreFailures = true
+    source = files("src/main/java")
+
+    reports {
+        xml.enabled = false
+        html.enabled = true
+
+        xml.destination "$reportsDir/pmd-report.xml"
+        html.destination "$reportsDir/pmd-report.html"
+    }
+}
+
+task checkstyle(type: Checkstyle,
+        group: "Verification",
+        description: "Inspect sourcecode for bugs") {
+    configFile = rootProject.file("$qualityConfigDir/checkstyle.xml")
+    source = 'src/main/java'
+    ignoreFailures = true
+    showViolations = true
+    include '**/*.java'
+
+    classpath = files()
+}

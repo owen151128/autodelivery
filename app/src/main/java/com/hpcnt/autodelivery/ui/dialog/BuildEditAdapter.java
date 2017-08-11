@@ -13,7 +13,6 @@ import java.util.List;
 
 class BuildEditAdapter extends RecyclerView.Adapter<BuildEditAdapter.ViewHolder>
         implements BuildEditAdapterContract.Model, BuildEditAdapterContract.View {
-    private static final String TAG = BuildEditAdapter.class.getSimpleName();
 
     private List<String> mRecommendVersions = new ArrayList<>();
 

@@ -14,19 +14,17 @@ import com.hpcnt.autodelivery.util.StringUtil;
 import java.io.File;
 import java.util.List;
 
-import io.reactivex.Observable;
-import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
-public class MainPresenter implements MainContract.Presenter {
+class MainPresenter implements MainContract.Presenter {
     private MainContract.View mView;
     private Build mBuild;
     private MainContract.STATE mState;
     private BuildFetcher mBuildFetcher;
 
-    public MainPresenter(MainContract.View view) {
+    MainPresenter(MainContract.View view) {
         mView = view;
         mBuildFetcher = new BuildFetcher(view);
     }
@@ -48,33 +46,25 @@ public class MainPresenter implements MainContract.Presenter {
             return;
         }
         mState = MainContract.STATE.DOWNLOADING;
-
-        Observable.create((ObservableOnSubscribe<DownloadManager.Request>) e -> {
-            Uri apkUri = Uri.parse(mBuild.getApkUrl());
-            List<String> pathSegments = apkUri.getPathSegments();
-            DownloadManager.Request request = new DownloadManager.Request(apkUri);
-            request.setTitle(mBuild.getVersionName());
-            request.setDescription(mBuild.getDate());
-            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-            request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS,
-                    mBuild.getVersionName() + pathSegments.get(pathSegments.size() - 1));
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).mkdirs();
-            e.onNext(request);
-            e.onComplete();
-        })
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(request -> {
-                    mView.showButton(mState);
-                    mView.addDownloadRequest(request);
-                });
+        Uri apkUri = Uri.parse(mBuild.getApkUrl());
+        List<String> pathSegments = apkUri.getPathSegments();
+        DownloadManager.Request request = new DownloadManager.Request(apkUri);
+        request.setTitle(mBuild.getVersionName())
+                .setDescription(mBuild.getDate())
+                .setNotificationVisibility(
+                        DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+                .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS,
+                        mBuild.getVersionName() + pathSegments.get(pathSegments.size() - 1));
+        mView.showButton(mState);
+        mView.addDownloadRequest(request);
     }
 
     @Override
     public void installApk() {
         if (mState != MainContract.STATE.INSTALL) return;
         String apkPath = Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "/" + mBuild.getVersionName() + mBuild.getApkName();
+                Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "/" + mBuild.getVersionName()
+                + mBuild.getApkName();
         mView.showApkInstall(apkPath);
     }
 
@@ -120,7 +110,7 @@ public class MainPresenter implements MainContract.Presenter {
     }
 
     private void selectBuild(BuildList buildList, String versionName) {
-        String myAbi = "";
+        String myAbi;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
             myAbi = android.os.Build.SUPPORTED_ABIS[0] + "-qatest";
         } else {
@@ -137,10 +127,11 @@ public class MainPresenter implements MainContract.Presenter {
             }
         }
 
-        if (hasCorrectApk)
+        if (hasCorrectApk) {
             mBuild.setApkName(apkName);
-        else
+        } else {
             mBuild.setApkName("");
+        }
         mBuild.setVersionName(versionName);
         mView.showLastestBuild(mBuild);
 
@@ -151,7 +142,7 @@ public class MainPresenter implements MainContract.Presenter {
     private class LatestBuildFetchListener {
         private StringBuilder mFullVersionName = new StringBuilder();
 
-        public void onStringFetched(String response) {
+        void onStringFetched(String response) {
             BuildList buildList = BuildList.fromHtml(response);
             mBuild = buildList.getLastestBuild();
             if (mBuild == null) {
@@ -175,7 +166,8 @@ public class MainPresenter implements MainContract.Presenter {
     private Single<Boolean> hasLastestFile() {
         return Single.<Boolean>create(e -> {
             File buildFile = new File(Environment.getExternalStoragePublicDirectory(
-                    Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "/" + mBuild.getVersionName());
+                    Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "/"
+                    + mBuild.getVersionName());
             e.onSuccess(buildFile.exists());
         })
                 .subscribeOn(Schedulers.io())

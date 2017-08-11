@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'me.tatarka.retrolambda'
+apply from: "$project.rootDir/app/quality/quality.gradle"
 
 android {
     compileSdkVersion 25
@@ -37,5 +38,4 @@ dependencies {
     compile group: 'commons-io', name: 'commons-io', version: '2.5'
     compile 'com.trello.rxlifecycle2:rxlifecycle:2.1.0'
     compile 'com.trello.rxlifecycle2:rxlifecycle-components:2.1.0'
-    testCompile 'junit:junit:4.12'
 }

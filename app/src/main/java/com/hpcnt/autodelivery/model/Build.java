@@ -63,9 +63,9 @@ public class Build {
 
         Build build = (Build) o;
 
-        if (!versionName.equals(build.versionName)) return false;
-        if (!date.equals(build.date)) return false;
-        return apkName.equals(build.apkName);
+        return versionName.equals(build.versionName)
+                && date.equals(build.date)
+                && apkName.equals(build.apkName);
 
     }
 
