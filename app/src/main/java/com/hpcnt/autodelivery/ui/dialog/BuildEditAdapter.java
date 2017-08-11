@@ -56,6 +56,11 @@ class BuildEditAdapter extends RecyclerView.Adapter<BuildEditAdapter.ViewHolder>
     }
 
     @Override
+    public int getCount() {
+        return mRecommendVersions.size();
+    }
+
+    @Override
     public void refresh() {
         notifyDataSetChanged();
     }

@@ -2,6 +2,7 @@ package com.hpcnt.autodelivery.ui.dialog;
 
 import com.hpcnt.autodelivery.LifeCycleProvider;
 import com.hpcnt.autodelivery.model.BuildList;
+import com.hpcnt.autodelivery.network.BuildFetcher;
 
 public interface BuildEditContract {
 
@@ -34,9 +35,9 @@ public interface BuildEditContract {
 
         void setList(BuildEditAdapter adapter);
 
-        void loadBuildList(String versionPath);
+        void loadBuildList(BuildFetcher fetcher, String versionPath);
 
-        void onItemClick(String currentVersion);
+        void onItemClick(BuildFetcher fetcher, String currentVersion);
     }
 
     interface OnDismissListener {

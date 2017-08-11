@@ -16,5 +16,7 @@ interface BuildEditAdapterContract {
         void setSelectedVersion(String version);
 
         String getSelectedVersion();
+
+        int getCount();
     }
 }
