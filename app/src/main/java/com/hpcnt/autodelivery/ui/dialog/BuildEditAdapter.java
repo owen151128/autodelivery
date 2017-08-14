@@ -2,6 +2,7 @@ package com.hpcnt.autodelivery.ui.dialog;
 
 import android.databinding.DataBindingUtil;
 import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -22,7 +23,8 @@ class BuildEditAdapter extends RecyclerView.Adapter<BuildEditAdapter.ViewHolder>
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = View.inflate(parent.getContext(), R.layout.item_edit_row, null);
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.item_edit_row, parent, false);
         return new ViewHolder(view);
     }
 
@@ -61,7 +63,7 @@ class BuildEditAdapter extends RecyclerView.Adapter<BuildEditAdapter.ViewHolder>
     void setOnClickListener(View.OnClickListener onClickListener) {
         mOnClickListener = onClickListener;
     }
-    
+
     static class ViewHolder extends RecyclerView.ViewHolder {
         ItemEditRowBinding binding;
 
