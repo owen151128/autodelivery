@@ -24,13 +24,10 @@ public class Build {
     @NonNull
     private List<String> separateName = new ArrayList<>();
 
-    private final SimpleDateFormat engFormat;
-    private final SimpleDateFormat korFormat;
-
-    {
-        engFormat = new SimpleDateFormat("dd-MMM-yyyy kk:mm", Locale.US);
-        korFormat = new SimpleDateFormat("yy년 MM월 dd일 kk시 mm분", Locale.KOREAN);
-    }
+    private final SimpleDateFormat engFormat =
+            new SimpleDateFormat("dd-MMM-yyyy kk:mm", Locale.US);
+    private final SimpleDateFormat korFormat =
+            new SimpleDateFormat("yy년 MM월 dd일 kk시 mm분", Locale.KOREAN);
 
     public Build() {
     }
