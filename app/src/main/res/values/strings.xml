@@ -7,4 +7,5 @@
     <string name="permission_denied">Permission Denied</string>
     <string name="message_wrong_access">잘못된 접근</string>
     <string name="message_no_apk">APK가 없습니다</string>
+    <string name="message_wait">잠시만 기다려주세요</string>
 </resources>
