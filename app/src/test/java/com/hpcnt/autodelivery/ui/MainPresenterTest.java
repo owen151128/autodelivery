@@ -6,14 +6,12 @@ import android.content.Intent;
 
 import com.hpcnt.autodelivery.BuildConfig;
 import com.hpcnt.autodelivery.R;
+import com.hpcnt.autodelivery.TestUtil;
 import com.hpcnt.autodelivery.model.Build;
 import com.hpcnt.autodelivery.model.BuildList;
 import com.hpcnt.autodelivery.network.BuildFetcher;
 import com.hpcnt.autodelivery.ui.dialog.BuildEditContract;
 import com.hpcnt.autodelivery.ui.dialog.BuildEditDialog;
-import com.hpcnt.autodelivery.TestUtil;
-
-import junit.framework.Assert;
 
 import org.junit.After;
 import org.junit.Before;
@@ -29,6 +27,10 @@ import io.reactivex.Single;
 import io.reactivex.plugins.RxJavaPlugins;
 import io.reactivex.schedulers.Schedulers;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertNotSame;
+import static junit.framework.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.robolectric.Shadows.shadowOf;
@@ -88,12 +90,12 @@ public class MainPresenterTest {
 
         when(mPresenter.getFetchedList(mPresenter.getBuildFetcher(), "")).thenReturn(Single.error(new RuntimeException()));
         mPresenter.loadLatestBuild();
-        Assert.assertEquals(Build.EMPTY, mPresenter.getBuild());
+        assertEquals(Build.EMPTY, mPresenter.getBuild());
 
         when(mPresenter.getFetchedList(mPresenter.getBuildFetcher(), "")).thenReturn(Single.just(responseFirst));
         when(mPresenter.getFetchedList(mPresenter.getBuildFetcher(), "3.18.9/")).thenReturn(Single.error(new RuntimeException()));
         mPresenter.loadLatestBuild();
-        Assert.assertEquals(Build.EMPTY, mPresenter.getBuild());
+        assertEquals(Build.EMPTY, mPresenter.getBuild());
     }
 
     @Test
@@ -116,12 +118,12 @@ public class MainPresenterTest {
         assertState(MainContract.STATE.DOWNLOADING, mPresenter.getState());
         DownloadManager downloadManager = mActivity.getDownloadManager();
         ShadowDownloadManager shadowDownloadManager = shadowOf(downloadManager);
-        Assert.assertTrue(shadowDownloadManager.getRequestCount() > 0);
+        assertTrue(shadowDownloadManager.getRequestCount() > 0);
         ShadowDownloadManager.ShadowRequest shadowRequest = shadowOf(shadowDownloadManager.getRequest(0));
-        Assert.assertNotNull(shadowRequest);
-        Assert.assertEquals(mockBuild.getVersionName(), shadowRequest.getTitle());
-        Assert.assertEquals(mockBuild.getDate(), shadowRequest.getDescription());
-        Assert.assertEquals(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED, shadowRequest.getNotificationVisibility());
+        assertNotNull(shadowRequest);
+        assertEquals(mockBuild.getVersionName(), shadowRequest.getTitle());
+        assertEquals(mockBuild.getDate(), shadowRequest.getDescription());
+        assertEquals(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED, shadowRequest.getNotificationVisibility());
     }
 
     @Test
@@ -145,10 +147,10 @@ public class MainPresenterTest {
         BuildEditDialog buildEditDialog = (BuildEditDialog) mActivity.getSupportFragmentManager()
                 .findFragmentByTag(BuildEditDialog.class.getSimpleName());
 
-        Assert.assertNotNull(buildEditDialog);
-        Assert.assertEquals(helloWorld,
+        assertNotNull(buildEditDialog);
+        assertEquals(helloWorld,
                 buildEditDialog.getArguments().get(BuildEditContract.KEY_VERSION_PATH));
-        Assert.assertEquals(BuildEditContract.FLAG.EDIT,
+        assertEquals(BuildEditContract.FLAG.EDIT,
                 buildEditDialog.getArguments().get(BuildEditContract.KEY_FLAG));
     }
 
@@ -164,7 +166,7 @@ public class MainPresenterTest {
 
         Build mockBuild = new Build("3.18.9/", "17년 07월 31일 14시 14분", "app-playstore-armeabi-v7a-qatest.apk");
 
-        Assert.assertEquals(mockBuild, presenterBuild);
+        assertEquals(mockBuild, presenterBuild);
     }
 
     @Test
@@ -177,7 +179,7 @@ public class MainPresenterTest {
 
         Build mockBuild = new Build("3.11.0-alpha-13/", "16년 11월 16일 14시 00분", "");
 
-        Assert.assertEquals(mockBuild, presenterBuild);
+        assertEquals(mockBuild, presenterBuild);
     }
 
     @Test
@@ -190,9 +192,9 @@ public class MainPresenterTest {
 
         mPresenter.selectMyAbiBuild(buildList, "3.18.9/");
         Build mockBuild = new Build("3.18.9/", "17년 07월 31일 14시 14분", "app-playstore-armeabi-v7a-qatest.apk");
-        Assert.assertEquals(mockBuild, mPresenter.getBuild());
-        Assert.assertEquals(mockBuild.getVersionName(), mActivity.getBinding().mainVersionName.getText().toString());
-        Assert.assertEquals(mockBuild.getDate(), mActivity.getBinding().mainDate.getText().toString());
+        assertEquals(mockBuild, mPresenter.getBuild());
+        assertEquals(mockBuild.getVersionName(), mActivity.getBinding().mainVersionName.getText().toString());
+        assertEquals(mockBuild.getDate(), mActivity.getBinding().mainDate.getText().toString());
     }
 
     private void executeLoadLatestBuildSuccess(Build mockBuild) {
@@ -200,19 +202,19 @@ public class MainPresenterTest {
 
         assertState(MainContract.STATE.DOWNLOAD, mPresenter.getState());
 
-        Assert.assertNotNull(mPresenter.getBuild());
+        assertNotNull(mPresenter.getBuild());
 
-        Assert.assertEquals(mockBuild, mPresenter.getBuild());
+        assertEquals(mockBuild, mPresenter.getBuild());
 
         String versionName = mActivity.getBinding().mainVersionName.getText().toString();
-        Assert.assertEquals(mockBuild.getVersionName(), versionName);
+        assertEquals(mockBuild.getVersionName(), versionName);
 
         String date = mActivity.getBinding().mainDate.getText().toString();
-        Assert.assertEquals(mockBuild.getDate(), date);
+        assertEquals(mockBuild.getDate(), date);
     }
 
     private void assertState(MainContract.STATE expectedState, MainContract.STATE actualState) {
-        Assert.assertEquals(expectedState, actualState);
+        assertEquals(expectedState, actualState);
         boolean isEnable;
         int stringResId;
         switch (actualState) {
@@ -242,15 +244,15 @@ public class MainPresenterTest {
                 break;
         }
 
-        Assert.assertEquals(isEnable, mActivity.getBinding().mainBtnAction.isEnabled());
+        assertEquals(isEnable, mActivity.getBinding().mainBtnAction.isEnabled());
         String btnString = mActivity.getBinding().mainBtnAction.getText().toString();
         String resString = mActivity.getResources().getString(stringResId);
-        Assert.assertEquals(resString, btnString);
+        assertEquals(resString, btnString);
     }
 
     private String getResString(String resource) {
         String responseFirst = TestUtil.getStringFromResource(getClass().getClassLoader(), resource);
-        Assert.assertNotSame("", responseFirst);
+        assertNotSame("", responseFirst);
         return responseFirst;
     }
 }

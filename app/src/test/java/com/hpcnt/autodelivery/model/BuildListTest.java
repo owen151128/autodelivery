@@ -3,21 +3,21 @@ package com.hpcnt.autodelivery.model;
 import com.google.gson.reflect.TypeToken;
 import com.hpcnt.autodelivery.TestUtil;
 
-import junit.framework.Assert;
-
 import org.junit.Test;
 
 import java.util.List;
+
+import static junit.framework.Assert.assertTrue;
 
 public class BuildListTest {
 
     @Test
     public void testParseHtmlToBuildList() {
         String response = TestUtil.getStringFromResource(getClass().getClassLoader(), "index_from_html.html");
-        Assert.assertTrue(!"".equals(response));
+        assertTrue(!"".equals(response));
 
         String setupDataJson = TestUtil.getStringFromResource(getClass().getClassLoader(), "build_list_setup_data.json");
-        Assert.assertTrue(!"".equals(response));
+        assertTrue(!"".equals(response));
 
         List<Build> builds = TestUtil.getListObjectFromJson(setupDataJson, Build.class, new TypeToken<List<Build>>() {
         }.getType(), (json, typeOfT, context) -> {
@@ -33,6 +33,6 @@ public class BuildListTest {
         BuildList buildListFromResponse = BuildList.fromHtml(response);
 
         boolean isEquals = buildListFromResponse.getList().equals(buildListFromTest.getList());
-        Assert.assertTrue(isEquals);
+        assertTrue(isEquals);
     }
 }
