@@ -120,6 +120,10 @@ public class BuildList {
         return buildList;
     }
 
+    public void setList(List<Build> list) {
+        buildList = list;
+    }
+
     public Build get(String selectedVersion) {
         Build build = new Build();
         build.setVersionName(selectedVersion);
