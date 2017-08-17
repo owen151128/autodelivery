@@ -38,6 +38,7 @@ import static org.robolectric.Shadows.shadowOf;
 @RunWith(RobolectricTestRunner.class)
 @Config(constants = BuildConfig.class)
 public class MainPresenterTest {
+
     private MainActivity mActivity;
     private MainPresenter mPresenter;
 
@@ -113,21 +114,13 @@ public class MainPresenterTest {
         when(mPresenter.getFetchedList(mPresenter.getBuildFetcher(), "3.18.9/")).thenReturn(Single.just(responseApk));
 
         Build mockBuild = new Build("3.18.9/", "17년 07월 31일 14시 14분", "app-playstore-armeabi-v7a-qatest.apk");
-        mPresenter.loadLatestBuild();
+        grantPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
-        ShadowApplication shadowApplication = shadowOf(mActivity.getApplication());
-        shadowApplication.grantPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        mPresenter.loadLatestBuild();
         mPresenter.downloadApk();
 
-        assertState(MainContract.STATE.DOWNLOADING, mPresenter.getState());
-        DownloadManager downloadManager = mActivity.getDownloadManager();
-        ShadowDownloadManager shadowDownloadManager = shadowOf(downloadManager);
-        assertTrue("Download를 하면 Count가 0보다 커야한다", shadowDownloadManager.getRequestCount() > 0);
-        ShadowDownloadManager.ShadowRequest shadowRequest = shadowOf(shadowDownloadManager.getRequest(0));
-        assertNotNull(shadowRequest);
-        assertEquals("Request 제목은 버전명이어야 한다", mockBuild.getVersionName(), shadowRequest.getTitle());
-        assertEquals("Request 설명은 날짜여야 한다", mockBuild.getDate(), shadowRequest.getDescription());
-        assertEquals("Request가 끝나면 남아있게 한다", DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED, shadowRequest.getNotificationVisibility());
+        ShadowDownloadManager.ShadowRequest shadowRequest = getShadowRequest();
+        assertDownloadApkSuccess(mockBuild, shadowRequest);
     }
 
     @Test
@@ -148,14 +141,10 @@ public class MainPresenterTest {
     public void testEditCurrentBuild() {
         String helloWorld = "hello world";
         mPresenter.editCurrentBuild(helloWorld, BuildEditContract.FLAG.EDIT);
-        BuildEditDialog buildEditDialog = (BuildEditDialog) mActivity.getSupportFragmentManager()
-                .findFragmentByTag(BuildEditDialog.class.getSimpleName());
-
+        BuildEditDialog buildEditDialog = (BuildEditDialog) mActivity.getSupportFragmentManager().findFragmentByTag(BuildEditDialog.class.getSimpleName());
         assertNotNull(buildEditDialog);
-        assertEquals("build 수정할때 넣는 버전 경로가 dialog argument에 있어야한다.", helloWorld,
-                buildEditDialog.getArguments().get(BuildEditContract.KEY_VERSION_PATH));
-        assertEquals("Build 수정할 때 넣는 Flag가 dialog argument에 있어야한다.", BuildEditContract.FLAG.EDIT,
-                buildEditDialog.getArguments().get(BuildEditContract.KEY_FLAG));
+        assertEquals("build 수정할때 넣는 버전 경로가 dialog argument에 있어야한다.", helloWorld, buildEditDialog.getArguments().get(BuildEditContract.KEY_VERSION_PATH));
+        assertEquals("Build 수정할 때 넣는 Flag가 dialog argument에 있어야한다.", BuildEditContract.FLAG.EDIT, buildEditDialog.getArguments().get(BuildEditContract.KEY_FLAG));
     }
 
     @Test
@@ -196,22 +185,18 @@ public class MainPresenterTest {
 
         mPresenter.selectMyAbiBuild(buildList, "3.18.9/");
         Build mockBuild = new Build("3.18.9/", "17년 07월 31일 14시 14분", "app-playstore-armeabi-v7a-qatest.apk");
-        assertEquals("여러개 Build가 주어졌을 때 자신의 ABI에 맞는 Build를 반환해야한다.", mockBuild, mPresenter.getBuild());
-        assertEquals("activity의 TextView에 versionName이 표시되어야한다.", mockBuild.getVersionName(), mActivity.getBinding().mainVersionName.getText().toString());
-        assertEquals("activity의 TextView에 date가 표시되어야한다.", mockBuild.getDate(), mActivity.getBinding().mainDate.getText().toString());
+        assertSelectMyAbiBuild(mockBuild);
     }
 
     private void executeLoadLatestBuildSuccess(Build mockBuild) {
         mPresenter.loadLatestBuild();
 
-        assertState(MainContract.STATE.DOWNLOAD, mPresenter.getState());
-
-        assertEquals("최신빌드가져오기가 성공하면 presenter에 mockbuild가 담긴다", mockBuild, mPresenter.getBuild());
-
         String versionName = mActivity.getBinding().mainVersionName.getText().toString();
-        assertEquals("최신빌드가져오기가 성공하면 activity의 TextView에도 표시되어야 한다", mockBuild.getVersionName(), versionName);
-
         String date = mActivity.getBinding().mainDate.getText().toString();
+
+        assertState(MainContract.STATE.DOWNLOAD, mPresenter.getState());
+        assertEquals("최신빌드가져오기가 성공하면 presenter에 mockbuild가 담긴다", mockBuild, mPresenter.getBuild());
+        assertEquals("최신빌드가져오기가 성공하면 activity의 TextView에도 표시되어야 한다", mockBuild.getVersionName(), versionName);
         assertEquals("최신빌드가져오기가 성공하면 activity의 TextView에도 표시되어야 한다", mockBuild.getDate(), date);
     }
 
@@ -253,9 +238,36 @@ public class MainPresenterTest {
         assertEquals("각 설정마다 버튼에 Text를 바꾼다", resString, btnString);
     }
 
+    private void grantPermissions(String permission) {
+        ShadowApplication shadowApplication = shadowOf(mActivity.getApplication());
+        shadowApplication.grantPermissions(permission);
+    }
+
+    private ShadowDownloadManager.ShadowRequest getShadowRequest() {
+        DownloadManager downloadManager = mActivity.getDownloadManager();
+        ShadowDownloadManager shadowDownloadManager = shadowOf(downloadManager);
+        assertTrue("Download를 하면 Count가 0보다 커야한다", shadowDownloadManager.getRequestCount() > 0);
+        ShadowDownloadManager.ShadowRequest shadowRequest = shadowOf(shadowDownloadManager.getRequest(0));
+        assertNotNull(shadowRequest);
+        return shadowRequest;
+    }
+
     private String getResString(String resource) {
         String responseFirst = TestUtil.getStringFromResource(getClass().getClassLoader(), resource);
         assertNotSame("파일을 읽었을 때 공백이면 안된다", "", responseFirst);
         return responseFirst;
+    }
+
+    private void assertDownloadApkSuccess(Build mockBuild, ShadowDownloadManager.ShadowRequest shadowRequest) {
+        assertState(MainContract.STATE.DOWNLOADING, mPresenter.getState());
+        assertEquals("Request 제목은 버전명이어야 한다", mockBuild.getVersionName(), shadowRequest.getTitle());
+        assertEquals("Request 설명은 날짜여야 한다", mockBuild.getDate(), shadowRequest.getDescription());
+        assertEquals("Request가 끝나면 남아있게 한다", DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED, shadowRequest.getNotificationVisibility());
+    }
+
+    private void assertSelectMyAbiBuild(Build mockBuild) {
+        assertEquals("여러개 Build가 주어졌을 때 자신의 ABI에 맞는 Build를 반환해야한다.", mockBuild, mPresenter.getBuild());
+        assertEquals("activity의 TextView에 versionName이 표시되어야한다.", mockBuild.getVersionName(), mActivity.getBinding().mainVersionName.getText().toString());
+        assertEquals("activity의 TextView에 date가 표시되어야한다.", mockBuild.getDate(), mActivity.getBinding().mainDate.getText().toString());
     }
 }
