@@ -11,7 +11,7 @@ import com.hpcnt.autodelivery.model.BuildList;
 import com.hpcnt.autodelivery.network.BuildFetcher;
 import com.hpcnt.autodelivery.ui.dialog.BuildEditContract;
 import com.hpcnt.autodelivery.ui.dialog.BuildEditDialog;
-import com.hpcnt.autodelivery.util.StringUtil;
+import com.hpcnt.autodelivery.TestUtil;
 
 import junit.framework.Assert;
 
@@ -249,7 +249,7 @@ public class MainPresenterTest {
     }
 
     private String getResString(String resource) {
-        String responseFirst = StringUtil.getStringFromResource(getClass().getClassLoader(), resource);
+        String responseFirst = TestUtil.getStringFromResource(getClass().getClassLoader(), resource);
         Assert.assertNotSame("", responseFirst);
         return responseFirst;
     }

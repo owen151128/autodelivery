@@ -1,6 +1,6 @@
 package com.hpcnt.autodelivery.model;
 
-import com.hpcnt.autodelivery.util.StringUtil;
+import com.hpcnt.autodelivery.TestUtil;
 
 import junit.framework.Assert;
 
@@ -10,7 +10,7 @@ public class BuildListTest {
 
     @Test
     public void testParseHtmlToBuildList() {
-        String response = StringUtil.getStringFromResource(getClass().getClassLoader(), "index_from_html.html");
+        String response = TestUtil.getStringFromResource(getClass().getClassLoader(), "index_from_html.html");
         Assert.assertTrue(!"".equals(response));
 
         BuildList buildListFromTest = new BuildList();
