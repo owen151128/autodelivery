@@ -38,17 +38,21 @@ import static org.robolectric.Shadows.shadowOf;
 @RunWith(RobolectricTestRunner.class)
 @Config(constants = BuildConfig.class)
 public class MainPresenterTest {
-    private MainActivity mActivity = Robolectric.buildActivity(MainActivity.class).create().get();
-    private MainPresenter mPresenter = new MainPresenter(mActivity);
+    private MainActivity mActivity;
+    private MainPresenter mPresenter;
 
     @Before
     public void setUp() throws Exception {
         RxJavaPlugins.setIoSchedulerHandler(scheduler -> Schedulers.trampoline());
+        mActivity = Robolectric.buildActivity(MainActivity.class).create().get();
+        mPresenter = new MainPresenter(mActivity);
     }
 
     @After
     public void tearDown() throws Exception {
         RxJavaPlugins.reset();
+        mActivity = null;
+        mPresenter = null;
     }
 
     @Test
