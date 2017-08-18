@@ -23,7 +23,6 @@ class MainPresenter implements MainContract.Presenter {
 
     private MainContract.View mView;
     private MainContract.STATE mState;
-    private BuildFetcher mBuildFetcher;
     @NonNull
     private Build mBuild = new Build();
 
@@ -32,9 +31,9 @@ class MainPresenter implements MainContract.Presenter {
     }
 
     @Override
-    public void loadLatestBuild() {
+    public void loadLatestBuild(BuildFetcher fetcher) {
         setState(MainContract.STATE.LOADING);
-        executeBuildFetch("", s -> new LatestBuildFetchListener().onStringFetched(s));
+        executeBuildFetch(fetcher, "", s -> new LatestBuildFetchListener().onStringFetched(s, fetcher));
     }
 
     @Override
@@ -132,7 +131,7 @@ class MainPresenter implements MainContract.Presenter {
 
         private StringBuilder mFullVersionName = new StringBuilder();
 
-        void onStringFetched(String response) {
+        void onStringFetched(String response, BuildFetcher fetcher) {
             BuildList buildList = BuildList.fromHtml(response);
             setBuild(buildList.getLatestBuild());
 
@@ -140,15 +139,15 @@ class MainPresenter implements MainContract.Presenter {
 
             if (StringUtil.isDirectory(versionName)) {
                 mFullVersionName.append(versionName);
-                executeBuildFetch(mFullVersionName.toString(), this::onStringFetched);
+                executeBuildFetch(fetcher, mFullVersionName.toString(), s -> this.onStringFetched(s, fetcher));
             } else {
                 setupMyAbiBuild(buildList, mFullVersionName.toString());
             }
         }
     }
 
-    private void executeBuildFetch(String path, Consumer<String> consumer) {
-        mBuildFetcher.fetchBuildList(path)
+    private void executeBuildFetch(BuildFetcher fetcher, String path, Consumer<String> consumer) {
+        fetcher.fetchBuildList(path)
                 .subscribe(consumer,
                         throwable -> {
                             setState(MainContract.STATE.FAIL);
@@ -187,10 +186,5 @@ class MainPresenter implements MainContract.Presenter {
 
     void setBuild(@NonNull Build build) {
         mBuild = build;
-    }
-
-    @Override
-    public void setBuildFetcher(BuildFetcher buildFetcher) {
-        mBuildFetcher = buildFetcher;
     }
 }

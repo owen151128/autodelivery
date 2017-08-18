@@ -45,13 +45,12 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
         binding.setAction(this);
         downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
         mPresenter = new MainPresenter(this);
-        mPresenter.setBuildFetcher(new BuildFetcher(this));
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        mPresenter.loadLatestBuild();
+        mPresenter.loadLatestBuild(new BuildFetcher(this));
     }
 
     @Override
@@ -65,7 +64,7 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_refresh:
-                mPresenter.loadLatestBuild();
+                mPresenter.loadLatestBuild(new BuildFetcher(this));
                 return true;
             case R.id.menu_edit:
                 mPresenter.editCurrentBuild("", BuildEditContract.FLAG.EDIT);

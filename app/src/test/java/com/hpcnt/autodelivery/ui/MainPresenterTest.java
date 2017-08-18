@@ -62,13 +62,12 @@ public class MainPresenterTest {
         String responseApk = getResString("index_3_18_9_apk.html");
 
         BuildFetcher mockFetcher = mock(BuildFetcher.class);
-        mPresenter.setBuildFetcher(mockFetcher);
 
         when(mockFetcher.fetchBuildList("")).thenReturn(Single.just(responseFirst));
         when(mockFetcher.fetchBuildList("3.18.9/")).thenReturn(Single.just(responseApk));
 
         Build mockBuild = new Build("3.18.9/", "17년 07월 31일 14시 14분", "app-playstore-armeabi-v7a-qatest.apk");
-        executeLoadLatestBuildSuccess(mockBuild);
+        executeLoadLatestBuildSuccess(mockFetcher, mockBuild);
     }
 
     @Test
@@ -78,7 +77,6 @@ public class MainPresenterTest {
         String responseApk = getResString("index_3_18_0_201707171052_apk.html");
 
         BuildFetcher mockFetcher = mock(BuildFetcher.class);
-        mPresenter.setBuildFetcher(mockFetcher);
 
         when(mockFetcher.fetchBuildList("")).thenReturn(Single.just(responseFirst));
         when(mockFetcher.fetchBuildList("3.18.0/")).thenReturn(Single.just(responseSecond));
@@ -86,7 +84,7 @@ public class MainPresenterTest {
 
         Build mockBuild = new Build("3.18.0/201707171052/", "17년 07월 17일 10시 55분", "app-playstore-armeabi-v7a-qatest.apk");
 
-        executeLoadLatestBuildSuccess(mockBuild);
+        executeLoadLatestBuildSuccess(mockFetcher, mockBuild);
     }
 
     @Test
@@ -94,15 +92,14 @@ public class MainPresenterTest {
         String responseFirst = getResString("index_3_18_9.html");
 
         BuildFetcher mockFetcher = mock(BuildFetcher.class);
-        mPresenter.setBuildFetcher(mockFetcher);
 
         when(mockFetcher.fetchBuildList("")).thenReturn(Single.error(new RuntimeException()));
-        mPresenter.loadLatestBuild();
+        mPresenter.loadLatestBuild(mockFetcher);
         assertEquals("최신빌드가 실패했을 때 EMPTY 빌드가 되어야 한다", Build.EMPTY, mPresenter.getBuild());
 
         when(mockFetcher.fetchBuildList("")).thenReturn(Single.just(responseFirst));
         when(mockFetcher.fetchBuildList("3.18.9/")).thenReturn(Single.error(new RuntimeException()));
-        mPresenter.loadLatestBuild();
+        mPresenter.loadLatestBuild(mockFetcher);
         assertEquals("최신빌드가 실패했을 때 EMPTY 빌드가 되어야 한다", Build.EMPTY, mPresenter.getBuild());
     }
 
@@ -112,7 +109,6 @@ public class MainPresenterTest {
         String responseApk = getResString("index_3_18_9_apk.html");
 
         BuildFetcher mockFetcher = mock(BuildFetcher.class);
-        mPresenter.setBuildFetcher(mockFetcher);
 
         when(mockFetcher.fetchBuildList("")).thenReturn(Single.just(responseFirst));
         when(mockFetcher.fetchBuildList("3.18.9/")).thenReturn(Single.just(responseApk));
@@ -120,7 +116,7 @@ public class MainPresenterTest {
         Build mockBuild = new Build("3.18.9/", "17년 07월 31일 14시 14분", "app-playstore-armeabi-v7a-qatest.apk");
         grantPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
-        mPresenter.loadLatestBuild();
+        mPresenter.loadLatestBuild(mockFetcher);
         mPresenter.downloadApk();
 
         ShadowDownloadManager.ShadowRequest shadowRequest = getShadowRequest();
@@ -192,8 +188,8 @@ public class MainPresenterTest {
         assertSelectMyAbiBuild(mockBuild);
     }
 
-    private void executeLoadLatestBuildSuccess(Build mockBuild) {
-        mPresenter.loadLatestBuild();
+    private void executeLoadLatestBuildSuccess(BuildFetcher mockFetcher, Build mockBuild) {
+        mPresenter.loadLatestBuild(mockFetcher);
 
         String versionName = mActivity.getBinding().mainVersionName.getText().toString();
         String date = mActivity.getBinding().mainDate.getText().toString();

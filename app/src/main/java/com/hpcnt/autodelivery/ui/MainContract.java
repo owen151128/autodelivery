@@ -35,7 +35,7 @@ interface MainContract {
 
     interface Presenter {
 
-        void loadLatestBuild();
+        void loadLatestBuild(BuildFetcher fetcher);
 
         void downloadApk();
 
@@ -52,7 +52,5 @@ interface MainContract {
         void setApkName(String apkName);
 
         void setState(STATE state);
-
-        void setBuildFetcher(BuildFetcher buildFetcher);
     }
 }
