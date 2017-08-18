@@ -61,10 +61,11 @@ public class MainPresenterTest {
         String responseFirst = getResString("index_3_18_9.html");
         String responseApk = getResString("index_3_18_9_apk.html");
 
-        mPresenter.setBuildFetcher(mock(BuildFetcher.class));
+        BuildFetcher mockFetcher = mock(BuildFetcher.class);
+        mPresenter.setBuildFetcher(mockFetcher);
 
-        when(mPresenter.getFetchedList(mPresenter.getBuildFetcher(), "")).thenReturn(Single.just(responseFirst));
-        when(mPresenter.getFetchedList(mPresenter.getBuildFetcher(), "3.18.9/")).thenReturn(Single.just(responseApk));
+        when(mockFetcher.fetchBuildList("")).thenReturn(Single.just(responseFirst));
+        when(mockFetcher.fetchBuildList("3.18.9/")).thenReturn(Single.just(responseApk));
 
         Build mockBuild = new Build("3.18.9/", "17년 07월 31일 14시 14분", "app-playstore-armeabi-v7a-qatest.apk");
         executeLoadLatestBuildSuccess(mockBuild);
@@ -76,11 +77,12 @@ public class MainPresenterTest {
         String responseSecond = getResString("index_3_18_0_201707171052.html");
         String responseApk = getResString("index_3_18_0_201707171052_apk.html");
 
-        mPresenter.setBuildFetcher(mock(BuildFetcher.class));
+        BuildFetcher mockFetcher = mock(BuildFetcher.class);
+        mPresenter.setBuildFetcher(mockFetcher);
 
-        when(mPresenter.getFetchedList(mPresenter.getBuildFetcher(), "")).thenReturn(Single.just(responseFirst));
-        when(mPresenter.getFetchedList(mPresenter.getBuildFetcher(), "3.18.0/")).thenReturn(Single.just(responseSecond));
-        when(mPresenter.getFetchedList(mPresenter.getBuildFetcher(), "3.18.0/201707171052/")).thenReturn(Single.just(responseApk));
+        when(mockFetcher.fetchBuildList("")).thenReturn(Single.just(responseFirst));
+        when(mockFetcher.fetchBuildList("3.18.0/")).thenReturn(Single.just(responseSecond));
+        when(mockFetcher.fetchBuildList("3.18.0/201707171052/")).thenReturn(Single.just(responseApk));
 
         Build mockBuild = new Build("3.18.0/201707171052/", "17년 07월 17일 10시 55분", "app-playstore-armeabi-v7a-qatest.apk");
 
@@ -91,14 +93,15 @@ public class MainPresenterTest {
     public void testGetLatestBuildFail() {
         String responseFirst = getResString("index_3_18_9.html");
 
-        mPresenter.setBuildFetcher(mock(BuildFetcher.class));
+        BuildFetcher mockFetcher = mock(BuildFetcher.class);
+        mPresenter.setBuildFetcher(mockFetcher);
 
-        when(mPresenter.getFetchedList(mPresenter.getBuildFetcher(), "")).thenReturn(Single.error(new RuntimeException()));
+        when(mockFetcher.fetchBuildList("")).thenReturn(Single.error(new RuntimeException()));
         mPresenter.loadLatestBuild();
         assertEquals("최신빌드가 실패했을 때 EMPTY 빌드가 되어야 한다", Build.EMPTY, mPresenter.getBuild());
 
-        when(mPresenter.getFetchedList(mPresenter.getBuildFetcher(), "")).thenReturn(Single.just(responseFirst));
-        when(mPresenter.getFetchedList(mPresenter.getBuildFetcher(), "3.18.9/")).thenReturn(Single.error(new RuntimeException()));
+        when(mockFetcher.fetchBuildList("")).thenReturn(Single.just(responseFirst));
+        when(mockFetcher.fetchBuildList("3.18.9/")).thenReturn(Single.error(new RuntimeException()));
         mPresenter.loadLatestBuild();
         assertEquals("최신빌드가 실패했을 때 EMPTY 빌드가 되어야 한다", Build.EMPTY, mPresenter.getBuild());
     }
@@ -108,10 +111,11 @@ public class MainPresenterTest {
         String responseFirst = getResString("index_3_18_9.html");
         String responseApk = getResString("index_3_18_9_apk.html");
 
-        mPresenter.setBuildFetcher(mock(BuildFetcher.class));
+        BuildFetcher mockFetcher = mock(BuildFetcher.class);
+        mPresenter.setBuildFetcher(mockFetcher);
 
-        when(mPresenter.getFetchedList(mPresenter.getBuildFetcher(), "")).thenReturn(Single.just(responseFirst));
-        when(mPresenter.getFetchedList(mPresenter.getBuildFetcher(), "3.18.9/")).thenReturn(Single.just(responseApk));
+        when(mockFetcher.fetchBuildList("")).thenReturn(Single.just(responseFirst));
+        when(mockFetcher.fetchBuildList("3.18.9/")).thenReturn(Single.just(responseApk));
 
         Build mockBuild = new Build("3.18.9/", "17년 07월 31일 14시 14분", "app-playstore-armeabi-v7a-qatest.apk");
         grantPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE);

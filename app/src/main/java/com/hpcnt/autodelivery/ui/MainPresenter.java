@@ -20,6 +20,7 @@ import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
 class MainPresenter implements MainContract.Presenter {
+
     private MainContract.View mView;
     private MainContract.STATE mState;
     private BuildFetcher mBuildFetcher;
@@ -100,10 +101,6 @@ class MainPresenter implements MainContract.Presenter {
         });
     }
 
-    Single<String> getFetchedList(BuildFetcher fetcher, String path) {
-        return fetcher.fetchBuildList(path);
-    }
-
     @NonNull
     Build getMyAbiBuild(BuildList buildList, String versionName) {
         String myAbi;
@@ -132,6 +129,7 @@ class MainPresenter implements MainContract.Presenter {
     }
 
     private class LatestBuildFetchListener {
+
         private StringBuilder mFullVersionName = new StringBuilder();
 
         void onStringFetched(String response) {
@@ -150,7 +148,7 @@ class MainPresenter implements MainContract.Presenter {
     }
 
     private void executeBuildFetch(String path, Consumer<String> consumer) {
-        getFetchedList(mBuildFetcher, path)
+        mBuildFetcher.fetchBuildList(path)
                 .subscribe(consumer,
                         throwable -> {
                             setState(MainContract.STATE.FAIL);
@@ -194,9 +192,5 @@ class MainPresenter implements MainContract.Presenter {
     @Override
     public void setBuildFetcher(BuildFetcher buildFetcher) {
         mBuildFetcher = buildFetcher;
-    }
-
-    BuildFetcher getBuildFetcher() {
-        return mBuildFetcher;
     }
 }
