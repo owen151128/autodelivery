@@ -155,9 +155,11 @@ public class MainPresenterTest {
         buildList.add(new Build("app-playstore-x86-qatest.apk", "31-Jul-2017 14:14", ""));
         buildList.add(new Build("app-playstore-x86_64-qatest.apk", "31-Jul-2017 14:14", ""));
 
-        Build presenterBuild = mPresenter.getMyAbiBuild(buildList, "3.18.9/");
+        MainPresenter.ABIWrapper mockAbiWrapper = mock(MainPresenter.ABIWrapper.class);
+        when(mockAbiWrapper.getABI()).thenReturn("x86");
+        Build presenterBuild = mPresenter.getMyAbiBuild(mockAbiWrapper, buildList, "3.18.9/");
 
-        Build mockBuild = new Build("3.18.9/", "17년 07월 31일 14시 14분", "app-playstore-armeabi-v7a-qatest.apk");
+        Build mockBuild = new Build("3.18.9/", "17년 07월 31일 14시 14분", "app-playstore-x86-qatest.apk");
 
         assertEquals("여러개 Build가 주어졌을 때 자신의 ABI에 맞는 Build를 반환해야한다.", mockBuild, presenterBuild);
     }
@@ -168,7 +170,9 @@ public class MainPresenterTest {
         buildList.add(new Build("azar-android-playstoreArm-qatest.apk", "16-Nov-2016 13:59", ""));
         buildList.add(new Build("azar-android-playstoreX86-qatest.apk", "16-Nov-2016 14:00", ""));
 
-        Build presenterBuild = mPresenter.getMyAbiBuild(buildList, "3.11.0-alpha-13/");
+        MainPresenter.ABIWrapper mockAbiWrapper = mock(MainPresenter.ABIWrapper.class);
+        when(mockAbiWrapper.getABI()).thenReturn("armeabi-v7a");
+        Build presenterBuild = mPresenter.getMyAbiBuild(mockAbiWrapper, buildList, "3.11.0-alpha-13/");
 
         Build mockBuild = new Build("3.11.0-alpha-13/", "16년 11월 16일 14시 00분", "");
 

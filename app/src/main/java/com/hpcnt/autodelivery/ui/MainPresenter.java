@@ -101,14 +101,8 @@ class MainPresenter implements MainContract.Presenter {
     }
 
     @NonNull
-    Build getMyAbiBuild(BuildList buildList, String versionName) {
-        String myAbi;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-            myAbi = android.os.Build.SUPPORTED_ABIS[0] + "-qatest";
-        } else {
-            //noinspection deprecation
-            myAbi = android.os.Build.CPU_ABI + "-qatest";
-        }
+    Build getMyAbiBuild(ABIWrapper abiWrapper, BuildList buildList, String versionName) {
+        String myAbi = abiWrapper.getABI() + "-qatest";
         String apkName = "";
         String date = "";
         boolean hasCorrectApk = false;
@@ -156,7 +150,7 @@ class MainPresenter implements MainContract.Presenter {
     }
 
     private void setupMyAbiBuild(BuildList buildList, String versionName) {
-        setBuild(getMyAbiBuild(buildList, versionName));
+        setBuild(getMyAbiBuild(new ABIWrapper(), buildList, versionName));
         mView.showLastestBuild(mBuild);
         stateSetting();
     }
@@ -186,5 +180,19 @@ class MainPresenter implements MainContract.Presenter {
 
     void setBuild(@NonNull Build build) {
         mBuild = build;
+    }
+
+    static class ABIWrapper {
+
+        String getABI() {
+            String myAbi;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                myAbi = android.os.Build.SUPPORTED_ABIS[0];
+            } else {
+                //noinspection deprecation
+                myAbi = android.os.Build.CPU_ABI;
+            }
+            return myAbi;
+        }
     }
 }
