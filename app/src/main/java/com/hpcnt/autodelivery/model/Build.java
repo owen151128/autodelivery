@@ -13,17 +13,28 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
+@ToString(exclude = "separateName")
+@EqualsAndHashCode(exclude = "separateName")
 public class Build {
+
     public static final Build EMPTY = new Build();
     @NonNull
+    @Getter
     private String versionName = "";
     @NonNull
+    @Getter
     private String date = "";
     @NonNull
+    @Getter
+    @Setter
     private String apkName = "";
     @NonNull
     private List<String> separateName = new ArrayList<>();
-
     private final SimpleDateFormat engFormat =
             new SimpleDateFormat("dd-MMM-yyyy kk:mm", Locale.US);
     private final SimpleDateFormat korFormat =
@@ -60,25 +71,6 @@ public class Build {
         }
     }
 
-    public void setApkName(@NonNull String apkName) {
-        this.apkName = apkName;
-    }
-
-    @NonNull
-    public String getVersionName() {
-        return versionName;
-    }
-
-    @NonNull
-    public String getDate() {
-        return date;
-    }
-
-    @NonNull
-    public String getApkName() {
-        return apkName;
-    }
-
     @NonNull
     public String getApkUrl() {
         return BaseApplication.BUILD_SERVER_URL + versionName + apkName;
@@ -103,35 +95,5 @@ public class Build {
             return false;
         }
         return true;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        Build build = (Build) o;
-
-        return versionName.equals(build.versionName)
-                && date.equals(build.date)
-                && apkName.equals(build.apkName);
-
-    }
-
-    @Override
-    public int hashCode() {
-        int result = versionName.hashCode();
-        result = 31 * result + date.hashCode();
-        result = 31 * result + apkName.hashCode();
-        return result;
-    }
-
-    @Override
-    public String toString() {
-        return "Build{"
-                + "versionName='" + versionName + '\''
-                + ", date='" + date + '\''
-                + ", apkName='" + apkName + '\''
-                + '}';
     }
 }
