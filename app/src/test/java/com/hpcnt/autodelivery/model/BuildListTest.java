@@ -15,10 +15,7 @@ public class BuildListTest {
     @Test
     public void testParseHtmlToBuildList() {
         String response = TestUtil.getStringFromResource(getClass().getClassLoader(), "index_from_html.html");
-        assertNotSame("파일을 읽었을 때 공백이면 안된다", "", response);
-
         String setupDataJson = TestUtil.getStringFromResource(getClass().getClassLoader(), "build_list_setup_data.json");
-        assertNotSame("파일을 읽었을 때 공백이면 안된다", "", setupDataJson);
 
         List<Build> builds = TestUtil.getListObjectFromJson(setupDataJson, Build.class, new TypeToken<List<Build>>() {
         }.getType(), (json, typeOfT, context) -> {
@@ -35,4 +32,6 @@ public class BuildListTest {
 
         assertEquals("html을 파싱한 데이터와 준비한 데이터 같이야한다", buildListFromTest.getList(), buildListFromResponse.getList());
     }
+
+
 }

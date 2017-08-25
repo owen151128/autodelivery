@@ -12,7 +12,6 @@ public class BuildTest {
     @Test
     public void testGetLatestBuild() {
         String response = TestUtil.getStringFromResource(getClass().getClassLoader(), "index_3_18_9.html");
-        assertNotSame("파일을 읽었을 때 공백이면 안된다", "", response);
         BuildList buildList = BuildList.fromHtml(response);
         Build build = buildList.getLatestBuild();
 

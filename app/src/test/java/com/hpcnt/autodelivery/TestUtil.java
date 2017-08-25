@@ -13,6 +13,8 @@ import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.util.List;
 
+import static junit.framework.Assert.assertNotSame;
+
 public class TestUtil {
 
     public static String getStringFromResource(ClassLoader classLoader, String fileName) {
@@ -21,7 +23,7 @@ public class TestUtil {
         try {
             response = IOUtils.toString(inputStream, "UTF-8");
         } catch (IOException e) {
-            e.printStackTrace();
+            assertNotSame("파일을 읽었을 때 공백이면 안된다", "", response);
         }
         return response;
     }

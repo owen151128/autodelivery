@@ -29,7 +29,6 @@ import io.reactivex.schedulers.Schedulers;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertNotSame;
 import static junit.framework.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -58,8 +57,8 @@ public class MainPresenterTest {
 
     @Test
     public void testGetLatestBuildSuccess() {
-        String responseFirst = getResString("index_3_18_9.html");
-        String responseApk = getResString("index_3_18_9_apk.html");
+        String responseFirst = TestUtil.getStringFromResource(getClass().getClassLoader(), "index_3_18_9.html");
+        String responseApk = TestUtil.getStringFromResource(getClass().getClassLoader(), "index_3_18_9_apk.html");
 
         BuildFetcher mockFetcher = mock(BuildFetcher.class);
 
@@ -72,9 +71,9 @@ public class MainPresenterTest {
 
     @Test
     public void testGetLatestBuildRecursiveSuccess() {
-        String responseFirst = getResString("index_3_18_0.html");
-        String responseSecond = getResString("index_3_18_0_201707171052.html");
-        String responseApk = getResString("index_3_18_0_201707171052_apk.html");
+        String responseFirst = TestUtil.getStringFromResource(getClass().getClassLoader(), "index_3_18_0.html");
+        String responseSecond = TestUtil.getStringFromResource(getClass().getClassLoader(), "index_3_18_0_201707171052.html");
+        String responseApk = TestUtil.getStringFromResource(getClass().getClassLoader(), "index_3_18_0_201707171052_apk.html");
 
         BuildFetcher mockFetcher = mock(BuildFetcher.class);
 
@@ -89,7 +88,7 @@ public class MainPresenterTest {
 
     @Test
     public void testGetLatestBuildFail() {
-        String responseFirst = getResString("index_3_18_9.html");
+        String responseFirst = TestUtil.getStringFromResource(getClass().getClassLoader(), "index_3_18_9.html");
 
         BuildFetcher mockFetcher = mock(BuildFetcher.class);
 
@@ -105,8 +104,8 @@ public class MainPresenterTest {
 
     @Test
     public void testDownloadApkSuccess() {
-        String responseFirst = getResString("index_3_18_9.html");
-        String responseApk = getResString("index_3_18_9_apk.html");
+        String responseFirst = TestUtil.getStringFromResource(getClass().getClassLoader(), "index_3_18_9.html");
+        String responseApk = TestUtil.getStringFromResource(getClass().getClassLoader(), "index_3_18_9_apk.html");
 
         BuildFetcher mockFetcher = mock(BuildFetcher.class);
 
@@ -254,12 +253,6 @@ public class MainPresenterTest {
         ShadowDownloadManager.ShadowRequest shadowRequest = shadowOf(shadowDownloadManager.getRequest(0));
         assertNotNull(shadowRequest);
         return shadowRequest;
-    }
-
-    private String getResString(String resource) {
-        String responseFirst = TestUtil.getStringFromResource(getClass().getClassLoader(), resource);
-        assertNotSame("파일을 읽었을 때 공백이면 안된다", "", responseFirst);
-        return responseFirst;
     }
 
     private void assertDownloadApkSuccess(Build mockBuild, ShadowDownloadManager.ShadowRequest shadowRequest) {
