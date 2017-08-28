@@ -1,5 +1,10 @@
 package com.hpcnt.autodelivery.util;
 
+import org.apache.commons.io.IOUtils;
+
+import java.io.IOException;
+import java.io.InputStream;
+
 public class StringUtil {
 
     public static boolean isDirectory(String path) {

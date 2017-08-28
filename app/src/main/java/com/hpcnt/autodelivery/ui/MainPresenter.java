@@ -3,8 +3,8 @@ package com.hpcnt.autodelivery.ui;
 import android.app.DownloadManager;
 import android.net.Uri;
 import android.os.Environment;
+import android.support.annotation.NonNull;
 
-import com.hpcnt.autodelivery.R;
 import com.hpcnt.autodelivery.model.Build;
 import com.hpcnt.autodelivery.model.BuildList;
 import com.hpcnt.autodelivery.network.BuildFetcher;
@@ -16,36 +16,34 @@ import java.util.List;
 
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
 class MainPresenter implements MainContract.Presenter {
+
     private MainContract.View mView;
-    private Build mBuild;
     private MainContract.STATE mState;
-    private BuildFetcher mBuildFetcher;
+    @NonNull
+    private Build mBuild = new Build();
 
     MainPresenter(MainContract.View view) {
         mView = view;
-        mBuildFetcher = new BuildFetcher(view);
     }
 
     @Override
-    public void loadLatestBuild() {
-        mState = MainContract.STATE.LOADING;
-        mView.showButton(mState);
-        mBuildFetcher.fetchBuildList("")
-                .subscribe(s -> new LatestBuildFetchListener().onStringFetched(s),
-                        throwable -> mView.showToast(throwable.toString()));
+    public void loadLatestBuild(BuildFetcher fetcher) {
+        setState(MainContract.STATE.LOADING);
+        executeBuildFetch(fetcher, "", s -> new LatestBuildFetchListener().onStringFetched(s, fetcher));
     }
 
     @Override
     public void downloadApk() {
         if (mState != MainContract.STATE.DOWNLOAD) return;
         if (mBuild.getApkName().equals("")) {
-            setEditBuild(mBuild.getVersionName(), BuildEditContract.FLAG.APK);
+            editCurrentBuild(mBuild.getVersionName(), BuildEditContract.FLAG.APK);
             return;
         }
-        mState = MainContract.STATE.DOWNLOADING;
+        setState(MainContract.STATE.DOWNLOADING);
         Uri apkUri = Uri.parse(mBuild.getApkUrl());
         List<String> pathSegments = apkUri.getPathSegments();
         DownloadManager.Request request = new DownloadManager.Request(apkUri);
@@ -55,17 +53,13 @@ class MainPresenter implements MainContract.Presenter {
                         DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
                 .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS,
                         mBuild.getVersionName() + pathSegments.get(pathSegments.size() - 1));
-        mView.showButton(mState);
         mView.addDownloadRequest(request);
     }
 
     @Override
     public void installApk() {
         if (mState != MainContract.STATE.INSTALL) return;
-        String apkPath = Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "/" + mBuild.getVersionName()
-                + mBuild.getApkName();
-        mView.showApkInstall(apkPath);
+        mView.showApkInstall(mBuild.getApkDownloadedPath());
     }
 
     @Override
@@ -78,7 +72,7 @@ class MainPresenter implements MainContract.Presenter {
     }
 
     @Override
-    public void setEditBuild(String versionPath, BuildEditContract.FLAG flag) {
+    public void editCurrentBuild(String versionPath, BuildEditContract.FLAG flag) {
         mView.showEditDialog(versionPath, flag);
     }
 
@@ -89,88 +83,116 @@ class MainPresenter implements MainContract.Presenter {
     }
 
     @Override
-    public void setEditedBuild(BuildList buildList, String versionName) {
-        mBuild.setDate(buildList.get(0).getDate());
+    public void selectMyAbiBuild(BuildList buildList, String versionName) {
         if (!StringUtil.isDirectory(versionName))
             versionName += "/";
-        selectBuild(buildList, versionName);
+        setupMyAbiBuild(buildList, versionName);
     }
 
     @Override
     public void stateSetting() {
         hasLastestFile().subscribe(hasFile -> {
             if (hasFile) {
-                mState = MainContract.STATE.INSTALL;
-                mView.showButton(mState);
+                setState(MainContract.STATE.INSTALL);
             } else {
-                mState = MainContract.STATE.DOWNLOAD;
-                mView.showButton(mState);
+                setState(MainContract.STATE.DOWNLOAD);
             }
         });
     }
 
-    private void selectBuild(BuildList buildList, String versionName) {
-        String myAbi;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-            myAbi = android.os.Build.SUPPORTED_ABIS[0] + "-qatest";
-        } else {
-            //noinspection deprecation
-            myAbi = android.os.Build.CPU_ABI + "-qatest";
-        }
+    @NonNull
+    Build getMyAbiBuild(ABIWrapper abiWrapper, BuildList buildList, String versionName) {
+        String myAbi = abiWrapper.getABI() + "-qatest";
         String apkName = "";
+        String date = "";
         boolean hasCorrectApk = false;
         for (int i = 0; i < buildList.size(); i++) {
             apkName = buildList.get(i).getVersionName();
+            date = buildList.get(i).getDate();
             if (apkName.contains(myAbi)) {
                 hasCorrectApk = true;
                 break;
             }
         }
 
-        if (hasCorrectApk) {
-            mBuild.setApkName(apkName);
-        } else {
-            mBuild.setApkName("");
-        }
-        mBuild.setVersionName(versionName);
-        mView.showLastestBuild(mBuild);
+        if (!hasCorrectApk)
+            apkName = "";
 
-        stateSetting();
+        return new Build(versionName, date, apkName);
     }
 
-
     private class LatestBuildFetchListener {
+
         private StringBuilder mFullVersionName = new StringBuilder();
 
-        void onStringFetched(String response) {
+        void onStringFetched(String response, BuildFetcher fetcher) {
             BuildList buildList = BuildList.fromHtml(response);
-            mBuild = buildList.getLastestBuild();
-            if (mBuild == null) {
-                mView.showToast(R.string.message_wrong_access);
-                return;
-            }
+            setBuild(buildList.getLatestBuild());
 
             String versionName = mBuild.getVersionName();
 
             if (StringUtil.isDirectory(versionName)) {
                 mFullVersionName.append(versionName);
-                mBuildFetcher.fetchBuildList(mFullVersionName.toString())
-                        .subscribe(this::onStringFetched,
-                                throwable -> mView.showToast(throwable.toString()));
+                executeBuildFetch(fetcher, mFullVersionName.toString(), s -> this.onStringFetched(s, fetcher));
             } else {
-                selectBuild(buildList, mFullVersionName.toString());
+                setupMyAbiBuild(buildList, mFullVersionName.toString());
             }
         }
     }
 
+    private void executeBuildFetch(BuildFetcher fetcher, String path, Consumer<String> consumer) {
+        fetcher.fetchBuildList(path)
+                .subscribe(consumer,
+                        throwable -> {
+                            setState(MainContract.STATE.FAIL);
+                            setBuild(Build.EMPTY);
+                        });
+    }
+
+    private void setupMyAbiBuild(BuildList buildList, String versionName) {
+        setBuild(getMyAbiBuild(new ABIWrapper(), buildList, versionName));
+        mView.showLastestBuild(mBuild);
+        stateSetting();
+    }
+
     private Single<Boolean> hasLastestFile() {
         return Single.<Boolean>create(e -> {
-            File buildFile = new File(Environment.getExternalStoragePublicDirectory(
-                    Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "/"
-                    + mBuild.getVersionName());
+            File buildFile = new File(mBuild.getApkDownloadedPath());
             e.onSuccess(buildFile.exists());
         })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread());
+    }
+
+    @Override
+    public void setState(MainContract.STATE state) {
+        mState = state;
+        mView.showButton(state);
+    }
+
+    MainContract.STATE getState() {
+        return mState;
+    }
+
+    Build getBuild() {
+        return mBuild;
+    }
+
+    void setBuild(@NonNull Build build) {
+        mBuild = build;
+    }
+
+    static class ABIWrapper {
+
+        String getABI() {
+            String myAbi;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                myAbi = android.os.Build.SUPPORTED_ABIS[0];
+            } else {
+                //noinspection deprecation
+                myAbi = android.os.Build.CPU_ABI;
+            }
+            return myAbi;
+        }
     }
 }

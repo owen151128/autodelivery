@@ -1,22 +1,53 @@
 package com.hpcnt.autodelivery.model;
 
+import android.os.Environment;
 import android.support.annotation.NonNull;
 
 import com.hpcnt.autodelivery.BaseApplication;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
+@ToString(exclude = "separateName")
+@EqualsAndHashCode(exclude = "separateName")
 public class Build {
+
+    public static final Build EMPTY = new Build();
     @NonNull
+    @Getter
     private String versionName = "";
     @NonNull
+    @Getter
     private String date = "";
     @NonNull
+    @Getter
+    @Setter
     private String apkName = "";
     @NonNull
     private List<String> separateName = new ArrayList<>();
+    private final SimpleDateFormat engFormat =
+            new SimpleDateFormat("dd-MMM-yyyy kk:mm", Locale.US);
+    private final SimpleDateFormat korFormat =
+            new SimpleDateFormat("yy년 MM월 dd일 kk시 mm분", Locale.KOREAN);
+
+    public Build() {
+    }
+
+    public Build(@NonNull String versionName, @NonNull String date, @NonNull String apkName) {
+        setVersionName(versionName);
+        setDate(date);
+        setApkName(apkName);
+    }
 
     public void setVersionName(@NonNull String versionName) {
         this.versionName = versionName;
@@ -24,26 +55,20 @@ public class Build {
     }
 
     public void setDate(@NonNull String date) {
-        this.date = date;
-    }
+        if (isLanguageFormat(engFormat, date)) {
+            Date inputDate;
+            try {
+                inputDate = engFormat.parse(date);
+            } catch (ParseException e) {
+                inputDate = new Date(0);
+            }
 
-    public void setApkName(@NonNull String apkName) {
-        this.apkName = apkName;
-    }
-
-    @NonNull
-    public String getVersionName() {
-        return versionName;
-    }
-
-    @NonNull
-    public String getDate() {
-        return date;
-    }
-
-    @NonNull
-    public String getApkName() {
-        return apkName;
+            this.date = korFormat.format(inputDate);
+        } else if (isLanguageFormat(korFormat, date)) {
+            this.date = date;
+        } else {
+            this.date = "";
+        }
     }
 
     @NonNull
@@ -52,28 +77,23 @@ public class Build {
     }
 
     @NonNull
+    public String getApkDownloadedPath() {
+        return Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "/" + getVersionName()
+                + getApkName();
+    }
+
+    @NonNull
     public List<String> getSeparateName() {
         return separateName;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        Build build = (Build) o;
-
-        return versionName.equals(build.versionName)
-                && date.equals(build.date)
-                && apkName.equals(build.apkName);
-
-    }
-
-    @Override
-    public int hashCode() {
-        int result = versionName.hashCode();
-        result = 31 * result + date.hashCode();
-        result = 31 * result + apkName.hashCode();
-        return result;
+    private boolean isLanguageFormat(SimpleDateFormat format, String date) {
+        try {
+            format.parse(date);
+        } catch (ParseException e) {
+            return false;
+        }
+        return true;
     }
 }

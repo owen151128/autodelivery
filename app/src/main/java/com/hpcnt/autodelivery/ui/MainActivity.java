@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.Bundle;
@@ -23,6 +24,7 @@ import android.widget.Toast;
 import com.hpcnt.autodelivery.R;
 import com.hpcnt.autodelivery.databinding.ActivityMainBinding;
 import com.hpcnt.autodelivery.model.Build;
+import com.hpcnt.autodelivery.network.BuildFetcher;
 import com.hpcnt.autodelivery.ui.dialog.BuildEditContract;
 import com.hpcnt.autodelivery.ui.dialog.BuildEditDialog;
 import com.trello.rxlifecycle2.components.support.RxAppCompatActivity;
@@ -32,6 +34,7 @@ import java.io.File;
 public class MainActivity extends RxAppCompatActivity implements MainContract.View {
 
     private DownloadManager downloadManager;
+    private long downloadQueueId;
     private ActivityMainBinding binding;
     private MainContract.Presenter mPresenter;
 
@@ -42,7 +45,12 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
         binding.setAction(this);
         downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
         mPresenter = new MainPresenter(this);
-        mPresenter.loadLatestBuild();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mPresenter.loadLatestBuild(new BuildFetcher(this));
     }
 
     @Override
@@ -56,10 +64,10 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_refresh:
-                mPresenter.loadLatestBuild();
+                mPresenter.loadLatestBuild(new BuildFetcher(this));
                 return true;
             case R.id.menu_edit:
-                mPresenter.setEditBuild("", BuildEditContract.FLAG.EDIT);
+                mPresenter.editCurrentBuild("", BuildEditContract.FLAG.EDIT);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -121,6 +129,10 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
                 isEnable = true;
                 stringResId = R.string.install;
                 break;
+            case FAIL:
+                isEnable = false;
+                stringResId = R.string.fail;
+                break;
             default:
                 isEnable = false;
                 stringResId = 0;
@@ -150,7 +162,7 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
     public void showEditDialog(String versionPath, BuildEditContract.FLAG flag) {
         BuildEditDialog buildEditDialog = BuildEditDialog.newInstance(versionPath, flag);
         buildEditDialog.setOnDismissListener(
-                (buildList, versionName) -> mPresenter.setEditedBuild(buildList, versionName));
+                (buildList, versionName) -> mPresenter.selectMyAbiBuild(buildList, versionName));
         buildEditDialog.setOnDismissApkListener(apkName -> mPresenter.setApkName(apkName));
         buildEditDialog.show(getSupportFragmentManager(), BuildEditDialog.class.getSimpleName());
     }
@@ -159,7 +171,7 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
     public void addDownloadRequest(DownloadManager.Request request) {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 == PackageManager.PERMISSION_GRANTED) {
-            downloadManager.enqueue(request);
+            downloadQueueId = downloadManager.enqueue(request);
         } else {
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
@@ -181,10 +193,34 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
         }
     }
 
-    private BroadcastReceiver downloadCompleteReceiver = new BroadcastReceiver() {
+    BroadcastReceiver downloadCompleteReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            mPresenter.stateSetting();
+            DownloadManager.Query query = new DownloadManager.Query();
+            query.setFilterById(downloadQueueId);
+            Cursor cursor = downloadManager.query(query);
+            cursor.moveToFirst();
+            int status = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS));
+            switch (status) {
+                case DownloadManager.STATUS_SUCCESSFUL:
+                    mPresenter.stateSetting();
+                    break;
+                default:
+                    mPresenter.setState(MainContract.STATE.FAIL);
+                    break;
+            }
         }
     };
+
+    ActivityMainBinding getBinding() {
+        return binding;
+    }
+
+    DownloadManager getDownloadManager() {
+        return downloadManager;
+    }
+
+    MainContract.Presenter getPresenter() {
+        return mPresenter;
+    }
 }

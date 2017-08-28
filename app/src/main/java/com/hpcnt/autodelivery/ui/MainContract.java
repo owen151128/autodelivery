@@ -5,12 +5,13 @@ import android.app.DownloadManager;
 import com.hpcnt.autodelivery.LifeCycleProvider;
 import com.hpcnt.autodelivery.model.Build;
 import com.hpcnt.autodelivery.model.BuildList;
+import com.hpcnt.autodelivery.network.BuildFetcher;
 import com.hpcnt.autodelivery.ui.dialog.BuildEditContract;
 
 interface MainContract {
 
     enum STATE {
-        DOWNLOAD, LOADING, DOWNLOADING, INSTALL
+        DOWNLOAD, LOADING, DOWNLOADING, INSTALL, FAIL
     }
 
     int PERMISSION_REQUEST_WRITE_EXTERNAL_STORAGE = 0;
@@ -34,7 +35,7 @@ interface MainContract {
 
     interface Presenter {
 
-        void loadLatestBuild();
+        void loadLatestBuild(BuildFetcher fetcher);
 
         void downloadApk();
 
@@ -44,10 +45,12 @@ interface MainContract {
 
         void onClickButton();
 
-        void setEditedBuild(BuildList buildList, String versionName);
+        void selectMyAbiBuild(BuildList buildList, String versionName);
 
-        void setEditBuild(String versionPath, BuildEditContract.FLAG flag);
+        void editCurrentBuild(String versionPath, BuildEditContract.FLAG flag);
 
         void setApkName(String apkName);
+
+        void setState(STATE state);
     }
 }
