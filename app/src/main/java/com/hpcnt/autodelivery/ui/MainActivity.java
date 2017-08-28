@@ -77,8 +77,8 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
     @Override
     protected void onResume() {
         super.onResume();
-        IntentFilter downloadCompleteFilter;
-        downloadCompleteFilter = new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
+        IntentFilter downloadCompleteFilter =
+                new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
         registerReceiver(downloadCompleteReceiver, downloadCompleteFilter);
     }
 

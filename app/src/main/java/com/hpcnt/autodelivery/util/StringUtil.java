@@ -8,7 +8,7 @@ import java.io.InputStream;
 public class StringUtil {
 
     public static boolean isDirectory(String path) {
-        return !"".equals(path) && path.charAt(path.length() - 1) == '/';
+        return !path.isEmpty() && path.charAt(path.length() - 1) == '/';
     }
 
     public static boolean isDigitFirstWord(String string) {
