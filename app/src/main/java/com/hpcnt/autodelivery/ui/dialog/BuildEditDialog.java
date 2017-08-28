@@ -72,7 +72,9 @@ public class BuildEditDialog extends RxDialogFragment implements BuildEditContra
 
     @Override
     public void setList(BuildEditAdapter adapter) {
-        binding.editDialogList.setLayoutManager(new LinearLayoutManager(getContext()));
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
+        linearLayoutManager.setAutoMeasureEnabled(false);
+        binding.editDialogList.setLayoutManager(linearLayoutManager);
         binding.editDialogList.addItemDecoration(new DividerItemDecoration(getContext(),
                 LinearLayoutManager.VERTICAL));
         binding.editDialogList.setAdapter(adapter);
