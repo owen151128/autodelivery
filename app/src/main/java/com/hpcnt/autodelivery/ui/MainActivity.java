@@ -212,7 +212,7 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
         }
     };
 
-    ActivityMainBinding getBinding() {
+    public ActivityMainBinding getBinding() {
         return binding;
     }
 
@@ -220,7 +220,7 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
         return downloadManager;
     }
 
-    MainContract.Presenter getPresenter() {
+    public MainContract.Presenter getPresenter() {
         return mPresenter;
     }
 }

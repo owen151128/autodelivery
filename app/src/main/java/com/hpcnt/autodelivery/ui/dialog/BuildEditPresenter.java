@@ -17,15 +17,12 @@ class BuildEditPresenter implements BuildEditContract.Presenter {
     private BuildEditContract.View mView;
     private BuildEditAdapterContract.View mAdapterView;
     private BuildEditAdapterContract.Model mAdapterModel;
-    private BuildFetcher mBuildFetcher;
-
     private BuildList mBuildList;
     private BuildEditContract.FLAG mFlag;
 
     BuildEditPresenter(BuildEditContract.View view, Bundle arguments) {
         mView = view;
         mFlag = (BuildEditContract.FLAG) arguments.getSerializable(BuildEditContract.KEY_FLAG);
-        mBuildFetcher = new BuildFetcher(view);
     }
 
     @Override
@@ -36,25 +33,27 @@ class BuildEditPresenter implements BuildEditContract.Presenter {
     }
 
     @Override
-    public void loadBuildList(String versionPath) {
+    public void loadBuildList(BuildFetcher fetcher, String versionPath) {
         mAdapterModel.setSelectedVersion(versionPath);
-        mBuildFetcher.fetchBuildList(versionPath)
-                .subscribe(this::nextBuildListFetch,
+
+        fetcher.fetchBuildList(versionPath)
+                .subscribe(s -> nextBuildListFetch(fetcher, s),
                         throwable -> mView.showToast(throwable.toString()));
     }
 
     @Override
-    public void onItemClick(String currentVersion) {
+    public void onItemClick(BuildFetcher fetcher, String currentVersion) {
         Build build = new Build();
         build.setVersionName(currentVersion);
         int separateSize = build.getSeparateName().size();
 
         List<String> separateName = new ArrayList<>();
         separateName.addAll(build.getSeparateName());
-        setVersionData(new StringBuilder(currentVersion), separateName, separateSize);
+        setVersionData(fetcher, new StringBuilder(currentVersion), separateName, separateSize);
     }
 
-    private void setVersionData(StringBuilder versionTitle, List<String> separateName, int index) {
+    private void setVersionData(
+            BuildFetcher fetcher, StringBuilder versionTitle, List<String> separateName, int index) {
         Set<String> versionSet = mBuildList.getVersionSet(separateName, index);
         if (versionSet.size() == 1) {
             for (String version : versionSet) {
@@ -64,7 +63,7 @@ class BuildEditPresenter implements BuildEditContract.Presenter {
                 separateName.add(version);
             }
 
-            setVersionData(versionTitle, separateName, index + 1);
+            setVersionData(fetcher, versionTitle, separateName, index + 1);
         } else if (versionSet.size() > 1) {
             List<String> versionList = new ArrayList<>();
             for (String version : versionSet) {
@@ -82,18 +81,18 @@ class BuildEditPresenter implements BuildEditContract.Presenter {
             }
             String version = mBuildList.get(versionTitle.toString()).getVersionName();
             mAdapterModel.setSelectedVersion(version);
-            mBuildFetcher.fetchBuildList(mBuildList.get(separateName).getVersionName())
-                    .subscribe(this::nextBuildListFetch,
+
+            fetcher.fetchBuildList(version)
+                    .subscribe((response) -> nextBuildListFetch(fetcher, response),
                             throwable -> mView.showToast(throwable.toString()));
         }
-
     }
 
-    private void nextBuildListFetch(String response) {
+    private void nextBuildListFetch(BuildFetcher fetcher, String response) {
         String selectedVersion = mAdapterModel.getSelectedVersion();
         if ("".equals(selectedVersion)) {
             mBuildList = BuildList.fromHtml(response);
-            setVersionData(new StringBuilder(), new ArrayList<>(), 0);
+            setVersionData(fetcher, new StringBuilder(), new ArrayList<>(), 0);
             return;
         }
 
@@ -134,5 +133,18 @@ class BuildEditPresenter implements BuildEditContract.Presenter {
         mAdapterModel.setList(adapterList);
         mAdapterView.refresh();
         mView.showVersionTitle(selectedVersion);
+    }
+
+    BuildEditAdapterContract.Model getAdapterModel() {
+        mAdapterModel.getCount();
+        return mAdapterModel;
+    }
+
+    public BuildEditContract.FLAG getFlag() {
+        return mFlag;
+    }
+
+    public void setFlag(BuildEditContract.FLAG flag) {
+        mFlag = flag;
     }
 }

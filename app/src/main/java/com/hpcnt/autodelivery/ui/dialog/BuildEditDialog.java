@@ -1,6 +1,5 @@
 package com.hpcnt.autodelivery.ui.dialog;
 
-
 import android.content.DialogInterface;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
@@ -16,15 +15,14 @@ import android.widget.Toast;
 import com.hpcnt.autodelivery.R;
 import com.hpcnt.autodelivery.databinding.DialogBuildEditBinding;
 import com.hpcnt.autodelivery.model.BuildList;
+import com.hpcnt.autodelivery.network.BuildFetcher;
 import com.trello.rxlifecycle2.components.support.RxDialogFragment;
-
 
 /**
  * @author Stark
  *         시나리오상 버튼을 사용해야하는 AlertDialog가 아니라
  *         Custom Dialog 구현이 필요해서 fagment 생명주기를 보장해주는 DialogFragment를 사용했다
  */
-
 public class BuildEditDialog extends RxDialogFragment implements BuildEditContract.View {
 
     private DialogBuildEditBinding binding;
@@ -49,6 +47,7 @@ public class BuildEditDialog extends RxDialogFragment implements BuildEditContra
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.dialog_build_edit, container, false);
         binding = DataBindingUtil.bind(view);
+        mPresenter = new BuildEditPresenter(this, getArguments());
         return view;
     }
 
@@ -60,14 +59,13 @@ public class BuildEditDialog extends RxDialogFragment implements BuildEditContra
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mPresenter = new BuildEditPresenter(this, getArguments());
 
         BuildEditAdapter adapter = new BuildEditAdapter();
         mPresenter.setList(adapter);
         adapter.setOnClickListener(
-                v -> mPresenter.onItemClick(((TextView) v).getText().toString()));
+                v -> mPresenter.onItemClick(new BuildFetcher(this), ((TextView) v).getText().toString()));
 
-        mPresenter.loadBuildList(getArguments().getString(BuildEditContract.KEY_VERSION_PATH));
+        mPresenter.loadBuildList(new BuildFetcher(this), getArguments().getString(BuildEditContract.KEY_VERSION_PATH));
     }
 
     @Override
@@ -120,5 +118,13 @@ public class BuildEditDialog extends RxDialogFragment implements BuildEditContra
     public void setOnDismissApkListener(
             BuildEditContract.OnDismissApkListener onDismissApkListener) {
         mOnDismissApkListener = onDismissApkListener;
+    }
+
+    DialogBuildEditBinding getBinding() {
+        return binding;
+    }
+
+    BuildEditContract.Presenter getPresenter() {
+        return mPresenter;
     }
 }
