@@ -22,7 +22,7 @@ import io.reactivex.schedulers.Schedulers;
 class MainPresenter implements MainContract.Presenter {
 
     private MainContract.View mView;
-    private MainContract.STATE mState;
+    private MainContract.State mState;
     @NonNull
     private Build mBuild = new Build();
 
@@ -32,18 +32,18 @@ class MainPresenter implements MainContract.Presenter {
 
     @Override
     public void loadLatestBuild(BuildFetcher fetcher) {
-        setState(MainContract.STATE.LOADING);
+        setState(MainContract.State.LOADING);
         executeBuildFetch(fetcher, "", s -> new LatestBuildFetchListener().onStringFetched(s, fetcher));
     }
 
     @Override
     public void downloadApk() {
-        if (mState != MainContract.STATE.DOWNLOAD) return;
+        if (mState != MainContract.State.DOWNLOAD) return;
         if (mBuild.getApkName().equals("")) {
             editCurrentBuild(mBuild.getVersionName(), BuildEditContract.FLAG.APK);
             return;
         }
-        setState(MainContract.STATE.DOWNLOADING);
+        setState(MainContract.State.DOWNLOADING);
         Uri apkUri = Uri.parse(mBuild.getApkUrl());
         List<String> pathSegments = apkUri.getPathSegments();
         DownloadManager.Request request = new DownloadManager.Request(apkUri);
@@ -58,15 +58,15 @@ class MainPresenter implements MainContract.Presenter {
 
     @Override
     public void installApk() {
-        if (mState != MainContract.STATE.INSTALL) return;
+        if (mState != MainContract.State.INSTALL) return;
         mView.showApkInstall(mBuild.getApkDownloadedPath());
     }
 
     @Override
     public void onClickButton() {
-        if (mState == MainContract.STATE.DOWNLOAD) {
+        if (mState == MainContract.State.DOWNLOAD) {
             downloadApk();
-        } else if (mState == MainContract.STATE.INSTALL) {
+        } else if (mState == MainContract.State.INSTALL) {
             installApk();
         }
     }
@@ -93,9 +93,9 @@ class MainPresenter implements MainContract.Presenter {
     public void stateSetting() {
         hasLastestFile().subscribe(hasFile -> {
             if (hasFile) {
-                setState(MainContract.STATE.INSTALL);
+                setState(MainContract.State.INSTALL);
             } else {
-                setState(MainContract.STATE.DOWNLOAD);
+                setState(MainContract.State.DOWNLOAD);
             }
         });
     }
@@ -144,7 +144,7 @@ class MainPresenter implements MainContract.Presenter {
         fetcher.fetchBuildList(path)
                 .subscribe(consumer,
                         throwable -> {
-                            setState(MainContract.STATE.FAIL);
+                            setState(MainContract.State.FAIL);
                             setBuild(Build.EMPTY);
                         });
     }
@@ -165,12 +165,12 @@ class MainPresenter implements MainContract.Presenter {
     }
 
     @Override
-    public void setState(MainContract.STATE state) {
+    public void setState(MainContract.State state) {
         mState = state;
         mView.showButton(state);
     }
 
-    MainContract.STATE getState() {
+    MainContract.State getState() {
         return mState;
     }
 

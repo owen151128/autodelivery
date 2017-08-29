@@ -10,7 +10,7 @@ import com.hpcnt.autodelivery.ui.dialog.BuildEditContract;
 
 interface MainContract {
 
-    enum STATE {
+    enum State {
         DOWNLOAD, LOADING, DOWNLOADING, INSTALL, FAIL
     }
 
@@ -24,7 +24,7 @@ interface MainContract {
 
         void showToast(int resoureceId);
 
-        void showButton(STATE state);
+        void showButton(State state);
 
         void addDownloadRequest(DownloadManager.Request request);
 
@@ -51,6 +51,6 @@ interface MainContract {
 
         void setApkName(String apkName);
 
-        void setState(STATE state);
+        void setState(State state);
     }
 }

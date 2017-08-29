@@ -109,7 +109,7 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
     }
 
     @Override
-    public void showButton(MainContract.STATE state) {
+    public void showButton(MainContract.State state) {
         int stringResId;
         boolean isEnable;
         switch (state) {
@@ -206,7 +206,7 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
                     mPresenter.stateSetting();
                     break;
                 default:
-                    mPresenter.setState(MainContract.STATE.FAIL);
+                    mPresenter.setState(MainContract.State.FAIL);
                     break;
             }
         }

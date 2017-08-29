@@ -66,7 +66,10 @@ public class MainPresenterTest {
         when(mockFetcher.fetchBuildList("3.18.9/")).thenReturn(Single.just(responseApk));
 
         Build mockBuild = new Build("3.18.9/", "17년 07월 31일 14시 14분", "app-playstore-armeabi-v7a-qatest.apk");
-        executeLoadLatestBuildSuccess(mockFetcher, mockBuild);
+
+        mPresenter.loadLatestBuild(mockFetcher);
+
+        verifyLoadLatestBuildSuccess(mockBuild, mPresenter.getBuild(), mPresenter.getState());
     }
 
     @Test
@@ -83,7 +86,9 @@ public class MainPresenterTest {
 
         Build mockBuild = new Build("3.18.0/201707171052/", "17년 07월 17일 10시 55분", "app-playstore-armeabi-v7a-qatest.apk");
 
-        executeLoadLatestBuildSuccess(mockFetcher, mockBuild);
+        mPresenter.loadLatestBuild(mockFetcher);
+
+        verifyLoadLatestBuildSuccess(mockBuild, mPresenter.getBuild(), mPresenter.getState());
     }
 
     @Test
@@ -125,15 +130,15 @@ public class MainPresenterTest {
     @Test
     public void testDownloadApkFail() {
         mPresenter.setBuild(new Build("", "", "asdf"));
-        mPresenter.setState(MainContract.STATE.DOWNLOAD);
+        mPresenter.setState(MainContract.State.DOWNLOAD);
 
         ShadowApplication shadowApplication = shadowOf(mActivity.getApplication());
         shadowApplication.grantPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE);
         mPresenter.downloadApk();
 
-        assertState(MainContract.STATE.DOWNLOADING, mPresenter.getState());
+        assertState(MainContract.State.DOWNLOADING, mPresenter.getState());
         mActivity.downloadCompleteReceiver.onReceive(mActivity, new Intent());
-        assertState(MainContract.STATE.FAIL, ((MainPresenter) mActivity.getPresenter()).getState());
+        assertState(MainContract.State.FAIL, ((MainPresenter) mActivity.getPresenter()).getState());
     }
 
     @Test
@@ -191,19 +196,18 @@ public class MainPresenterTest {
         assertSelectMyAbiBuild(mockBuild);
     }
 
-    private void executeLoadLatestBuildSuccess(BuildFetcher mockFetcher, Build mockBuild) {
-        mPresenter.loadLatestBuild(mockFetcher);
+    private void verifyLoadLatestBuildSuccess(Build mockBuild, Build actualBuild, MainContract.State actualState) {
 
         String versionName = mActivity.getBinding().mainVersionName.getText().toString();
         String date = mActivity.getBinding().mainDate.getText().toString();
 
-        assertState(MainContract.STATE.DOWNLOAD, mPresenter.getState());
-        assertEquals("최신빌드가져오기가 성공하면 presenter에 mockbuild가 담긴다", mockBuild, mPresenter.getBuild());
+        assertState(MainContract.State.DOWNLOAD, actualState);
+        assertEquals("최신빌드가져오기가 성공하면 presenter에 mockbuild가 담긴다", mockBuild, actualBuild);
         assertEquals("최신빌드가져오기가 성공하면 activity의 TextView에도 표시되어야 한다", mockBuild.getVersionName(), versionName);
         assertEquals("최신빌드가져오기가 성공하면 activity의 TextView에도 표시되어야 한다", mockBuild.getDate(), date);
     }
 
-    private void assertState(MainContract.STATE expectedState, MainContract.STATE actualState) {
+    private void assertState(MainContract.State expectedState, MainContract.State actualState) {
         assertEquals(expectedState, actualState);
         boolean isEnable;
         int stringResId;
@@ -256,7 +260,7 @@ public class MainPresenterTest {
     }
 
     private void assertDownloadApkSuccess(Build mockBuild, ShadowDownloadManager.ShadowRequest shadowRequest) {
-        assertState(MainContract.STATE.DOWNLOADING, mPresenter.getState());
+        assertState(MainContract.State.DOWNLOADING, mPresenter.getState());
         assertEquals("Request 제목은 버전명이어야 한다", mockBuild.getVersionName(), shadowRequest.getTitle());
         assertEquals("Request 설명은 날짜여야 한다", mockBuild.getDate(), shadowRequest.getDescription());
         assertEquals("Request가 끝나면 남아있게 한다", DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED, shadowRequest.getNotificationVisibility());
