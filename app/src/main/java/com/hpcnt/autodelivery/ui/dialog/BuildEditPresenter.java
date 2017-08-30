@@ -1,6 +1,7 @@
 package com.hpcnt.autodelivery.ui.dialog;
 
 import android.os.Bundle;
+import android.text.TextUtils;
 
 import com.hpcnt.autodelivery.R;
 import com.hpcnt.autodelivery.model.Build;
@@ -34,10 +35,8 @@ class BuildEditPresenter implements BuildEditContract.Presenter {
 
     @Override
     public void loadBuildList(BuildFetcher fetcher, String versionPath) {
-        mAdapterModel.setSelectedVersion(versionPath);
-
         fetcher.fetchBuildList(versionPath)
-                .subscribe(s -> nextBuildListFetch(fetcher, s),
+                .subscribe(s -> nextBuildListFetch(fetcher, versionPath, s),
                         throwable -> mView.showToast(throwable.toString()));
     }
 
@@ -71,7 +70,6 @@ class BuildEditPresenter implements BuildEditContract.Presenter {
             }
 
             mAdapterModel.setList(versionList);
-            mAdapterModel.setSelectedVersion(versionTitle.toString());
             mAdapterView.refresh();
             mView.showVersionTitle(versionTitle.toString());
         } else {
@@ -80,17 +78,15 @@ class BuildEditPresenter implements BuildEditContract.Presenter {
                 return;
             }
             String version = mBuildList.get(versionTitle.toString()).getVersionName();
-            mAdapterModel.setSelectedVersion(version);
 
             fetcher.fetchBuildList(version)
-                    .subscribe((response) -> nextBuildListFetch(fetcher, response),
+                    .subscribe((response) -> nextBuildListFetch(fetcher, version, response),
                             throwable -> mView.showToast(throwable.toString()));
         }
     }
 
-    private void nextBuildListFetch(BuildFetcher fetcher, String response) {
-        String selectedVersion = mAdapterModel.getSelectedVersion();
-        if ("".equals(selectedVersion)) {
+    private void nextBuildListFetch(BuildFetcher fetcher, String selectedVersion, String response) {
+        if (TextUtils.isEmpty(selectedVersion)) {
             mBuildList = BuildList.fromHtml(response);
             setVersionData(fetcher, new StringBuilder(), new ArrayList<>(), 0);
             return;

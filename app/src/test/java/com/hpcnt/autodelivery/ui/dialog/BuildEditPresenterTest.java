@@ -53,15 +53,15 @@ public class BuildEditPresenterTest {
 
     @Test
     public void testLoadBuildListEditFlagSuccess() throws Exception {
-        testLoadBuildListSuccess("", BuildEditContract.FLAG.EDIT, "index_3_18_9.html", "3", 14);
+        testLoadBuildListSuccess("", BuildEditContract.FLAG.EDIT, "index_3_18_9.html", 14);
     }
 
     @Test
     public void testLoadBuildListApkFlagSuccess() throws Exception {
-        testLoadBuildListSuccess("3.18.9/", BuildEditContract.FLAG.APK, "index_3_18_9_apk.html", "3.18.9/", 4);
+        testLoadBuildListSuccess("3.18.9/", BuildEditContract.FLAG.APK, "index_3_18_9_apk.html", 4);
     }
 
-    private void testLoadBuildListSuccess(String versionPath, BuildEditContract.FLAG expectedFlag, String htmlPath, String expectedVersion, int expectedSize) {
+    private void testLoadBuildListSuccess(String versionPath, BuildEditContract.FLAG expectedFlag, String htmlPath, int expectedSize) {
         initMember(versionPath, expectedFlag);
 
         String response = getResString(htmlPath);
@@ -73,7 +73,6 @@ public class BuildEditPresenterTest {
 
         mPresenter.loadBuildList(mockFetcher, versionPath);
         assertEquals("성공적으로 buildlist를 불러오면 flag가 설정되어야 한다", expectedFlag, mPresenter.getFlag());
-        assertEquals("성공적으로 buildlist를 불러오면 adapter에 version이 설정되어야 한다", expectedVersion, mPresenter.getAdapterModel().getSelectedVersion());
         assertEquals("성공적으로 buildlist를 불러오면 list가 설정된다", expectedSize, mPresenter.getAdapterModel().getCount());
     }
 
@@ -96,7 +95,6 @@ public class BuildEditPresenterTest {
 
         mPresenter.onItemClick(mockFetcher, "3.18");
         assertEquals("버전 하위 단위가 여러개일 땐 adapter list에 설정되어야 한다", 7, mPresenter.getAdapterModel().getCount());
-        assertEquals("버전 하위 단위가 여러개일 땐 adapter에 version이 설정되어야 한다", "3.18", mPresenter.getAdapterModel().getSelectedVersion());
         assertEquals("버전 하위 단위가 여러개일 땐 현재 버전을 TextView에 보여줘야한다", "3.18", mView.getBinding().editDialogCurrentTitle.getText().toString());
     }
 
