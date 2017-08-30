@@ -68,6 +68,7 @@ public class BuildList {
         return buildList.size();
     }
 
+    @NonNull
     public Build get(int index) {
         return buildList.get(index);
     }
@@ -101,6 +102,7 @@ public class BuildList {
         return versionSet;
     }
 
+    @NonNull
     public Build get(List<String> separateName) {
         for (Build build : buildList) {
             if (build.getSeparateName().size() != separateName.size()) continue;
@@ -113,7 +115,7 @@ public class BuildList {
             }
             if (isEqual) return build;
         }
-        return null;
+        return Build.EMPTY;
     }
 
     public List<Build> getList() {
