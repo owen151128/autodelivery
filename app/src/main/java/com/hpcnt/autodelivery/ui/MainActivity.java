@@ -69,6 +69,9 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
             case R.id.menu_edit:
                 mPresenter.editCurrentBuild("", BuildEditContract.FLAG.EDIT);
                 return true;
+            case R.id.menu_pr:
+                mPresenter.editCurrentBuild("pr/", BuildEditContract.FLAG.PR);
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -164,6 +167,11 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
         buildEditDialog.setOnDismissListener(
                 (buildList, versionName) -> mPresenter.selectMyAbiBuild(buildList, versionName));
         buildEditDialog.setOnDismissApkListener(apkName -> mPresenter.setApkName(apkName));
+        buildEditDialog.setOnDismissBuildListener(build -> {
+            mPresenter.setBuild(build);
+            showLastestBuild(build);
+            mPresenter.setApkName(build.getApkName());
+        });
         buildEditDialog.show(getSupportFragmentManager(), BuildEditDialog.class.getSimpleName());
     }
 

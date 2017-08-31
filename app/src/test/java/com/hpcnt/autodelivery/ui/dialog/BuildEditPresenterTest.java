@@ -90,10 +90,10 @@ public class BuildEditPresenterTest {
         when(mockFetcher.fetchBuildList("3.14.0-alpha-1/")).thenReturn(Single.just(responseApk));
         mPresenter.loadBuildList(mockFetcher, versionPath);
 
-        mPresenter.onItemClick(mockFetcher, "3.14.0");
+        mPresenter.onItemClick(mockFetcher, binding.editDialogCurrentTitle.getText().toString(), "3.14.0");
         assertEquals("버전 하위 단위가 하나일땐 그 다음 요소를 선택해야한다 ", "3.14.0-alpha-1/", activity.getBinding().mainVersionName.getText().toString());
 
-        mPresenter.onItemClick(mockFetcher, "3.18");
+        mPresenter.onItemClick(mockFetcher, binding.editDialogCurrentTitle.getText().toString(), "3.18");
         assertEquals("버전 하위 단위가 여러개일 땐 adapter list에 설정되어야 한다", 7, mPresenter.getAdapterModel().getCount());
         assertEquals("버전 하위 단위가 여러개일 땐 현재 버전을 TextView에 보여줘야한다", "3.18", mView.getBinding().editDialogCurrentTitle.getText().toString());
     }

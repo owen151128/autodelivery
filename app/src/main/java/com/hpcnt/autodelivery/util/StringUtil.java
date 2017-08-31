@@ -1,9 +1,6 @@
 package com.hpcnt.autodelivery.util;
 
-import org.apache.commons.io.IOUtils;
-
-import java.io.IOException;
-import java.io.InputStream;
+import android.util.Log;
 
 public class StringUtil {
 
@@ -24,5 +21,17 @@ public class StringUtil {
     public static boolean isApkFile(String fileName) {
         fileName = fileName.toLowerCase();
         return fileName.endsWith(".apk");
+    }
+
+    public static boolean isLastWord(String currentVersion, String word) {
+        int currentLength = currentVersion.length();
+        int wordLength = word.length();
+
+        int totalIndex = currentVersion.lastIndexOf(word) + wordLength;
+        if (totalIndex == currentLength) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }

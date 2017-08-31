@@ -79,6 +79,7 @@ class MainPresenter implements MainContract.Presenter {
     @Override
     public void setApkName(String apkName) {
         mBuild.setApkName(apkName);
+        setState(MainContract.State.DOWNLOAD);
         downloadApk();
     }
 
@@ -178,7 +179,8 @@ class MainPresenter implements MainContract.Presenter {
         return mBuild;
     }
 
-    void setBuild(@NonNull Build build) {
+    @Override
+    public void setBuild(@NonNull Build build) {
         mBuild = build;
     }
 

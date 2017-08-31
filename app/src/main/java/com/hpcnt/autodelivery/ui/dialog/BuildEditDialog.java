@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import com.hpcnt.autodelivery.R;
 import com.hpcnt.autodelivery.databinding.DialogBuildEditBinding;
+import com.hpcnt.autodelivery.model.Build;
 import com.hpcnt.autodelivery.model.BuildList;
 import com.hpcnt.autodelivery.network.BuildFetcher;
 import com.trello.rxlifecycle2.components.support.RxDialogFragment;
@@ -29,6 +30,7 @@ public class BuildEditDialog extends RxDialogFragment implements BuildEditContra
     private BuildEditContract.Presenter mPresenter;
     private BuildEditContract.OnDismissListener mOnDismissListener;
     private BuildEditContract.OnDismissApkListener mOnDismissApkListener;
+    private BuildEditContract.OnDismissBuildListener mOnDismissBuildListener;
 
     public BuildEditDialog() {
     }
@@ -63,7 +65,8 @@ public class BuildEditDialog extends RxDialogFragment implements BuildEditContra
         BuildEditAdapter adapter = new BuildEditAdapter();
         mPresenter.setList(adapter);
         adapter.setOnClickListener(
-                v -> mPresenter.onItemClick(new BuildFetcher(this), ((TextView) v).getText().toString()));
+                v -> mPresenter.onItemClick(new BuildFetcher(this),
+                        binding.editDialogCurrentTitle.getText().toString(), ((TextView) v).getText().toString()));
 
         mPresenter.loadBuildList(new BuildFetcher(this), getArguments().getString(BuildEditContract.KEY_VERSION_PATH));
     }
@@ -107,6 +110,12 @@ public class BuildEditDialog extends RxDialogFragment implements BuildEditContra
     }
 
     @Override
+    public void showOnDismiss(Build build) {
+        mOnDismissBuildListener.onDismiss(build);
+        dismiss();
+    }
+
+    @Override
     public void hideDialog() {
         dismiss();
     }
@@ -118,6 +127,11 @@ public class BuildEditDialog extends RxDialogFragment implements BuildEditContra
     public void setOnDismissApkListener(
             BuildEditContract.OnDismissApkListener onDismissApkListener) {
         mOnDismissApkListener = onDismissApkListener;
+    }
+
+    public void setOnDismissBuildListener(
+            BuildEditContract.OnDismissBuildListener onDismissBuildListener) {
+        mOnDismissBuildListener = onDismissBuildListener;
     }
 
     DialogBuildEditBinding getBinding() {

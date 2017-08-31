@@ -3,6 +3,7 @@ package com.hpcnt.autodelivery.ui.dialog;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.hpcnt.autodelivery.R;
 import com.hpcnt.autodelivery.model.Build;
@@ -49,10 +50,11 @@ class BuildEditPresenter implements BuildEditContract.Presenter {
     }
 
     @Override
-    public void onItemClick(BuildFetcher fetcher, String currentVersion) {
+    public void onItemClick(BuildFetcher fetcher, String currentTitle, String currentVersion) {
+        Build build;
         switch (mFlag) {
             case EDIT:
-                Build build = new Build();
+                build = new Build();
                 build.setVersionName(currentVersion);
                 int separateSize = build.getSeparateName().size();
                 List<String> separateName = new ArrayList<>();
@@ -61,6 +63,18 @@ class BuildEditPresenter implements BuildEditContract.Presenter {
                 break;
             case APK:
                 mView.showOnDismiss(currentVersion);
+                break;
+            case PR:
+                if (StringUtil.isLastWord(currentVersion, ".apk")) {
+                    build = mBuildList.get(currentTitle);
+                    build.setApkName(currentVersion);
+                    build.setVersionName("pr/" + build.getVersionName());
+                    mView.showOnDismiss(build);
+                } else {
+                    fetcher.fetchBuildList("pr/" + currentVersion)
+                            .subscribe((response) -> nextBuildListFetch(currentVersion, response),
+                                    throwable -> mView.showToast(throwable.toString()));
+                }
                 break;
             default:
                 break;
@@ -75,9 +89,26 @@ class BuildEditPresenter implements BuildEditContract.Presenter {
             case APK:
                 executeApkFetched(selectedVersion, response);
                 break;
+            case PR:
+                executePrFetched(selectedVersion, response);
+                break;
             default:
                 break;
         }
+    }
+
+    private void executePrFetched(String selectedVersion, String response) {
+        Log.d("BuildEditPresenter", "selectedVersion : " + selectedVersion);
+        BuildList buildList = getReverseBuildList(response);
+        if (buildList == null) return;
+        if ("pr/".equals(selectedVersion))
+            mBuildList = buildList;
+        List<String> adapterList = new ArrayList<>();
+
+        for (Build nextBuild : buildList.getList()) {
+            adapterList.add(nextBuild.getVersionName());
+        }
+        showVersionList(adapterList, selectedVersion);
     }
 
     private void executeApkFetched(String selectedVersion, String response) {

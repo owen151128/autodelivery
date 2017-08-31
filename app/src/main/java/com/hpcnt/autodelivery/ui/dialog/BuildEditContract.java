@@ -1,13 +1,14 @@
 package com.hpcnt.autodelivery.ui.dialog;
 
 import com.hpcnt.autodelivery.LifeCycleProvider;
+import com.hpcnt.autodelivery.model.Build;
 import com.hpcnt.autodelivery.model.BuildList;
 import com.hpcnt.autodelivery.network.BuildFetcher;
 
 public interface BuildEditContract {
 
     enum FLAG {
-        EDIT, APK
+        EDIT, APK, PR
     }
 
     String KEY_VERSION_PATH = "KEY_VERSION_PATH";
@@ -28,6 +29,8 @@ public interface BuildEditContract {
 
         void showOnDismiss(String apkName);
 
+        void showOnDismiss(Build build);
+
         void hideDialog();
     }
 
@@ -37,7 +40,7 @@ public interface BuildEditContract {
 
         void loadBuildList(BuildFetcher fetcher, String versionPath);
 
-        void onItemClick(BuildFetcher fetcher, String currentVersion);
+        void onItemClick(BuildFetcher fetcher, String currentTitle, String currentVersion);
     }
 
     interface OnDismissListener {
@@ -46,5 +49,9 @@ public interface BuildEditContract {
 
     interface OnDismissApkListener {
         void onDismiss(String apkName);
+    }
+
+    interface OnDismissBuildListener {
+        void onDismiss(Build build);
     }
 }
