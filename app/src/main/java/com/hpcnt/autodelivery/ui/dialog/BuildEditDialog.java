@@ -4,6 +4,7 @@ import android.content.DialogInterface;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.text.Editable;
@@ -139,6 +140,12 @@ public class BuildEditDialog extends RxDialogFragment implements BuildEditContra
     @Override
     public void hideDialog() {
         dismiss();
+    }
+
+    @Override
+    public void showHintText(@StringRes int hint) {
+        binding.editDialogSearch.setEnabled(true);
+        binding.editDialogSearch.setHint(hint);
     }
 
     public void setOnDismissListener(BuildEditContract.OnDismissListener onDismissListener) {

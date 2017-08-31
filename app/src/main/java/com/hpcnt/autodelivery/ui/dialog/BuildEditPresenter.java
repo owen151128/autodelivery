@@ -112,6 +112,7 @@ class BuildEditPresenter implements BuildEditContract.Presenter {
     private void executePrFetched(String selectedVersion, String response) {
         Log.d("BuildEditPresenter", "selectedVersion : " + selectedVersion);
         BuildList buildList = getReverseBuildList(response);
+        Log.d("BuildEditPresenter", "HELELELELELELO");
         if (buildList == null) return;
         if ("pr/".equals(selectedVersion))
             mBuildList = buildList;
@@ -135,6 +136,7 @@ class BuildEditPresenter implements BuildEditContract.Presenter {
             }
         }
 
+        mView.showHintText(R.string.message_search_hint);
         showVersionList(adapterList, selectedVersion);
     }
 
