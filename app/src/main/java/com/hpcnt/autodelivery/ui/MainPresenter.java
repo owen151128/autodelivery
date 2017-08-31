@@ -79,8 +79,14 @@ class MainPresenter implements MainContract.Presenter {
     @Override
     public void setApkName(String apkName) {
         mBuild.setApkName(apkName);
-        setState(MainContract.State.DOWNLOAD);
-        downloadApk();
+        hasLastestFile().subscribe(hasFile -> {
+            if (hasFile) {
+                setState(MainContract.State.INSTALL);
+            } else {
+                setState(MainContract.State.DOWNLOAD);
+                downloadApk();
+            }
+        });
     }
 
     @Override
