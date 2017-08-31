@@ -9,6 +9,7 @@ import com.hpcnt.autodelivery.R;
 import com.hpcnt.autodelivery.model.Build;
 import com.hpcnt.autodelivery.model.BuildList;
 import com.hpcnt.autodelivery.network.BuildFetcher;
+import com.hpcnt.autodelivery.util.ABIWrapper;
 import com.hpcnt.autodelivery.util.StringUtil;
 
 import java.util.ArrayList;
@@ -65,7 +66,7 @@ class BuildEditPresenter implements BuildEditContract.Presenter {
                 mView.showOnDismiss(currentVersion);
                 break;
             case PR:
-                if (StringUtil.isLastWord(currentVersion, ".apk")) {
+                if (StringUtil.isApkFile(currentVersion)) {
                     build = mBuildList.get(currentTitle);
                     build.setApkName(currentVersion);
                     build.setVersionName("pr/" + build.getVersionName());
@@ -115,10 +116,25 @@ class BuildEditPresenter implements BuildEditContract.Presenter {
         if ("pr/".equals(selectedVersion))
             mBuildList = buildList;
         List<String> adapterList = new ArrayList<>();
+        String myAbi = new ABIWrapper().getABI() + "-";
 
         for (Build nextBuild : buildList.getList()) {
-            adapterList.add(nextBuild.getVersionName());
+            String version = nextBuild.getVersionName();
+            if (StringUtil.isApkFile(version)) {
+                if (version.contains(myAbi)) {
+                    adapterList.add(nextBuild.getVersionName());
+                }
+            } else {
+                adapterList.add(nextBuild.getVersionName());
+            }
         }
+
+        if (adapterList.size() == 0 && buildList.size() != 0) {
+            for (Build nextBuild : buildList.getList()) {
+                adapterList.add(nextBuild.getVersionName());
+            }
+        }
+
         showVersionList(adapterList, selectedVersion);
     }
 

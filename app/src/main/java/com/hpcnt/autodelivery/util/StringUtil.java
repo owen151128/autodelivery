@@ -22,16 +22,4 @@ public class StringUtil {
         fileName = fileName.toLowerCase();
         return fileName.endsWith(".apk");
     }
-
-    public static boolean isLastWord(String currentVersion, String word) {
-        int currentLength = currentVersion.length();
-        int wordLength = word.length();
-
-        int totalIndex = currentVersion.lastIndexOf(word) + wordLength;
-        if (totalIndex == currentLength) {
-            return true;
-        } else {
-            return false;
-        }
-    }
 }
