@@ -81,6 +81,17 @@ class BuildEditPresenter implements BuildEditContract.Presenter {
         }
     }
 
+    @Override
+    public void setSearchData(String keyword) {
+        List<String> returnList = new ArrayList<>();
+        for (Build build : mBuildList.getList()) {
+            if (build.getVersionName().startsWith(keyword)) {
+                returnList.add(build.getVersionName());
+            }
+        }
+        setList(returnList);
+    }
+
     private void nextBuildListFetch(String selectedVersion, String response) {
         switch (mFlag) {
             case EDIT:
@@ -181,9 +192,13 @@ class BuildEditPresenter implements BuildEditContract.Presenter {
     }
 
     private void showVersionList(List<String> versionList, String versionTitle2) {
+        setList(versionList);
+        mView.showVersionTitle(versionTitle2);
+    }
+
+    private void setList(List<String> versionList) {
         mAdapterModel.setList(versionList);
         mAdapterView.refresh();
-        mView.showVersionTitle(versionTitle2);
     }
 
     @Nullable
