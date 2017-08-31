@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Set;
 
 import io.reactivex.Observable;
-import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
@@ -182,29 +181,44 @@ class BuildEditPresenter implements BuildEditContract.Presenter {
 
     private void setVersionData(
             BuildFetcher fetcher, StringBuilder versionTitle, List<String> separateName, int index) {
-        Set<String> versionSet = mBuildList.getVersionSet(separateName, index);
-        if (versionSet.size() == 1) {
-            for (String version : versionSet) {
-                if (versionTitle.length() != 0)
-                    versionTitle.append(".");
-                versionTitle.append(version);
-                separateName.add(version);
+        if (separateName.size() > 0) {
+            Log.d("BuildEditPresenter", "versionTitle : " + versionTitle);
+            Log.d("BuildEditPresenter", "Last separateName : " + separateName.get(separateName.size() - 1));
+        }
+        if (separateName.size() == 3 && "0".equals(separateName.get(separateName.size() - 1))) {
+            if (StringUtil.isDirectory(versionTitle.toString())) {
+                fetcher.fetchBuildList(versionTitle.toString())
+                        .subscribe((response) -> nextBuildListFetch(versionTitle.toString(), response),
+                                throwable -> mView.showToast(throwable.toString()));
+            } else {
+                List<String> versionList = mBuildList.getVersionList(separateName, index);
+                showVersionList(versionList, versionTitle.toString());
             }
-
-            setVersionData(fetcher, versionTitle, separateName, index + 1);
-        } else if (versionSet.size() > 1) {
-            List<String> versionList = new ArrayList<>();
-            for (String version : versionSet) {
-                versionList.add(versionTitle + "." + version);
-            }
-
-            showVersionList(versionList, versionTitle.toString());
         } else {
-            String version = mBuildList.get(versionTitle.toString()).getVersionName();
+            Set<String> versionSet = mBuildList.getVersionSet(separateName, index);
+            if (versionSet.size() == 1) {
+                for (String version : versionSet) {
+                    if (versionTitle.length() != 0)
+                        versionTitle.append(".");
+                    versionTitle.append(version);
+                    separateName.add(version);
+                }
 
-            fetcher.fetchBuildList(version)
-                    .subscribe((response) -> nextBuildListFetch(version, response),
-                            throwable -> mView.showToast(throwable.toString()));
+                setVersionData(fetcher, versionTitle, separateName, index + 1);
+            } else if (versionSet.size() > 1) {
+                List<String> versionList = new ArrayList<>();
+                for (String version : versionSet) {
+                    versionList.add(versionTitle + "." + version);
+                }
+
+                showVersionList(versionList, versionTitle.toString());
+            } else {
+                String version = mBuildList.get(versionTitle.toString()).getVersionName();
+
+                fetcher.fetchBuildList(version)
+                        .subscribe((response) -> nextBuildListFetch(version, response),
+                                throwable -> mView.showToast(throwable.toString()));
+            }
         }
     }
 
