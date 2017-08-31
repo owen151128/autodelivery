@@ -70,16 +70,9 @@ class BuildEditPresenter implements BuildEditContract.Presenter {
                 mView.showOnDismiss(currentVersion);
                 break;
             case PR:
-                if (StringUtil.isApkFile(currentVersion)) {
-                    build = mBuildList.get(currentTitle);
-                    build.setApkName(currentVersion);
-                    build.setVersionName("pr/" + build.getVersionName());
-                    mView.showOnDismiss(build);
-                } else {
-                    fetcher.fetchBuildList("pr/" + currentVersion)
-                            .subscribe((response) -> nextBuildListFetch(currentVersion, response),
-                                    throwable -> mView.showToast(throwable.toString()));
-                }
+                if (!StringUtil.isDirectory(currentTitle))
+                    currentTitle += "/";
+                mView.showOnDismiss(new Build(currentTitle, "", currentVersion));
                 break;
             default:
                 break;
