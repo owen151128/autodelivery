@@ -1,5 +1,15 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+        xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="flag"
+            type="com.hpcnt.autodelivery.ui.dialog.BuildEditContract.FLAG"/>
+
+        <import type="com.hpcnt.autodelivery.ui.dialog.BuildEditContract.FLAG"/>
+        <import type="android.view.View"/>
+    </data>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -8,26 +18,50 @@
         android:orientation="vertical"
         tools:context="com.hpcnt.autodelivery.ui.dialog.BuildEditDialog">
 
-        <TextView
-            android:id="@+id/edit_dialog_current_title"
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="#bdbdbd"
-            android:paddingBottom="8dp"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp"
-            android:paddingTop="8dp"
-            android:text="@string/message_wait"
-            android:textColor="@android:color/black"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            tools:text="asdfasdf" />
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/edit_dialog_current_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#bdbdbd"
+                android:paddingBottom="8dp"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:paddingTop="8dp"
+                android:text="@string/message_wait"
+                android:textColor="@android:color/black"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:visibility="@{flag == FLAG.PR ? View.GONE : View.VISIBLE}"
+                tools:text="asdfasdf"
+                tools:visibility="gone"/>
+
+            <EditText
+                android:id="@+id/edit_dialog_search"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#bdbdbd"
+                android:hint="@string/message_search_hint"
+                android:paddingBottom="8dp"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:paddingTop="8dp"
+                android:textColor="@android:color/black"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:visibility="@{flag == FLAG.PR ? View.VISIBLE : View.GONE}"
+                tools:visibility="visible"/>
+        </FrameLayout>
+
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/edit_dialog_list"
             android:layout_width="match_parent"
             android:layout_height="250dp"
-            tools:listitem="@layout/item_edit_row" />
+            tools:listitem="@layout/item_edit_row"/>
 
     </LinearLayout>
 </layout>

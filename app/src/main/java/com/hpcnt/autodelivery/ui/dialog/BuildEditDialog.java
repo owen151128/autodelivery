@@ -49,6 +49,7 @@ public class BuildEditDialog extends RxDialogFragment implements BuildEditContra
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.dialog_build_edit, container, false);
         binding = DataBindingUtil.bind(view);
+        binding.setFlag((BuildEditContract.FLAG) getArguments().getSerializable(BuildEditContract.KEY_FLAG));
         mPresenter = new BuildEditPresenter(this, getArguments());
         return view;
     }

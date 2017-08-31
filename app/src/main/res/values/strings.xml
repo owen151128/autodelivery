@@ -9,4 +9,5 @@
     <string name="message_no_apk">APK가 없습니다</string>
     <string name="message_wait">잠시만 기다려주세요</string>
     <string name="menu_pr">PR</string>
+    <string name="message_search_hint">검색어를 입력해주세요.</string>
 </resources>
