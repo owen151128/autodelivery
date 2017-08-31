@@ -87,14 +87,11 @@ class BuildEditPresenter implements BuildEditContract.Presenter {
     }
 
     @Override
-    public void setSearchData(String keyword) {
-        List<String> returnList = new ArrayList<>();
-        for (Build build : mBuildList.getList()) {
-            if (build.getVersionName().startsWith(keyword)) {
-                returnList.add(build.getVersionName());
-            }
-        }
-        setList(returnList);
+    public void onSearchClick(BuildFetcher fetcher, String keyword) {
+        String version = "pr/" + keyword;
+        fetcher.fetchBuildList(version)
+                .subscribe((response) -> nextBuildListFetch(version, response),
+                        throwable -> mView.showToast("없는 PR입니다"));
     }
 
     private void nextBuildListFetch(String selectedVersion, String response) {
@@ -210,7 +207,6 @@ class BuildEditPresenter implements BuildEditContract.Presenter {
                 for (String version : versionSet) {
                     versionList.add(versionTitle + "." + version);
                 }
-
                 showVersionList(versionList, versionTitle.toString());
             } else {
                 String version = mBuildList.get(versionTitle.toString()).getVersionName();

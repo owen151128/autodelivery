@@ -4,10 +4,14 @@
     <data>
 
         <variable
+            name="dialog"
+            type="com.hpcnt.autodelivery.ui.dialog.BuildEditDialog"/>
+        <variable
             name="flag"
             type="com.hpcnt.autodelivery.ui.dialog.BuildEditContract.FLAG"/>
 
         <import type="com.hpcnt.autodelivery.ui.dialog.BuildEditContract.FLAG"/>
+
         <import type="android.view.View"/>
     </data>
 
@@ -39,22 +43,37 @@
                 tools:text="asdfasdf"
                 tools:visibility="gone"/>
 
-            <EditText
-                android:id="@+id/edit_dialog_search"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#bdbdbd"
-                android:hint="@string/message_wait"
-                android:paddingBottom="8dp"
-                android:paddingLeft="16dp"
-                android:paddingRight="16dp"
-                android:enabled="false"
-                android:paddingTop="8dp"
-                android:textColor="@android:color/black"
-                android:textSize="24sp"
-                android:textStyle="bold"
+                android:orientation="horizontal"
                 android:visibility="@{flag == FLAG.PR ? View.VISIBLE : View.GONE}"
-                tools:visibility="visible"/>
+                tools:visibility="visible">
+
+                <EditText
+                    android:id="@+id/edit_dialog_search"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="#bdbdbd"
+                    android:hint="@string/message_search_hint"
+                    android:paddingBottom="8dp"
+                    android:paddingLeft="16dp"
+                    android:paddingRight="16dp"
+                    android:paddingTop="8dp"
+                    android:textColor="@android:color/black"
+                    android:textSize="24sp"
+                    android:textStyle="bold"/>
+
+                <ImageView
+                    android:onClick="@{dialog::onSearchClick}"
+                    android:layout_width="48dp"
+                    android:layout_height="match_parent"
+                    android:background="#bdbdbd"
+                    android:src="@android:drawable/ic_menu_search"/>
+
+            </LinearLayout>
+
         </FrameLayout>
 
 

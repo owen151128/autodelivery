@@ -7,9 +7,6 @@ import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -54,6 +51,7 @@ public class BuildEditDialog extends RxDialogFragment implements BuildEditContra
         View view = inflater.inflate(R.layout.dialog_build_edit, container, false);
         binding = DataBindingUtil.bind(view);
         binding.setFlag((BuildEditContract.FLAG) getArguments().getSerializable(BuildEditContract.KEY_FLAG));
+        binding.setDialog(this);
         mPresenter = new BuildEditPresenter(this, getArguments());
         return view;
     }
@@ -73,24 +71,12 @@ public class BuildEditDialog extends RxDialogFragment implements BuildEditContra
                 v -> mPresenter.onItemClick(new BuildFetcher(this),
                         binding.editDialogCurrentTitle.getText().toString(), ((TextView) v).getText().toString()));
 
-        mPresenter.loadBuildList(new BuildFetcher(this), getArguments().getString(BuildEditContract.KEY_VERSION_PATH));
-
-        binding.editDialogSearch.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                mPresenter.setSearchData(s.toString());
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
-        });
+        BuildEditContract.FLAG flag
+                = (BuildEditContract.FLAG) getArguments().getSerializable(BuildEditContract.KEY_FLAG);
+        if (flag != BuildEditContract.FLAG.PR) {
+            mPresenter.loadBuildList(new BuildFetcher(this),
+                    getArguments().getString(BuildEditContract.KEY_VERSION_PATH));
+        }
     }
 
     @Override
@@ -101,6 +87,11 @@ public class BuildEditDialog extends RxDialogFragment implements BuildEditContra
         binding.editDialogList.addItemDecoration(new DividerItemDecoration(getContext(),
                 LinearLayoutManager.VERTICAL));
         binding.editDialogList.setAdapter(adapter);
+    }
+
+    @SuppressWarnings("UnusedParameters")
+    public void onSearchClick(View view) {
+        mPresenter.onSearchClick(new BuildFetcher(this), binding.editDialogSearch.getText().toString());
     }
 
     @Override

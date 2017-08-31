@@ -45,7 +45,7 @@ public interface BuildEditContract {
 
         void onItemClick(BuildFetcher fetcher, String currentTitle, String currentVersion);
 
-        void setSearchData(String keyword);
+        void onSearchClick(BuildFetcher fetcher, String keyword);
     }
 
     interface OnDismissListener {
