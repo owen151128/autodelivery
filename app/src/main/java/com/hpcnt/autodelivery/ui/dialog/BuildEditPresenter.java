@@ -1,7 +1,7 @@
 package com.hpcnt.autodelivery.ui.dialog;
 
 import android.os.Bundle;
-import android.support.annotation.Nullable;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -15,6 +15,11 @@ import com.hpcnt.autodelivery.util.StringUtil;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+
+import io.reactivex.Observable;
+import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 class BuildEditPresenter implements BuildEditContract.Presenter {
 
@@ -94,26 +99,31 @@ class BuildEditPresenter implements BuildEditContract.Presenter {
     }
 
     private void nextBuildListFetch(String selectedVersion, String response) {
-        switch (mFlag) {
-            case EDIT:
-                executeEditFetched(selectedVersion, response);
-                break;
-            case APK:
-                executeApkFetched(selectedVersion, response);
-                break;
-            case PR:
-                executePrFetched(selectedVersion, response);
-                break;
-            default:
-                break;
-        }
+        Log.d("BuildEditPresenter", "selectedVersion : " + selectedVersion);
+        getReverseBuildList(response).subscribe(buildList -> {
+            Log.d("BuildEditPresenter", "HELELELELELELO");
+            if (buildList.size() == 0) {
+                mView.showToast(R.string.message_no_apk);
+                mView.hideDialog();
+                return;
+            }
+            switch (mFlag) {
+                case EDIT:
+                    executeEditFetched(buildList, selectedVersion);
+                    break;
+                case APK:
+                    executeApkFetched(buildList, selectedVersion);
+                    break;
+                case PR:
+                    executePrFetched(buildList, selectedVersion);
+                    break;
+                default:
+                    break;
+            }
+        });
     }
 
-    private void executePrFetched(String selectedVersion, String response) {
-        Log.d("BuildEditPresenter", "selectedVersion : " + selectedVersion);
-        BuildList buildList = getReverseBuildList(response);
-        Log.d("BuildEditPresenter", "HELELELELELELO");
-        if (buildList == null) return;
+    private void executePrFetched(BuildList buildList, String selectedVersion) {
         if ("pr/".equals(selectedVersion))
             mBuildList = buildList;
         List<String> adapterList = new ArrayList<>();
@@ -140,10 +150,7 @@ class BuildEditPresenter implements BuildEditContract.Presenter {
         showVersionList(adapterList, selectedVersion);
     }
 
-    private void executeApkFetched(String selectedVersion, String response) {
-        BuildList buildList = getReverseBuildList(response);
-        if (buildList == null) return;
-
+    private void executeApkFetched(BuildList buildList, String selectedVersion) {
         List<String> adapterList = new ArrayList<>();
         for (Build nextBuild : buildList.getList()) {
             adapterList.add(nextBuild.getVersionName());
@@ -151,10 +158,7 @@ class BuildEditPresenter implements BuildEditContract.Presenter {
         showVersionList(adapterList, selectedVersion);
     }
 
-    private void executeEditFetched(String selectedVersion, String response) {
-        BuildList buildList = getReverseBuildList(response);
-        if (buildList == null) return;
-
+    private void executeEditFetched(BuildList buildList, String selectedVersion) {
         String buildVersionName = buildList.get(0).getVersionName();
         if (!StringUtil.isDirectory(buildVersionName)) {
             mView.showOnDismiss(buildList, selectedVersion);
@@ -219,16 +223,17 @@ class BuildEditPresenter implements BuildEditContract.Presenter {
         mAdapterView.refresh();
     }
 
-    @Nullable
-    private BuildList getReverseBuildList(String response) {
-        BuildList buildList = BuildList.fromHtml(response);
-        if (buildList.size() == 0) {
-            mView.showToast(R.string.message_no_apk);
-            mView.hideDialog();
-            return null;
-        }
-        buildList.reverse();
-        return buildList;
+    @NonNull
+    private Observable<BuildList> getReverseBuildList(String response) {
+        return Observable.<BuildList>create(e -> {
+            BuildList buildList = BuildList.fromHtml(response);
+            buildList.reverse();
+            e.onNext(buildList);
+            e.onComplete();
+        })
+                .subscribeOn(Schedulers.computation())
+                .compose(mView.bindToLifecycle())
+                .observeOn(AndroidSchedulers.mainThread());
     }
 
     BuildEditAdapterContract.Model getAdapterModel() {
