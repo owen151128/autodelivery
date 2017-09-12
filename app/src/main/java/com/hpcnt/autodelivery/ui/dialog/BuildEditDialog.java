@@ -4,6 +4,7 @@ import android.content.DialogInterface;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
@@ -14,6 +15,7 @@ import android.widget.Toast;
 
 import com.hpcnt.autodelivery.R;
 import com.hpcnt.autodelivery.databinding.DialogBuildEditBinding;
+import com.hpcnt.autodelivery.model.Build;
 import com.hpcnt.autodelivery.model.BuildList;
 import com.hpcnt.autodelivery.network.BuildFetcher;
 import com.trello.rxlifecycle2.components.support.RxDialogFragment;
@@ -29,6 +31,7 @@ public class BuildEditDialog extends RxDialogFragment implements BuildEditContra
     private BuildEditContract.Presenter mPresenter;
     private BuildEditContract.OnDismissListener mOnDismissListener;
     private BuildEditContract.OnDismissApkListener mOnDismissApkListener;
+    private BuildEditContract.OnDismissBuildListener mOnDismissBuildListener;
 
     public BuildEditDialog() {
     }
@@ -47,6 +50,8 @@ public class BuildEditDialog extends RxDialogFragment implements BuildEditContra
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.dialog_build_edit, container, false);
         binding = DataBindingUtil.bind(view);
+        binding.setFlag((BuildEditContract.FLAG) getArguments().getSerializable(BuildEditContract.KEY_FLAG));
+        binding.setDialog(this);
         mPresenter = new BuildEditPresenter(this, getArguments());
         return view;
     }
@@ -63,9 +68,15 @@ public class BuildEditDialog extends RxDialogFragment implements BuildEditContra
         BuildEditAdapter adapter = new BuildEditAdapter();
         mPresenter.setList(adapter);
         adapter.setOnClickListener(
-                v -> mPresenter.onItemClick(new BuildFetcher(this), ((TextView) v).getText().toString()));
+                v -> mPresenter.onItemClick(new BuildFetcher(this),
+                        binding.editDialogCurrentTitle.getText().toString(), ((TextView) v).getText().toString()));
 
-        mPresenter.loadBuildList(new BuildFetcher(this), getArguments().getString(BuildEditContract.KEY_VERSION_PATH));
+        BuildEditContract.FLAG flag
+                = (BuildEditContract.FLAG) getArguments().getSerializable(BuildEditContract.KEY_FLAG);
+        if (flag != BuildEditContract.FLAG.PR) {
+            mPresenter.loadBuildList(new BuildFetcher(this),
+                    getArguments().getString(BuildEditContract.KEY_VERSION_PATH));
+        }
     }
 
     @Override
@@ -76,6 +87,11 @@ public class BuildEditDialog extends RxDialogFragment implements BuildEditContra
         binding.editDialogList.addItemDecoration(new DividerItemDecoration(getContext(),
                 LinearLayoutManager.VERTICAL));
         binding.editDialogList.setAdapter(adapter);
+    }
+
+    @SuppressWarnings("UnusedParameters")
+    public void onSearchClick(View view) {
+        mPresenter.onSearchClick(new BuildFetcher(this), binding.editDialogSearch.getText().toString());
     }
 
     @Override
@@ -107,8 +123,20 @@ public class BuildEditDialog extends RxDialogFragment implements BuildEditContra
     }
 
     @Override
+    public void showOnDismiss(Build build) {
+        mOnDismissBuildListener.onDismiss(build);
+        dismiss();
+    }
+
+    @Override
     public void hideDialog() {
         dismiss();
+    }
+
+    @Override
+    public void showHintText(@StringRes int hint) {
+        binding.editDialogSearch.setEnabled(true);
+        binding.editDialogSearch.setHint(hint);
     }
 
     public void setOnDismissListener(BuildEditContract.OnDismissListener onDismissListener) {
@@ -118,6 +146,11 @@ public class BuildEditDialog extends RxDialogFragment implements BuildEditContra
     public void setOnDismissApkListener(
             BuildEditContract.OnDismissApkListener onDismissApkListener) {
         mOnDismissApkListener = onDismissApkListener;
+    }
+
+    public void setOnDismissBuildListener(
+            BuildEditContract.OnDismissBuildListener onDismissBuildListener) {
+        mOnDismissBuildListener = onDismissBuildListener;
     }
 
     DialogBuildEditBinding getBinding() {

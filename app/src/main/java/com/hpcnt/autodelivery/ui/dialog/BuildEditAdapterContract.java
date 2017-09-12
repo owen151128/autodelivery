@@ -13,10 +13,6 @@ interface BuildEditAdapterContract {
 
         void setList(List<String> recommendVersions);
 
-        void setSelectedVersion(String version);
-
-        String getSelectedVersion();
-
         int getCount();
     }
 }

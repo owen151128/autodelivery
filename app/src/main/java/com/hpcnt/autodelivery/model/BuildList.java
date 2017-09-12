@@ -16,6 +16,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 public class BuildList {
+
     @NonNull
     private List<Build> buildList = new ArrayList<>();
 
@@ -68,6 +69,7 @@ public class BuildList {
         return buildList.size();
     }
 
+    @NonNull
     public Build get(int index) {
         return buildList.get(index);
     }
@@ -101,6 +103,27 @@ public class BuildList {
         return versionSet;
     }
 
+    public List<String> getVersionList(List<String> separateName, int index) {
+        List<String> versionList = new ArrayList<>();
+        for (Build build : buildList) {
+            int listSize = build.getSeparateName().size();
+            if (index <= listSize) {
+                // 인자로 받은 separateName의 모든것이 build.separateName에 포함되어있는지 확인
+                boolean isContain = true;
+                for (int i = 0; i < separateName.size(); i++) {
+                    if (!build.getSeparateName().get(i).equals(separateName.get(i))) {
+                        isContain = false;
+                        break;
+                    }
+                }
+                if (isContain || separateName.size() == 0)
+                    versionList.add(build.getVersionName());
+            }
+        }
+        return versionList;
+    }
+
+    @NonNull
     public Build get(List<String> separateName) {
         for (Build build : buildList) {
             if (build.getSeparateName().size() != separateName.size()) continue;
@@ -113,7 +136,7 @@ public class BuildList {
             }
             if (isEqual) return build;
         }
-        return null;
+        return Build.EMPTY;
     }
 
     public List<Build> getList() {

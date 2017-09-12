@@ -52,5 +52,7 @@ interface MainContract {
         void setApkName(String apkName);
 
         void setState(State state);
+
+        void setBuild(Build build);
     }
 }

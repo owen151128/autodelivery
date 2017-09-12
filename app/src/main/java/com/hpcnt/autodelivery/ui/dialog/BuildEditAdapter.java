@@ -16,10 +16,7 @@ class BuildEditAdapter extends RecyclerView.Adapter<BuildEditAdapter.ViewHolder>
         implements BuildEditAdapterContract.Model, BuildEditAdapterContract.View {
 
     private List<String> mRecommendVersions = new ArrayList<>();
-
     private View.OnClickListener mOnClickListener;
-
-    private String mSelectedVersion = "";
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -46,16 +43,6 @@ class BuildEditAdapter extends RecyclerView.Adapter<BuildEditAdapter.ViewHolder>
     }
 
     @Override
-    public void setSelectedVersion(String version) {
-        mSelectedVersion = version;
-    }
-
-    @Override
-    public String getSelectedVersion() {
-        return mSelectedVersion;
-    }
-
-    @Override
     public int getCount() {
         return mRecommendVersions.size();
     }
@@ -70,6 +57,7 @@ class BuildEditAdapter extends RecyclerView.Adapter<BuildEditAdapter.ViewHolder>
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
+
         ItemEditRowBinding binding;
 
         ViewHolder(View itemView) {

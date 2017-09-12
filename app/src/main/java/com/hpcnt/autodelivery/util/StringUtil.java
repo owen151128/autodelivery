@@ -1,9 +1,6 @@
 package com.hpcnt.autodelivery.util;
 
-import org.apache.commons.io.IOUtils;
-
-import java.io.IOException;
-import java.io.InputStream;
+import android.util.Log;
 
 public class StringUtil {
 

@@ -12,6 +12,7 @@ import com.hpcnt.autodelivery.model.BuildList;
 import com.hpcnt.autodelivery.network.BuildFetcher;
 import com.hpcnt.autodelivery.ui.dialog.BuildEditContract;
 import com.hpcnt.autodelivery.ui.dialog.BuildEditDialog;
+import com.hpcnt.autodelivery.util.ABIWrapper;
 
 import org.junit.After;
 import org.junit.Before;
@@ -159,7 +160,7 @@ public class MainPresenterTest {
         buildList.add(new Build("app-playstore-x86-qatest.apk", "31-Jul-2017 14:14", ""));
         buildList.add(new Build("app-playstore-x86_64-qatest.apk", "31-Jul-2017 14:14", ""));
 
-        MainPresenter.ABIWrapper mockAbiWrapper = mock(MainPresenter.ABIWrapper.class);
+        ABIWrapper mockAbiWrapper = mock(ABIWrapper.class);
         when(mockAbiWrapper.getABI()).thenReturn("x86");
         Build presenterBuild = mPresenter.getMyAbiBuild(mockAbiWrapper, buildList, "3.18.9/");
 
@@ -174,7 +175,7 @@ public class MainPresenterTest {
         buildList.add(new Build("azar-android-playstoreArm-qatest.apk", "16-Nov-2016 13:59", ""));
         buildList.add(new Build("azar-android-playstoreX86-qatest.apk", "16-Nov-2016 14:00", ""));
 
-        MainPresenter.ABIWrapper mockAbiWrapper = mock(MainPresenter.ABIWrapper.class);
+        ABIWrapper mockAbiWrapper = mock(ABIWrapper.class);
         when(mockAbiWrapper.getABI()).thenReturn("armeabi-v7a");
         Build presenterBuild = mPresenter.getMyAbiBuild(mockAbiWrapper, buildList, "3.11.0-alpha-13/");
 

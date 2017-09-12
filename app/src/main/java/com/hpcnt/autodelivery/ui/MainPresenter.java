@@ -9,6 +9,7 @@ import com.hpcnt.autodelivery.model.Build;
 import com.hpcnt.autodelivery.model.BuildList;
 import com.hpcnt.autodelivery.network.BuildFetcher;
 import com.hpcnt.autodelivery.ui.dialog.BuildEditContract;
+import com.hpcnt.autodelivery.util.ABIWrapper;
 import com.hpcnt.autodelivery.util.StringUtil;
 
 import java.io.File;
@@ -79,7 +80,14 @@ class MainPresenter implements MainContract.Presenter {
     @Override
     public void setApkName(String apkName) {
         mBuild.setApkName(apkName);
-        downloadApk();
+        hasLastestFile().subscribe(hasFile -> {
+            if (hasFile) {
+                setState(MainContract.State.INSTALL);
+            } else {
+                setState(MainContract.State.DOWNLOAD);
+                downloadApk();
+            }
+        });
     }
 
     @Override
@@ -178,21 +186,8 @@ class MainPresenter implements MainContract.Presenter {
         return mBuild;
     }
 
-    void setBuild(@NonNull Build build) {
+    @Override
+    public void setBuild(@NonNull Build build) {
         mBuild = build;
-    }
-
-    static class ABIWrapper {
-
-        String getABI() {
-            String myAbi;
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-                myAbi = android.os.Build.SUPPORTED_ABIS[0];
-            } else {
-                //noinspection deprecation
-                myAbi = android.os.Build.CPU_ABI;
-            }
-            return myAbi;
-        }
     }
 }
