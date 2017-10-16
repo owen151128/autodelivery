@@ -21,6 +21,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.hpcnt.autodelivery.BuildConfig;
 import com.hpcnt.autodelivery.R;
 import com.hpcnt.autodelivery.databinding.ActivityMainBinding;
 import com.hpcnt.autodelivery.model.Build;
@@ -45,6 +46,7 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
         binding.setAction(this);
         downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
         mPresenter = new MainPresenter(this);
+        binding.version.setText(BuildConfig.VERSION_NAME);
     }
 
     @Override

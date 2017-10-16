@@ -57,5 +57,16 @@
             android:textSize="24sp"
             android:textStyle="bold"
             tools:text="Download" />
+
+        <TextView
+            android:id="@+id/version"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_margin="2sp"
+            android:text="@string/version"
+            android:textSize="20sp" />
     </RelativeLayout>
 </layout>
