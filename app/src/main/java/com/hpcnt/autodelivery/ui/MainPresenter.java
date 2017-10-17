@@ -53,7 +53,7 @@ class MainPresenter implements MainContract.Presenter {
                 .setNotificationVisibility(
                         DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
                 .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS,
-                        mBuild.getVersionName() + pathSegments.get(pathSegments.size() - 1));
+                        mBuild.getDownloadVersionNamePath() + pathSegments.get(pathSegments.size() - 1));
         mView.addDownloadRequest(request);
     }
 

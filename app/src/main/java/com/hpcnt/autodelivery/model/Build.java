@@ -54,6 +54,10 @@ public class Build {
         separateName = Arrays.asList(versionName.split("[^\\p{Alnum}]"));
     }
 
+    public String getDownloadVersionNamePath() {
+        return this.getVersionName().replace("/", "_");
+    }
+
     public void setDate(@NonNull String date) {
         if (isLanguageFormat(engFormat, date)) {
             Date inputDate;
@@ -79,8 +83,8 @@ public class Build {
     @NonNull
     public String getApkDownloadedPath() {
         return Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "/" + getVersionName()
-                + getApkName();
+                Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "/" + (getVersionName()
+                + getApkName()).replace("/", "_");
     }
 
     @NonNull
