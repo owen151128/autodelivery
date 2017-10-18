@@ -11,4 +11,6 @@
     <string name="menu_pr">PR</string>
     <string name="message_search_hint">검색어를 입력해주세요.</string>
     <string name="version">unknown</string>
+    <string name="menu_edit">menu_edit</string>
+    <string name="menu_refresh">menu_refresh</string>
 </resources>
