@@ -65,8 +65,7 @@
             android:layout_alignParentBottom="true"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
-            android:layout_margin="2sp"
-            android:text="@string/version"
+            android:layout_margin="2dp"
             android:textSize="20sp" />
     </RelativeLayout>
 </layout>
