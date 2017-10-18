@@ -54,6 +54,10 @@ public class Build {
         separateName = Arrays.asList(versionName.split("[^\\p{Alnum}]"));
     }
 
+    /**
+     * DownloadManager Request 를 보낼때 subpath에 File.separater 가 들어가면 Fail 이 발생한다.
+     * 따라서 File.separater 를 "_" 로 replace 하여 문제를 해결한다.
+     */
     public String getDownloadVersionNamePath() {
         return this.getVersionName().replace("/", "_");
     }
@@ -80,6 +84,10 @@ public class Build {
         return BaseApplication.BUILD_SERVER_URL + versionName + apkName;
     }
 
+    /**
+     * Download_Path 에서 FILE.separater 가 "_" 으로 변경되었음 으로
+     * apkDownloadedPath 역시 File.separater 를 "_" 로 replace 가 필요하다.
+     */
     @NonNull
     public String getApkDownloadedPath() {
         return Environment.getExternalStoragePublicDirectory(
