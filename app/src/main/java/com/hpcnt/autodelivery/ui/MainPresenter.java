@@ -37,6 +37,10 @@ class MainPresenter implements MainContract.Presenter {
         executeBuildFetch(fetcher, "", s -> new LatestBuildFetchListener().onStringFetched(s, fetcher));
     }
 
+    /**
+     * 다운로드 요청 시 setDestinationInExternalPublicDir 메소드 에서 subPath parameter 에
+     * Build.java 에서 추가한 getDownloadVersionNamePath를 사용하도록 한다.
+     */
     @Override
     public void downloadApk() {
         if (mState != MainContract.State.DOWNLOAD) return;
@@ -53,7 +57,7 @@ class MainPresenter implements MainContract.Presenter {
                 .setNotificationVisibility(
                         DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
                 .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS,
-                        mBuild.getVersionName() + pathSegments.get(pathSegments.size() - 1));
+                        mBuild.getDownloadVersionNamePath() + pathSegments.get(pathSegments.size() - 1));
         mView.addDownloadRequest(request);
     }
 
