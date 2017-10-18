@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -15,6 +16,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
+import android.support.v7.app.AlertDialog;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -35,6 +37,7 @@ import java.io.File;
 public class MainActivity extends RxAppCompatActivity implements MainContract.View {
 
     private DownloadManager downloadManager;
+    private AlertDialog.Builder alertDialogBuilder;
     private long downloadQueueId;
     private ActivityMainBinding binding;
     private MainContract.Presenter mPresenter;
@@ -46,6 +49,7 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
         binding.setAction(this);
         downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
         mPresenter = new MainPresenter(this);
+        alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
         binding.version.setText(BuildConfig.VERSION_NAME);
     }
 
@@ -53,6 +57,22 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
     protected void onStart() {
         super.onStart();
         mPresenter.loadLatestBuild(new BuildFetcher(this));
+    }
+
+    public void makeDialog(String title, String message,
+                           boolean isAlert, boolean cancelable,
+                           DialogInterface.OnClickListener onYesListener,
+                           DialogInterface.OnClickListener onNoListener) {
+        alertDialogBuilder.setTitle(title).setMessage(message)
+                .setPositiveButton("OK", onYesListener);
+        if (!isAlert)
+            alertDialogBuilder.setNegativeButton("NO", onNoListener);
+        if (cancelable)
+            alertDialogBuilder.setCancelable(true);
+        else
+            alertDialogBuilder.setCancelable(false);
+
+        alertDialogBuilder.show();
     }
 
     @Override
