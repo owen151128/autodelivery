@@ -103,3 +103,7 @@ captures/
 *.jks
 
 app/google-services.json
+
+#fabric
+
+app/fabric.properties
