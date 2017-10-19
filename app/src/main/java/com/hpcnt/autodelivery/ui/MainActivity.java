@@ -73,10 +73,7 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
         else
             alertDialogBuilder.setCancelable(false);
 
-        if (view != null)
-            alertDialogBuilder.setView(view);
-        else
-            alertDialogBuilder.setView(null);
+        alertDialogBuilder.setView(view);
 
         alertDialogBuilder.show();
     }
