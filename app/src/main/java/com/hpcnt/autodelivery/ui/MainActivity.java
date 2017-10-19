@@ -59,8 +59,9 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
         mPresenter.loadLatestBuild(new BuildFetcher(this));
     }
 
+    @Override
     public void makeDialog(String title, String message,
-                           boolean isAlert, boolean cancelable,
+                           boolean isAlert, boolean cancelable, View view,
                            DialogInterface.OnClickListener onYesListener,
                            DialogInterface.OnClickListener onNoListener) {
         alertDialogBuilder.setTitle(title).setMessage(message)
@@ -71,6 +72,8 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
             alertDialogBuilder.setCancelable(true);
         else
             alertDialogBuilder.setCancelable(false);
+
+        alertDialogBuilder.setView(view);
 
         alertDialogBuilder.show();
     }

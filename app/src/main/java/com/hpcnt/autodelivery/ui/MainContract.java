@@ -1,6 +1,7 @@
 package com.hpcnt.autodelivery.ui;
 
 import android.app.DownloadManager;
+import android.content.DialogInterface;
 
 import com.hpcnt.autodelivery.LifeCycleProvider;
 import com.hpcnt.autodelivery.model.Build;
@@ -19,6 +20,11 @@ interface MainContract {
     interface View extends LifeCycleProvider {
 
         void showLastestBuild(Build lastestBuild);
+
+        void makeDialog(String title, String message,
+                        boolean isAlert, boolean cancelable, android.view.View view,
+                        DialogInterface.OnClickListener onYesListener,
+                        DialogInterface.OnClickListener onNoListener);
 
         void showToast(String response);
 
