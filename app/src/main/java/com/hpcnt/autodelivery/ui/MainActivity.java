@@ -12,6 +12,7 @@ import android.database.Cursor;
 import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -39,6 +40,7 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
     private DownloadManager downloadManager;
     private AlertDialog.Builder alertDialogBuilder;
     private long downloadQueueId;
+    private long timer;
     private ActivityMainBinding binding;
     private MainContract.Presenter mPresenter;
 
@@ -57,6 +59,17 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
     protected void onStart() {
         super.onStart();
         mPresenter.loadLatestBuild(new BuildFetcher(this));
+    }
+
+    @Override
+    public void onBackPressed() {
+        long now = SystemClock.uptimeMillis();
+        if (now - timer < 2000)
+            super.onBackPressed();
+        else {
+            showToast(R.string.back_button_toast);
+            timer = now;
+        }
     }
 
     @Override
