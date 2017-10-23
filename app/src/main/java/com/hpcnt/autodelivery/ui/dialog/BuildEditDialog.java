@@ -1,5 +1,6 @@
 package com.hpcnt.autodelivery.ui.dialog;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
@@ -10,6 +11,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -73,7 +75,10 @@ public class BuildEditDialog extends RxDialogFragment implements BuildEditContra
 
         BuildEditContract.FLAG flag
                 = (BuildEditContract.FLAG) getArguments().getSerializable(BuildEditContract.KEY_FLAG);
-        if (flag != BuildEditContract.FLAG.PR) {
+        if (flag == BuildEditContract.FLAG.PR) {
+            InputMethodManager inputMethodManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+            inputMethodManager.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+        } else {
             mPresenter.loadBuildList(new BuildFetcher(this),
                     getArguments().getString(BuildEditContract.KEY_VERSION_PATH));
         }
