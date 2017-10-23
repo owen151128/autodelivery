@@ -200,12 +200,10 @@ public class MainPresenterTest {
     private void verifyLoadLatestBuildSuccess(Build mockBuild, Build actualBuild, MainContract.State actualState) {
 
         String versionName = mActivity.getBinding().mainVersionName.getText().toString();
-        String date = mActivity.getBinding().mainDate.getText().toString();
 
         assertState(MainContract.State.DOWNLOAD, actualState);
         assertEquals("최신빌드가져오기가 성공하면 presenter에 mockbuild가 담긴다", mockBuild, actualBuild);
         assertEquals("최신빌드가져오기가 성공하면 activity의 TextView에도 표시되어야 한다", mockBuild.getVersionName(), versionName);
-        assertEquals("최신빌드가져오기가 성공하면 activity의 TextView에도 표시되어야 한다", mockBuild.getDate(), date);
     }
 
     private void assertState(MainContract.State expectedState, MainContract.State actualState) {
@@ -270,6 +268,5 @@ public class MainPresenterTest {
     private void assertSelectMyAbiBuild(Build mockBuild) {
         assertEquals("여러개 Build가 주어졌을 때 자신의 ABI에 맞는 Build를 반환해야한다.", mockBuild, mPresenter.getBuild());
         assertEquals("activity의 TextView에 versionName이 표시되어야한다.", mockBuild.getVersionName(), mActivity.getBinding().mainVersionName.getText().toString());
-        assertEquals("activity의 TextView에 date가 표시되어야한다.", mockBuild.getDate(), mActivity.getBinding().mainDate.getText().toString());
     }
 }
