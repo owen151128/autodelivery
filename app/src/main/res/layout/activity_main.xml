@@ -34,14 +34,13 @@
                 tools:text="3.18.0-alpha-2" />
 
             <TextView
-                android:id="@+id/main_date"
+                android:id="@+id/main_adbi"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:textColor="@android:color/black"
                 android:textSize="24sp"
-                android:textStyle="bold"
-                tools:text="7월 5일 5시 56분" />
+                android:textStyle="bold" />
         </LinearLayout>
 
         <Button

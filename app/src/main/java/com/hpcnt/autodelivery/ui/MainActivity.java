@@ -31,6 +31,7 @@ import com.hpcnt.autodelivery.model.Build;
 import com.hpcnt.autodelivery.network.BuildFetcher;
 import com.hpcnt.autodelivery.ui.dialog.BuildEditContract;
 import com.hpcnt.autodelivery.ui.dialog.BuildEditDialog;
+import com.hpcnt.autodelivery.util.ABIWrapper;
 import com.trello.rxlifecycle2.components.support.RxAppCompatActivity;
 
 import java.io.File;
@@ -53,6 +54,7 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
         mPresenter = new MainPresenter(this);
         alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
         binding.version.setText(BuildConfig.VERSION_NAME);
+        binding.mainAdbi.setText(new ABIWrapper().getABI());
     }
 
     @Override
@@ -136,7 +138,6 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
     @Override
     public void showLastestBuild(Build lastestBuild) {
         binding.mainVersionName.setText(lastestBuild.getVersionName());
-        binding.mainDate.setText(lastestBuild.getDate());
     }
 
     @Override
