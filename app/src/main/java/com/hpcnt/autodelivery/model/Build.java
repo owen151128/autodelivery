@@ -62,6 +62,10 @@ public class Build {
         return this.getVersionName().replace("/", "_");
     }
 
+    public String getMasterDownloadVersionNamePath() {
+        return "master" + "_" + this.getVersionName().replace("/", "_");
+    }
+
     public void setDate(@NonNull String date) {
         if (isLanguageFormat(engFormat, date)) {
             Date inputDate;
@@ -81,7 +85,7 @@ public class Build {
 
     @NonNull
     public String getApkUrl() {
-        return BaseApplication.BUILD_SERVER_URL + versionName + apkName;
+        return BaseApplication.buildServerUrl + versionName + apkName;
     }
 
     /**
@@ -92,6 +96,13 @@ public class Build {
     public String getApkDownloadedPath() {
         return Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "/" + (getVersionName()
+                + getApkName()).replace("/", "_");
+    }
+
+    @NonNull
+    public String getMasterApkDownloadedPath() {
+        return Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "/" + ("master" + "_" + getVersionName()
                 + getApkName()).replace("/", "_");
     }
 

@@ -45,6 +45,8 @@ interface MainContract {
 
         void downloadApk();
 
+        void setCurrentFlag(BuildEditContract.FLAG flag);
+
         void stateSetting();
 
         void installApk();
