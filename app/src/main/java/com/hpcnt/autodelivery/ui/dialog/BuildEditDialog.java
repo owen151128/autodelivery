@@ -8,7 +8,6 @@ import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -132,7 +131,6 @@ public class BuildEditDialog extends RxDialogFragment implements BuildEditContra
 
     @Override
     public void showOnDismiss(BuildList buildList, String versionName) {
-        Log.e("build&versionDismiss", "called!!");
         if (mOnDismissListener == null) return;
         mOnDismissListener.onDismiss(buildList, versionName);
         dismiss();
@@ -140,7 +138,6 @@ public class BuildEditDialog extends RxDialogFragment implements BuildEditContra
 
     @Override
     public void showOnSelectorDismiss(String result) {
-        Log.e("selectorDismiss", "called!!");
         if (mOnDismissSelectorListener == null) return;
         mOnDismissSelectorListener.onDismiss(result);
         dismiss();
@@ -148,14 +145,12 @@ public class BuildEditDialog extends RxDialogFragment implements BuildEditContra
 
     @Override
     public void showOnDismiss(String apkName) {
-        Log.e("apkDismiss", "called!!");
         mOnDismissApkListener.onDismiss(apkName);
         dismiss();
     }
 
     @Override
     public void showOnDismiss(Build build) {
-        Log.e("buildDismiss", "called!!");
         mOnDismissBuildListener.onDismiss(build);
         dismiss();
     }
@@ -168,7 +163,6 @@ public class BuildEditDialog extends RxDialogFragment implements BuildEditContra
     @Override
     public void showOnBackDismiss() {
         if (mOnDismissBackListener == null) return;
-        Log.e("backDismiss", "called!!");
         mOnDismissBackListener.onDismiss();
         dismiss();
     }
