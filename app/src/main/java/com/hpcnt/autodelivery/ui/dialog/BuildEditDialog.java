@@ -34,7 +34,6 @@ public class BuildEditDialog extends RxDialogFragment implements BuildEditContra
     private BuildEditContract.OnDismissListener mOnDismissListener;
     private BuildEditContract.OnDismissApkListener mOnDismissApkListener;
     private BuildEditContract.OnDismissBuildListener mOnDismissBuildListener;
-    private InputMethodManager inputMethodManager;
 
     public BuildEditDialog() {
     }
@@ -56,12 +55,12 @@ public class BuildEditDialog extends RxDialogFragment implements BuildEditContra
         binding.setFlag((BuildEditContract.FLAG) getArguments().getSerializable(BuildEditContract.KEY_FLAG));
         binding.setDialog(this);
         mPresenter = new BuildEditPresenter(this, getArguments());
-        inputMethodManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         return view;
     }
 
     @Override
     public void onDismiss(DialogInterface dialog) {
+        InputMethodManager inputMethodManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         inputMethodManager.toggleSoftInput(InputMethodManager.RESULT_UNCHANGED_SHOWN, InputMethodManager.RESULT_UNCHANGED_SHOWN);
         super.onDismiss(dialog);
     }
@@ -79,6 +78,7 @@ public class BuildEditDialog extends RxDialogFragment implements BuildEditContra
         BuildEditContract.FLAG flag
                 = (BuildEditContract.FLAG) getArguments().getSerializable(BuildEditContract.KEY_FLAG);
         if (flag == BuildEditContract.FLAG.PR) {
+            InputMethodManager inputMethodManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
             inputMethodManager.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
         } else {
             mPresenter.loadBuildList(new BuildFetcher(this),
