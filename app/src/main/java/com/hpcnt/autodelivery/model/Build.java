@@ -85,7 +85,7 @@ public class Build {
 
     @NonNull
     public String getApkUrl() {
-        return BaseApplication.buildServerUrl + versionName + apkName;
+        return BaseApplication.getBuildServerUrl() + versionName + apkName;
     }
 
     /**

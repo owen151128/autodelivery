@@ -9,7 +9,7 @@ import com.crashlytics.android.Crashlytics;
 import io.fabric.sdk.android.Fabric;
 
 public class BaseApplication extends Application {
-    public static String buildServerUrl = "http://121.135.235.194:8081/apk/azar/";
+    private static String buildServerUrl = "http://121.135.235.194:8081/apk/azar/";
     private static RequestQueue mQueue;
 
     @Override
@@ -17,6 +17,10 @@ public class BaseApplication extends Application {
         super.onCreate();
         Fabric.with(this, new Crashlytics());
         mQueue = Volley.newRequestQueue(getApplicationContext());
+    }
+
+    public static String getBuildServerUrl() {
+        return buildServerUrl;
     }
 
     public static boolean setNormalMode() {
