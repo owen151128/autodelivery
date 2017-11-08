@@ -63,6 +63,8 @@ public class BuildEditDialog extends RxDialogFragment implements BuildEditContra
     @Override
     public void onDismiss(DialogInterface dialog) {
         showOnBackDismiss();
+        InputMethodManager inputMethodManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        inputMethodManager.toggleSoftInput(InputMethodManager.RESULT_UNCHANGED_SHOWN, InputMethodManager.RESULT_UNCHANGED_SHOWN);
         super.onDismiss(dialog);
     }
 
