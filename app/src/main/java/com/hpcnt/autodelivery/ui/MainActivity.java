@@ -22,6 +22,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import com.hpcnt.autodelivery.BaseApplication;
@@ -234,6 +235,8 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
                     (buildList, versionName) -> mPresenter.selectMyAbiBuild(buildList, versionName));
             buildEditDialog.setOnDismissApkListener(apkName -> mPresenter.setApkName(apkName));
             buildEditDialog.setOnDismissBuildListener(build -> {
+                InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                inputMethodManager.toggleSoftInput(InputMethodManager.RESULT_UNCHANGED_SHOWN, InputMethodManager.RESULT_UNCHANGED_SHOWN);
                 mPresenter.setBuild(build);
                 showLastestBuild(build);
                 mPresenter.setApkName(build.getApkName());
