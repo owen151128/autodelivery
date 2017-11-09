@@ -22,8 +22,10 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
+import com.hpcnt.autodelivery.BaseApplication;
 import com.hpcnt.autodelivery.BuildConfig;
 import com.hpcnt.autodelivery.R;
 import com.hpcnt.autodelivery.databinding.ActivityMainBinding;
@@ -42,6 +44,7 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
     private AlertDialog.Builder alertDialogBuilder;
     private long downloadQueueId;
     private long timer;
+    private boolean isShowSelectFragment;
     private ActivityMainBinding binding;
     private MainContract.Presenter mPresenter;
 
@@ -60,17 +63,24 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
     @Override
     protected void onStart() {
         super.onStart();
+        BaseApplication.setNormalMode();
+        mPresenter.setCurrentFlag(BuildEditContract.FLAG.EDIT);
         mPresenter.loadLatestBuild(new BuildFetcher(this));
     }
 
     @Override
     public void onBackPressed() {
-        long now = SystemClock.uptimeMillis();
-        if (now - timer < 2000)
-            super.onBackPressed();
-        else {
-            showToast(R.string.back_button_toast);
-            timer = now;
+        if (isShowSelectFragment) {
+            mPresenter.editCurrentBuild("", BuildEditContract.FLAG.SELECTOR);
+            isShowSelectFragment = false;
+        } else {
+            long now = SystemClock.uptimeMillis();
+            if (now - timer < 2000)
+                super.onBackPressed();
+            else {
+                showToast(R.string.back_button_toast);
+                timer = now;
+            }
         }
     }
 
@@ -106,11 +116,8 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
             case R.id.menu_refresh:
                 mPresenter.loadLatestBuild(new BuildFetcher(this));
                 return true;
-            case R.id.menu_edit:
-                mPresenter.editCurrentBuild("", BuildEditContract.FLAG.EDIT);
-                return true;
-            case R.id.menu_pr:
-                mPresenter.editCurrentBuild("pr/", BuildEditContract.FLAG.PR);
+            case R.id.menu_selector:
+                mPresenter.editCurrentBuild("", BuildEditContract.FLAG.SELECTOR);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -202,16 +209,44 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
 
     @Override
     public void showEditDialog(String versionPath, BuildEditContract.FLAG flag) {
-        BuildEditDialog buildEditDialog = BuildEditDialog.newInstance(versionPath, flag);
-        buildEditDialog.setOnDismissListener(
-                (buildList, versionName) -> mPresenter.selectMyAbiBuild(buildList, versionName));
-        buildEditDialog.setOnDismissApkListener(apkName -> mPresenter.setApkName(apkName));
-        buildEditDialog.setOnDismissBuildListener(build -> {
-            mPresenter.setBuild(build);
-            showLastestBuild(build);
-            mPresenter.setApkName(build.getApkName());
-        });
-        buildEditDialog.show(getSupportFragmentManager(), BuildEditDialog.class.getSimpleName());
+        if (flag == BuildEditContract.FLAG.SELECTOR) {
+            isShowSelectFragment = false;
+            BuildEditDialog buildEditDialog = BuildEditDialog.newInstance(versionPath, flag);
+            buildEditDialog.show(getSupportFragmentManager(), BuildEditDialog.class.getSimpleName());
+            buildEditDialog.setOnDismissSelectorListener((result) -> {
+                if (result.equals(getString(R.string.selector_qa))) {
+                    mPresenter.editCurrentBuild("", BuildEditContract.FLAG.EDIT);
+                } else if (result.equals(getString(R.string.selector_master))) {
+                    mPresenter.editCurrentBuild("", BuildEditContract.FLAG.MASTER);
+                } else if (result.equals(getString(R.string.selector_pr))) {
+                    mPresenter.editCurrentBuild("pr/", BuildEditContract.FLAG.PR);
+                }
+            });
+        } else {
+            BuildEditDialog buildEditDialog = BuildEditDialog.newInstance(versionPath, flag);
+            if (flag == BuildEditContract.FLAG.MASTER) {
+                BaseApplication.setMasterBranchMode();
+                mPresenter.setCurrentFlag(BuildEditContract.FLAG.MASTER);
+            } else {
+                BaseApplication.setNormalMode();
+                mPresenter.setCurrentFlag(BuildEditContract.FLAG.EDIT);
+            }
+            buildEditDialog.setOnDismissListener(
+                    (buildList, versionName) -> mPresenter.selectMyAbiBuild(buildList, versionName));
+            buildEditDialog.setOnDismissApkListener(apkName -> mPresenter.setApkName(apkName));
+            buildEditDialog.setOnDismissBuildListener(build -> {
+                InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                inputMethodManager.toggleSoftInput(InputMethodManager.RESULT_UNCHANGED_SHOWN, InputMethodManager.RESULT_UNCHANGED_SHOWN);
+                mPresenter.setBuild(build);
+                showLastestBuild(build);
+                mPresenter.setApkName(build.getApkName());
+            });
+            buildEditDialog.setmOnDismissBackListener(() -> {
+                isShowSelectFragment = true;
+                onBackPressed();
+            });
+            buildEditDialog.show(getSupportFragmentManager(), BuildEditDialog.class.getSimpleName());
+        }
     }
 
     @Override

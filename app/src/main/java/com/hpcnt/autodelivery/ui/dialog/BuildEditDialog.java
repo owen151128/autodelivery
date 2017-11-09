@@ -32,6 +32,8 @@ public class BuildEditDialog extends RxDialogFragment implements BuildEditContra
     private DialogBuildEditBinding binding;
     private BuildEditContract.Presenter mPresenter;
     private BuildEditContract.OnDismissListener mOnDismissListener;
+    private BuildEditContract.OnDismissSelectorListener mOnDismissSelectorListener;
+    private BuildEditContract.OnDismissBackListener mOnDismissBackListener;
     private BuildEditContract.OnDismissApkListener mOnDismissApkListener;
     private BuildEditContract.OnDismissBuildListener mOnDismissBuildListener;
 
@@ -60,8 +62,7 @@ public class BuildEditDialog extends RxDialogFragment implements BuildEditContra
 
     @Override
     public void onDismiss(DialogInterface dialog) {
-        InputMethodManager inputMethodManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-        inputMethodManager.toggleSoftInput(InputMethodManager.RESULT_UNCHANGED_SHOWN, InputMethodManager.RESULT_UNCHANGED_SHOWN);
+        showOnBackDismiss();
         super.onDismiss(dialog);
     }
 
@@ -77,10 +78,22 @@ public class BuildEditDialog extends RxDialogFragment implements BuildEditContra
 
         BuildEditContract.FLAG flag
                 = (BuildEditContract.FLAG) getArguments().getSerializable(BuildEditContract.KEY_FLAG);
-        if (flag == BuildEditContract.FLAG.PR) {
+
+        if (flag == BuildEditContract.FLAG.SELECTOR) {
+            mPresenter.initSelector(getContext());
+        } else if (flag == BuildEditContract.FLAG.PR) {
+            binding.selecotrText.setVisibility(View.GONE);
             InputMethodManager inputMethodManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
             inputMethodManager.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
-        } else {
+        } else if (flag == BuildEditContract.FLAG.EDIT) {
+            binding.selecotrText.setText(getString(R.string.selector_qa));
+            binding.selecotrText.setVisibility(View.VISIBLE);
+        } else if (flag == BuildEditContract.FLAG.MASTER) {
+            binding.selecotrText.setText(getString(R.string.selector_master));
+            binding.selecotrText.setVisibility(View.VISIBLE);
+        }
+
+        if (flag == BuildEditContract.FLAG.EDIT || flag == BuildEditContract.FLAG.MASTER) {
             mPresenter.loadBuildList(new BuildFetcher(this),
                     getArguments().getString(BuildEditContract.KEY_VERSION_PATH));
         }
@@ -124,6 +137,13 @@ public class BuildEditDialog extends RxDialogFragment implements BuildEditContra
     }
 
     @Override
+    public void showOnSelectorDismiss(String result) {
+        if (mOnDismissSelectorListener == null) return;
+        mOnDismissSelectorListener.onDismiss(result);
+        dismiss();
+    }
+
+    @Override
     public void showOnDismiss(String apkName) {
         mOnDismissApkListener.onDismiss(apkName);
         dismiss();
@@ -132,6 +152,18 @@ public class BuildEditDialog extends RxDialogFragment implements BuildEditContra
     @Override
     public void showOnDismiss(Build build) {
         mOnDismissBuildListener.onDismiss(build);
+        dismiss();
+    }
+
+    @Override
+    public void setOnBackDismissListenerClear() {
+        mOnDismissBackListener = null;
+    }
+
+    @Override
+    public void showOnBackDismiss() {
+        if (mOnDismissBackListener == null) return;
+        mOnDismissBackListener.onDismiss();
         dismiss();
     }
 
@@ -148,6 +180,14 @@ public class BuildEditDialog extends RxDialogFragment implements BuildEditContra
 
     public void setOnDismissListener(BuildEditContract.OnDismissListener onDismissListener) {
         mOnDismissListener = onDismissListener;
+    }
+
+    public void setOnDismissSelectorListener(BuildEditContract.OnDismissSelectorListener onDismissSelectorListener) {
+        mOnDismissSelectorListener = onDismissSelectorListener;
+    }
+
+    public void setmOnDismissBackListener(BuildEditContract.OnDismissBackListener onDismissBackListener) {
+        mOnDismissBackListener = onDismissBackListener;
     }
 
     public void setOnDismissApkListener(

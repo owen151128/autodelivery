@@ -25,7 +25,7 @@ public class BuildFetcher {
 
     public Single<String> fetchBuildList(String path) {
         return Single.<String>create(e -> {
-            URL url = new URL(BaseApplication.BUILD_SERVER_URL + path);
+            URL url = new URL(BaseApplication.getBuildServerUrl() + path);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             InputStream inputStream = connection.getInputStream();
             String response = IOUtils.toString(inputStream, "UTF-8");

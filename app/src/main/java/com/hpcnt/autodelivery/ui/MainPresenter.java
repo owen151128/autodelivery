@@ -24,6 +24,7 @@ class MainPresenter implements MainContract.Presenter {
 
     private MainContract.View mView;
     private MainContract.State mState;
+    private BuildEditContract.FLAG currentFlag;
     @NonNull
     private Build mBuild = new Build();
 
@@ -55,16 +56,30 @@ class MainPresenter implements MainContract.Presenter {
         request.setTitle(mBuild.getVersionName())
                 .setDescription(mBuild.getDate())
                 .setNotificationVisibility(
-                        DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-                .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS,
-                        mBuild.getDownloadVersionNamePath() + pathSegments.get(pathSegments.size() - 1));
+                        DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+        if (currentFlag == BuildEditContract.FLAG.MASTER) {
+            request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS,
+                    mBuild.getMasterDownloadVersionNamePath() + pathSegments.get(pathSegments.size() - 1));
+        } else {
+            request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS,
+                    mBuild.getDownloadVersionNamePath() + pathSegments.get(pathSegments.size() - 1));
+        }
         mView.addDownloadRequest(request);
+    }
+
+    @Override
+    public void setCurrentFlag(BuildEditContract.FLAG flag) {
+        this.currentFlag = flag;
     }
 
     @Override
     public void installApk() {
         if (mState != MainContract.State.INSTALL) return;
-        mView.showApkInstall(mBuild.getApkDownloadedPath());
+        if (currentFlag == BuildEditContract.FLAG.MASTER) {
+            mView.showApkInstall(mBuild.getMasterApkDownloadedPath());
+        } else {
+            mView.showApkInstall(mBuild.getApkDownloadedPath());
+        }
     }
 
     @Override
@@ -169,7 +184,12 @@ class MainPresenter implements MainContract.Presenter {
 
     private Single<Boolean> hasLastestFile() {
         return Single.<Boolean>create(e -> {
-            File buildFile = new File(mBuild.getApkDownloadedPath());
+            File buildFile;
+            if (currentFlag == BuildEditContract.FLAG.MASTER) {
+                buildFile = new File(mBuild.getMasterApkDownloadedPath());
+            } else {
+                buildFile = new File(mBuild.getApkDownloadedPath());
+            }
             e.onSuccess(buildFile.exists());
         })
                 .subscribeOn(Schedulers.io())

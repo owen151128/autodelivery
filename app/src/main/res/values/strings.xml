@@ -8,9 +8,12 @@
     <string name="permission_denied">Permission Denied</string>
     <string name="message_no_apk">APK가 없습니다</string>
     <string name="message_wait">잠시만 기다려주세요</string>
-    <string name="menu_pr">PR</string>
     <string name="message_search_hint">검색어를 입력해주세요.</string>
-    <string name="menu_edit">menu_edit</string>
+    <string name="menu_selector">menu_selector</string>
     <string name="menu_refresh">menu_refresh</string>
     <string name="back_button_toast">나가려면 BACK 버튼을 한번더 눌러주세요.</string>
+    <string name="mode_select_title">모드 선택</string>
+    <string name="selector_qa">QA 빌드</string>
+    <string name="selector_master">Master 빌드</string>
+    <string name="selector_pr">PR 빌드</string>
 </resources>

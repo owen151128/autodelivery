@@ -1,5 +1,6 @@
 package com.hpcnt.autodelivery.ui.dialog;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
@@ -55,6 +56,15 @@ class BuildEditPresenter implements BuildEditContract.Presenter {
     }
 
     @Override
+    public void initSelector(Context context) {
+        List<String> list = new ArrayList<>();
+        list.add(context.getString(R.string.selector_qa));
+        list.add(context.getString(R.string.selector_master));
+        list.add(context.getString(R.string.selector_pr));
+        showVersionList(list, context.getString(R.string.mode_select_title));
+    }
+
+    @Override
     public void onItemClick(BuildFetcher fetcher, String currentTitle, String currentVersion) {
         Build build;
         switch (mFlag) {
@@ -66,12 +76,24 @@ class BuildEditPresenter implements BuildEditContract.Presenter {
                 separateName.addAll(build.getSeparateName());
                 setVersionData(fetcher, new StringBuilder(currentVersion), separateName, separateSize);
                 break;
+            case MASTER:
+                build = new Build();
+                build.setVersionName(currentVersion);
+                int masterSeparateSize = build.getSeparateName().size();
+                List<String> MasterSeparateName = new ArrayList<>();
+                MasterSeparateName.addAll(build.getSeparateName());
+                setVersionData(fetcher, new StringBuilder(currentVersion), MasterSeparateName, masterSeparateSize);
+                break;
+            case SELECTOR:
+                mView.showOnSelectorDismiss(currentVersion);
+                break;
             case APK:
                 mView.showOnDismiss(currentVersion);
                 break;
             case PR:
                 if (!StringUtil.isDirectory(currentTitle))
                     currentTitle += "/";
+                mView.setOnBackDismissListenerClear();
                 mView.showOnDismiss(new Build(currentTitle, "", currentVersion));
                 break;
             default:
@@ -98,6 +120,9 @@ class BuildEditPresenter implements BuildEditContract.Presenter {
             }
             switch (mFlag) {
                 case EDIT:
+                    executeEditFetched(buildList, selectedVersion);
+                    break;
+                case MASTER:
                     executeEditFetched(buildList, selectedVersion);
                     break;
                 case APK:
@@ -150,6 +175,7 @@ class BuildEditPresenter implements BuildEditContract.Presenter {
     private void executeEditFetched(BuildList buildList, String selectedVersion) {
         String buildVersionName = buildList.get(0).getVersionName();
         if (!StringUtil.isDirectory(buildVersionName)) {
+            mView.setOnBackDismissListenerClear();
             mView.showOnDismiss(buildList, selectedVersion);
             return;
         }
