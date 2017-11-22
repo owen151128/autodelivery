@@ -51,7 +51,7 @@ interface MainContract {
 
         void installApk();
 
-        void onClickButton();
+        void onClickButton(String viewText);
 
         void selectMyAbiBuild(BuildList buildList, String versionName);
 

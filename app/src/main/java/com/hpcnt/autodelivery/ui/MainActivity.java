@@ -34,9 +34,13 @@ import com.hpcnt.autodelivery.network.BuildFetcher;
 import com.hpcnt.autodelivery.ui.dialog.BuildEditContract;
 import com.hpcnt.autodelivery.ui.dialog.BuildEditDialog;
 import com.hpcnt.autodelivery.util.ABIWrapper;
+import com.hpcnt.autodelivery.util.LogWrapper;
 import com.trello.rxlifecycle2.components.support.RxAppCompatActivity;
 
 import java.io.File;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.Locale;
 
 public class MainActivity extends RxAppCompatActivity implements MainContract.View {
 
@@ -47,10 +51,14 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
     private boolean isShowSelectFragment;
     private ActivityMainBinding binding;
     private MainContract.Presenter mPresenter;
+    private LogWrapper logWrapper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        final Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd_HH.mm.ss", Locale.getDefault());
+        logWrapper = LogWrapper.getInstance(dateFormat.format(timestamp));
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         binding.setAction(this);
         downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
@@ -139,7 +147,7 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
     }
 
     public void onClickBtnAction(View view) {
-        mPresenter.onClickButton();
+        mPresenter.onClickButton(binding.mainVersionName.getText().toString());
     }
 
     @Override

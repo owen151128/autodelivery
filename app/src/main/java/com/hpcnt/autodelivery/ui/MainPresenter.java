@@ -10,10 +10,14 @@ import com.hpcnt.autodelivery.model.BuildList;
 import com.hpcnt.autodelivery.network.BuildFetcher;
 import com.hpcnt.autodelivery.ui.dialog.BuildEditContract;
 import com.hpcnt.autodelivery.util.ABIWrapper;
+import com.hpcnt.autodelivery.util.LogWrapper;
 import com.hpcnt.autodelivery.util.StringUtil;
 
 import java.io.File;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Locale;
 
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -51,6 +55,8 @@ class MainPresenter implements MainContract.Presenter {
         }
         setState(MainContract.State.DOWNLOADING);
         Uri apkUri = Uri.parse(mBuild.getApkUrl());
+        final Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd_HH.mm.ss", Locale.getDefault());
         List<String> pathSegments = apkUri.getPathSegments();
         DownloadManager.Request request = new DownloadManager.Request(apkUri);
         request.setTitle(mBuild.getVersionName())
@@ -58,9 +64,19 @@ class MainPresenter implements MainContract.Presenter {
                 .setNotificationVisibility(
                         DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
         if (currentFlag == BuildEditContract.FLAG.MASTER) {
+            LogWrapper.getInstance().saveUrlAndPath(dateFormat.format(timestamp),
+                    apkUri.toString(),
+                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                            + File.separator + mBuild.getMasterDownloadVersionNamePath()
+                            + pathSegments.get(pathSegments.size() - 1));
             request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS,
                     mBuild.getMasterDownloadVersionNamePath() + pathSegments.get(pathSegments.size() - 1));
         } else {
+            LogWrapper.getInstance().saveUrlAndPath(dateFormat.format(timestamp),
+                    apkUri.toString(),
+                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                            + File.separator + mBuild.getDownloadVersionNamePath()
+                            + pathSegments.get(pathSegments.size() - 1));
             request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS,
                     mBuild.getDownloadVersionNamePath() + pathSegments.get(pathSegments.size() - 1));
         }
@@ -83,10 +99,12 @@ class MainPresenter implements MainContract.Presenter {
     }
 
     @Override
-    public void onClickButton() {
+    public void onClickButton(String viewText) {
         if (mState == MainContract.State.DOWNLOAD) {
+            LogWrapper.getInstance().saveTextViewLabel(viewText);
             downloadApk();
         } else if (mState == MainContract.State.INSTALL) {
+            LogWrapper.getInstance().saveInstallButtonLog(viewText);
             installApk();
         }
     }
