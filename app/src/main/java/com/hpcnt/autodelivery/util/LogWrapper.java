@@ -46,6 +46,8 @@ public class LogWrapper {
             writer.write("=======================================================================\n");
             writer.write("Select_Build Text : " + text + "\n");
             writer.close();
+            Log.e("DEBUG", "=======================================================================");
+            Log.e("Select Build Text", text);
         } catch (IOException e) {
             e.printStackTrace();
         }
