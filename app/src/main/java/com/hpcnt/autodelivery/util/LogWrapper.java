@@ -2,6 +2,7 @@ package com.hpcnt.autodelivery.util;
 
 import android.os.Environment;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -59,6 +60,12 @@ public class LogWrapper {
             writer.write("Download path : " + path + "\n");
             writer.write("=======================================================================\n");
             writer.close();
+            Log.e("DEBUG", "=======================================================================");
+            Log.e("Init Time", initTime);
+            Log.e("Download Time", time);
+            Log.e("Request Url", url);
+            Log.e("Download path", path);
+            Log.e("DEBUG", "=======================================================================");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -71,6 +78,9 @@ public class LogWrapper {
             writer.write("install_Build Text : " + text + "\n");
             writer.write("=======================================================================\n");
             writer.close();
+            Log.e("DEBUG", "=======================================================================");
+            Log.e("install_Build Text", text);
+            Log.e("DEBUG", "=======================================================================");
         } catch (IOException e) {
             e.printStackTrace();
         }
