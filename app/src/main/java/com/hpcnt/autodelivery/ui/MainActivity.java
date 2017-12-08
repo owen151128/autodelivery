@@ -58,6 +58,10 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
         alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
         binding.version.setText(BuildConfig.VERSION_NAME);
         binding.mainAdbi.setText(new ABIWrapper().getABI());
+        binding.mainBtnAction.setOnLongClickListener(v -> {
+            mPresenter.onLongClickButton();
+            return true;
+        });
     }
 
     @Override
@@ -149,12 +153,12 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
 
     @Override
     public void showToast(String response) {
-        Toast.makeText(getApplicationContext(), response, Toast.LENGTH_SHORT).show();
+        Toast.makeText(getApplicationContext(), response, Toast.LENGTH_LONG).show();
     }
 
     @Override
     public void showToast(int resId) {
-        Toast.makeText(getApplicationContext(), resId, Toast.LENGTH_SHORT).show();
+        Toast.makeText(getApplicationContext(), resId, Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -205,6 +209,21 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
         installIntent.setDataAndType(uri, "application/vnd.android.package-archive");
         installIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         startActivity(installIntent);
+    }
+
+    @Override
+    public void showApkDeleteDialog(String build, String apkPath) {
+        makeDialog("경고", build + " apk 를 삭제하시겠습니까?", false, true, null, (dialog, which) -> {
+            File file = new File(apkPath);
+            if (file.delete()) {
+                showToast(build + " apk 가 성공적으로 삭제 되었습니다.");
+            } else {
+                showToast("오류 : " + build + " apk 삭제 를 실패 하였습니다.");
+            }
+            BaseApplication.setNormalMode();
+            mPresenter.setCurrentFlag(BuildEditContract.FLAG.EDIT);
+            mPresenter.loadLatestBuild(new BuildFetcher(this));
+        }, null);
     }
 
     @Override
