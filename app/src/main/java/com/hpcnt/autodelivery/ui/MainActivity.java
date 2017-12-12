@@ -38,6 +38,9 @@ import com.trello.rxlifecycle2.components.support.RxAppCompatActivity;
 
 import java.io.File;
 
+import io.reactivex.exceptions.UndeliverableException;
+import io.reactivex.plugins.RxJavaPlugins;
+
 public class MainActivity extends RxAppCompatActivity implements MainContract.View {
 
     private DownloadManager downloadManager;
@@ -48,11 +51,23 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
     private ActivityMainBinding binding;
     private MainContract.Presenter mPresenter;
 
+    /**
+     * I/O 수행시 Activity 의 onPause 가 불릴 경우 UndeliverableException 이 BuildFetcher 에서 발생하여
+     * 크래시가 발생한다. 따라서 UndeliverableException 의 대한 Error Handling 이 필요하다.
+     * RxJavaPlugins.setErrorHandler 을 이용 하면 가능
+     * 해당 작업을 onCreate 에서 하는 이유는 onStart 에서 BuildFetcher를 사용하기 때문에 onStart 전에 처리
+     * 되어야 한다.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         binding.setAction(this);
+        RxJavaPlugins.setErrorHandler(throwable -> {
+            if (throwable instanceof UndeliverableException) {
+                throwable.printStackTrace();
+            }
+        });
         downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
         mPresenter = new MainPresenter(this);
         alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
