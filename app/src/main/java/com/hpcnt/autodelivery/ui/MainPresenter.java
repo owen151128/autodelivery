@@ -83,12 +83,27 @@ class MainPresenter implements MainContract.Presenter {
     }
 
     @Override
+    public void deleteApk() {
+        if (mState != MainContract.State.INSTALL) return;
+        if (currentFlag == BuildEditContract.FLAG.MASTER) {
+            mView.showApkDeleteDialog(mBuild.getVersionName(), mBuild.getMasterApkDownloadedPath());
+        } else {
+            mView.showApkDeleteDialog(mBuild.getVersionName(), mBuild.getApkDownloadedPath());
+        }
+    }
+
+    @Override
     public void onClickButton() {
         if (mState == MainContract.State.DOWNLOAD) {
             downloadApk();
         } else if (mState == MainContract.State.INSTALL) {
             installApk();
         }
+    }
+
+    @Override
+    public void onLongClickButton() {
+        deleteApk();
     }
 
     @Override
