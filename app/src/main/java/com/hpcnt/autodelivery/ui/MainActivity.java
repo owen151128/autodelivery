@@ -276,8 +276,10 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
                 mPresenter.setApkName(build.getApkName());
             });
             buildEditDialog.setmOnDismissBackListener(() -> {
-                isShowSelectFragment = true;
-                onBackPressed();
+                if(flag!=BuildEditContract.FLAG.APK) {
+                    isShowSelectFragment = true;
+                    onBackPressed();
+                }
             });
             buildEditDialog.show(getSupportFragmentManager(), BuildEditDialog.class.getSimpleName());
         }
