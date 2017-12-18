@@ -11,7 +11,7 @@ import com.hpcnt.autodelivery.network.BuildFetcher;
 public interface BuildEditContract {
 
     enum FLAG {
-        EDIT, APK, PR, SELECTOR, MASTER
+        EDIT, APK, PR, SELECTOR, MASTER, MASTER_APK
     }
 
     String KEY_VERSION_PATH = "KEY_VERSION_PATH";
