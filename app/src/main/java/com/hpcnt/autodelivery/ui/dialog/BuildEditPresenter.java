@@ -90,6 +90,9 @@ class BuildEditPresenter implements BuildEditContract.Presenter {
             case APK:
                 mView.showOnDismiss(currentVersion);
                 break;
+            case MASTER_APK:
+                mView.showOnDismiss(currentVersion);
+                break;
             case PR:
                 if (!StringUtil.isDirectory(currentTitle))
                     currentTitle += "/";
@@ -127,6 +130,9 @@ class BuildEditPresenter implements BuildEditContract.Presenter {
                     break;
                 case APK:
                     executeApkFetched(buildList, selectedVersion);
+                    break;
+                case MASTER_APK:
+                    executeMasterApkFetched(buildList, selectedVersion);
                     break;
                 case PR:
                     executePrFetched(buildList, selectedVersion);
@@ -168,6 +174,16 @@ class BuildEditPresenter implements BuildEditContract.Presenter {
         List<String> adapterList = new ArrayList<>();
         for (Build nextBuild : buildList.getList()) {
             adapterList.add(nextBuild.getVersionName());
+        }
+        showVersionList(adapterList, selectedVersion);
+    }
+
+    private void executeMasterApkFetched(BuildList buildList, String selectedVersion) {
+        List<String> adapterList = new ArrayList<>();
+        for (Build nextBuild : buildList.getList()) {
+            if(nextBuild.getVersionName().contains(new ABIWrapper().getABI())) {
+                adapterList.add(nextBuild.getVersionName());
+            }
         }
         showVersionList(adapterList, selectedVersion);
     }

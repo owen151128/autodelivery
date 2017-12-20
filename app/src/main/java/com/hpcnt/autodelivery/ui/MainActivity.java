@@ -260,13 +260,23 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
             BuildEditDialog buildEditDialog = BuildEditDialog.newInstance(versionPath, flag);
             if (flag == BuildEditContract.FLAG.MASTER) {
                 BaseApplication.setMasterBranchMode();
-                mPresenter.setCurrentFlag(BuildEditContract.FLAG.MASTER);
+                mPresenter.setCurrentFlag(flag);
+            } else if (flag == BuildEditContract.FLAG.APK) {
+                mPresenter.setCurrentFlag(flag);
+            } else if (flag == BuildEditContract.FLAG.MASTER_APK) {
+                mPresenter.setCurrentFlag(flag);
             } else {
                 BaseApplication.setNormalMode();
-                mPresenter.setCurrentFlag(BuildEditContract.FLAG.EDIT);
+                mPresenter.setCurrentFlag(flag);
             }
             buildEditDialog.setOnDismissListener(
-                    (buildList, versionName) -> mPresenter.selectMyAbiBuild(buildList, versionName));
+                    (buildList, versionName) -> {
+                        if (flag == BuildEditContract.FLAG.MASTER) {
+                            mPresenter.setCurrentFlag(BuildEditContract.FLAG.MASTER_APK);
+                            mPresenter.editCurrentBuild(versionName, BuildEditContract.FLAG.MASTER_APK);
+                        }
+                        mPresenter.selectMyAbiBuild(buildList, versionName);
+                    });
             buildEditDialog.setOnDismissApkListener(apkName -> mPresenter.setApkName(apkName));
             buildEditDialog.setOnDismissBuildListener(build -> {
                 InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -276,7 +286,7 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
                 mPresenter.setApkName(build.getApkName());
             });
             buildEditDialog.setmOnDismissBackListener(() -> {
-                if(flag!=BuildEditContract.FLAG.APK) {
+                if (flag != BuildEditContract.FLAG.APK && flag != BuildEditContract.FLAG.MASTER_APK) {
                     isShowSelectFragment = true;
                     onBackPressed();
                 }
