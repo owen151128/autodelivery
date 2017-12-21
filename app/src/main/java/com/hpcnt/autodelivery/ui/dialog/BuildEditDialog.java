@@ -93,7 +93,7 @@ public class BuildEditDialog extends RxDialogFragment implements BuildEditContra
             binding.selecotrText.setVisibility(View.VISIBLE);
         }
 
-        if (flag == BuildEditContract.FLAG.EDIT || flag == BuildEditContract.FLAG.MASTER || flag==BuildEditContract.FLAG.APK) {
+        if (flag != BuildEditContract.FLAG.SELECTOR && flag != BuildEditContract.FLAG.PR) {
             mPresenter.loadBuildList(new BuildFetcher(this),
                     getArguments().getString(BuildEditContract.KEY_VERSION_PATH));
         }

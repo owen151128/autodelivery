@@ -117,9 +117,6 @@ class MainPresenter implements MainContract.Presenter {
         hasLastestFile().subscribe(hasFile -> {
             if (hasFile) {
                 setState(MainContract.State.INSTALL);
-            } else {
-                setState(MainContract.State.DOWNLOAD);
-                downloadApk();
             }
         });
     }
@@ -157,8 +154,10 @@ class MainPresenter implements MainContract.Presenter {
             }
         }
 
-        if (!hasCorrectApk)
+        if (!hasCorrectApk) {
             apkName = "";
+            mView.showEditDialog(versionName, BuildEditContract.FLAG.APK);
+        }
 
         return new Build(versionName, date, apkName);
     }
