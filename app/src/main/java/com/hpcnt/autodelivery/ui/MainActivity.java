@@ -110,19 +110,20 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
-        Uri uri;
-        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.N) {
-            uri = Uri.parse("file://" + apkPath);
-        } else {
-            File file = new File(apkPath);
-            uri = FileProvider.getUriForFile(this,
-                    getApplicationContext().getPackageName() + ".provider", file);
+        if (requestCode == UNINSTALL_ACTIVITY) {
+            Uri uri;
+            if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.N) {
+                uri = Uri.parse("file://" + apkPath);
+            } else {
+                File file = new File(apkPath);
+                uri = FileProvider.getUriForFile(this,
+                        getApplicationContext().getPackageName() + ".provider", file);
+            }
+            Intent installIntent = new Intent(Intent.ACTION_VIEW);
+            installIntent.setDataAndType(uri, "application/vnd.android.package-archive");
+            installIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            startActivity(installIntent);
         }
-        Intent installIntent = new Intent(Intent.ACTION_VIEW);
-        installIntent.setDataAndType(uri, "application/vnd.android.package-archive");
-        installIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        startActivity(installIntent);
     }
 
     @Override
