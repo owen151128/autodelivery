@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.databinding.DataBindingUtil;
@@ -43,10 +44,13 @@ import io.reactivex.plugins.RxJavaPlugins;
 
 public class MainActivity extends RxAppCompatActivity implements MainContract.View {
 
+    private static final int UNINSTALL_ACTIVITY = 1000;
+    private static final String AZAR_PACKAGE = "com.azarlive.android";
     private DownloadManager downloadManager;
     private AlertDialog.Builder alertDialogBuilder;
     private long downloadQueueId;
     private long timer;
+    private String apkPath;
     private boolean isShowSelectFragment;
     private ActivityMainBinding binding;
     private MainContract.Presenter mPresenter;
@@ -100,6 +104,25 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
                 showToast(R.string.back_button_toast);
                 timer = now;
             }
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == UNINSTALL_ACTIVITY) {
+            Uri uri;
+            if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.N) {
+                uri = Uri.parse("file://" + apkPath);
+            } else {
+                File file = new File(apkPath);
+                uri = FileProvider.getUriForFile(this,
+                        getApplicationContext().getPackageName() + ".provider", file);
+            }
+            Intent installIntent = new Intent(Intent.ACTION_VIEW);
+            installIntent.setDataAndType(uri, "application/vnd.android.package-archive");
+            installIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            startActivity(installIntent);
         }
     }
 
@@ -212,18 +235,26 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
 
     @Override
     public void showApkInstall(String apkPath) {
+        this.apkPath = apkPath;
         Uri uri;
-        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.N) {
-            uri = Uri.parse("file://" + apkPath);
-        } else {
-            File file = new File(apkPath);
-            uri = FileProvider.getUriForFile(this,
-                    getApplicationContext().getPackageName() + ".provider", file);
+        try {
+            ApplicationInfo info = getApplicationContext().getPackageManager().getApplicationInfo(AZAR_PACKAGE, 0);
+            Intent unInstallIntent = new Intent(Intent.ACTION_UNINSTALL_PACKAGE)
+                    .setData(Uri.parse("package:" + AZAR_PACKAGE));
+            startActivityForResult(unInstallIntent, UNINSTALL_ACTIVITY);
+        } catch (PackageManager.NameNotFoundException e) {
+            if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.N) {
+                uri = Uri.parse("file://" + apkPath);
+            } else {
+                File file = new File(apkPath);
+                uri = FileProvider.getUriForFile(this,
+                        getApplicationContext().getPackageName() + ".provider", file);
+            }
+            Intent installIntent = new Intent(Intent.ACTION_VIEW);
+            installIntent.setDataAndType(uri, "application/vnd.android.package-archive");
+            installIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            startActivity(installIntent);
         }
-        Intent installIntent = new Intent(Intent.ACTION_VIEW);
-        installIntent.setDataAndType(uri, "application/vnd.android.package-archive");
-        installIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        startActivity(installIntent);
     }
 
     @Override
