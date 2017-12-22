@@ -274,9 +274,9 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
 
     @Override
     public void showEditDialog(String versionPath, BuildEditContract.FLAG flag) {
+        BuildEditDialog buildEditDialog = BuildEditDialog.newInstance(versionPath, flag);
         if (flag == BuildEditContract.FLAG.SELECTOR) {
             isShowSelectFragment = false;
-            BuildEditDialog buildEditDialog = BuildEditDialog.newInstance(versionPath, flag);
             buildEditDialog.show(getSupportFragmentManager(), BuildEditDialog.class.getSimpleName());
             buildEditDialog.setOnDismissSelectorListener((result) -> {
                 if (result.equals(getString(R.string.selector_qa))) {
@@ -288,17 +288,20 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
                 }
             });
         } else {
-            BuildEditDialog buildEditDialog = BuildEditDialog.newInstance(versionPath, flag);
-            if (flag == BuildEditContract.FLAG.MASTER) {
-                BaseApplication.setMasterBranchMode();
-                mPresenter.setCurrentFlag(flag);
-            } else if (flag == BuildEditContract.FLAG.APK) {
-                mPresenter.setCurrentFlag(flag);
-            } else if (flag == BuildEditContract.FLAG.MASTER_APK) {
-                mPresenter.setCurrentFlag(flag);
-            } else {
-                BaseApplication.setNormalMode();
-                mPresenter.setCurrentFlag(flag);
+            switch (flag) {
+                case MASTER:
+                    BaseApplication.setMasterBranchMode();
+                    mPresenter.setCurrentFlag(flag);
+                    break;
+                case APK:
+                    mPresenter.setCurrentFlag(flag);
+                    break;
+                case MASTER_APK:
+                    mPresenter.setCurrentFlag(flag);
+                    break;
+                default:
+                    BaseApplication.setNormalMode();
+                    mPresenter.setCurrentFlag(flag);
             }
             buildEditDialog.setOnDismissListener(
                     (buildList, versionName) -> {
