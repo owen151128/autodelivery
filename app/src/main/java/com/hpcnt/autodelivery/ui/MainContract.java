@@ -39,6 +39,8 @@ interface MainContract {
         void showApkDeleteDialog(String build, String apkPath);
 
         void showEditDialog(String versionPath, BuildEditContract.FLAG flag);
+
+        void checkNetwork();
     }
 
     interface Presenter {
