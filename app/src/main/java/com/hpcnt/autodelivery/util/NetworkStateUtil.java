@@ -4,6 +4,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.os.Build;
 
 public class NetworkStateUtil {
     private static NetworkStateUtil instance;
@@ -28,9 +29,19 @@ public class NetworkStateUtil {
         return networkInfo.isConnected();
     }
 
+    /**
+     * 4.2.2(Jelly_Bean_MR1, API 17) 미만 기기 에서는 wifiInfo.getSSID() 시에 SSID 에 " 가 없이 return 된다.
+     * 따라서 android.os.Build.VERSION.SDK_INT를 검사해서 Build.VERSION_CODES.JELLY_BEAN_MR1(API 17)
+     * 미만 일 경우에는 currentSSID 시작 과 끝에 " 를 넣어주는 작업이 필요하다.
+     */
     public boolean isAvailableNetwork() {
         WifiInfo wifiInfo = wifiManager.getConnectionInfo();
         String currentSSID = wifiInfo.getSSID();
+
+        if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            currentSSID = "\"" + currentSSID + "\"";
+        }
+
         for (String s : AVAILABLE_SSID) {
             if (currentSSID.equals(s))
                 return true;
