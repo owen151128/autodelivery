@@ -11,7 +11,7 @@ public class RxSelectorEventUtil {
         selectorSubject = BehaviorSubject.create();
     }
 
-    public static RxSelectorEventUtil getInstance() {
+    public static synchronized RxSelectorEventUtil getInstance() {
         if (instance == null)
             instance = new RxSelectorEventUtil();
         return instance;
