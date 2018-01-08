@@ -111,6 +111,12 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
     }
 
     @Override
+    protected void onDestroy() {
+        selectorEventUtil.close();
+        super.onDestroy();
+    }
+
+    @Override
     public void onBackPressed() {
         if (isShowSelectFragment) {
             mPresenter.editCurrentBuild("", BuildEditContract.FLAG.SELECTOR);
