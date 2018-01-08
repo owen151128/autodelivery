@@ -11,7 +11,9 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.databinding.DataBindingUtil;
+import android.net.ConnectivityManager;
 import android.net.Uri;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
@@ -36,6 +38,7 @@ import com.hpcnt.autodelivery.ui.dialog.BuildEditContract;
 import com.hpcnt.autodelivery.ui.dialog.BuildEditDialog;
 import com.hpcnt.autodelivery.util.ABIWrapper;
 import com.hpcnt.autodelivery.util.RxSelectorEventUtil;
+import com.hpcnt.autodelivery.util.NetworkStateUtil;
 import com.trello.rxlifecycle2.components.support.RxAppCompatActivity;
 
 import java.io.File;
@@ -51,6 +54,7 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
     private static final String AZAR_PACKAGE = "com.azarlive.android";
     private DownloadManager downloadManager;
     private AlertDialog.Builder alertDialogBuilder;
+    private NetworkStateUtil networkStateUtil;
     private long downloadQueueId;
     private long timer;
     private String apkPath;
@@ -79,6 +83,9 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
         downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
         mPresenter = new MainPresenter(this);
         alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
+        networkStateUtil = NetworkStateUtil.getInstance((ConnectivityManager) getApplicationContext()
+                        .getSystemService(CONNECTIVITY_SERVICE)
+                , (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE));
         binding.version.setText(BuildConfig.VERSION_NAME);
         binding.mainAdbi.setText(new ABIWrapper().getABI());
         binding.mainBtnAction.setOnLongClickListener(v -> {
@@ -96,6 +103,7 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
     @Override
     protected void onStart() {
         super.onStart();
+        checkNetwork();
         BaseApplication.setNormalMode();
         binding.modeText.setText(getString(R.string.selector_qa));
         mPresenter.setCurrentFlag(BuildEditContract.FLAG.EDIT);
@@ -144,8 +152,11 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
                            DialogInterface.OnClickListener onNoListener) {
         alertDialogBuilder.setTitle(title).setMessage(message)
                 .setPositiveButton("OK", onYesListener);
-        if (!isAlert)
+        if (isAlert) {
+            alertDialogBuilder.setNegativeButton(null, null);
+        } else {
             alertDialogBuilder.setNegativeButton("NO", onNoListener);
+        }
         if (cancelable)
             alertDialogBuilder.setCancelable(true);
         else
@@ -168,6 +179,7 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
         switch (item.getItemId()) {
             case R.id.menu_refresh:
                 binding.modeText.setText(getString(R.string.selector_qa));
+                checkNetwork();
                 mPresenter.loadLatestBuild(new BuildFetcher(this));
                 return true;
             case R.id.menu_selector:
@@ -193,7 +205,21 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
     }
 
     public void onClickBtnAction(View view) {
-        mPresenter.onClickButton();
+        if (networkStateUtil.isNetworkConnected()) {
+            if (networkStateUtil.isAvailableNetwork()) {
+                mPresenter.onClickButton();
+            } else {
+                makeDialog("오류"
+                        , "WI-FI 가 빌드 서버에 접속할수 없는 망 입니다. 빌드서버에 접속할수 있는 망으로 접속 해주세요."
+                        , true, false, null, null, null);
+            }
+        } else {
+            makeDialog("오류"
+                    , "WI-FI 가 활성화 되어 있지 않습니다. WI-FI 를 활성화 하시겠습니까?"
+                    , false, false, null
+                    , (DialogInterface d, int w) -> networkStateUtil.setWifiEnable(), null);
+        }
+
     }
 
     @Override
@@ -364,6 +390,22 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
                 binding.mainBtnAction.setEnabled(false);
                 binding.mainBtnAction.setText(R.string.permission_denied);
             }
+        }
+    }
+
+    @Override
+    public void checkNetwork() {
+        if (networkStateUtil.isNetworkConnected()) {
+            if (!networkStateUtil.isAvailableNetwork()) {
+                makeDialog("오류"
+                        , "WI-FI 가 빌드 서버에 접속할수 없는 망 입니다. 빌드서버에 접속할수 있는 망으로 접속 해주세요."
+                        , true, false, null, null, null);
+            }
+        } else {
+            makeDialog("오류"
+                    , "WI-FI 가 활성화 되어 있지 않습니다. WI-FI 를 활성화 하시겠습니까?"
+                    , false, false, null
+                    , (DialogInterface d, int w) -> networkStateUtil.setWifiEnable(), null);
         }
     }
 
