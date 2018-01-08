@@ -20,6 +20,7 @@ import com.hpcnt.autodelivery.databinding.DialogBuildEditBinding;
 import com.hpcnt.autodelivery.model.Build;
 import com.hpcnt.autodelivery.model.BuildList;
 import com.hpcnt.autodelivery.network.BuildFetcher;
+import com.hpcnt.autodelivery.util.RxSelectorEventUtil;
 import com.trello.rxlifecycle2.components.support.RxDialogFragment;
 
 /**
@@ -31,6 +32,7 @@ public class BuildEditDialog extends RxDialogFragment implements BuildEditContra
 
     private DialogBuildEditBinding binding;
     private BuildEditContract.Presenter mPresenter;
+    private RxSelectorEventUtil selectorEventUtil;
     private BuildEditContract.OnDismissListener mOnDismissListener;
     private BuildEditContract.OnDismissSelectorListener mOnDismissSelectorListener;
     private BuildEditContract.OnDismissBackListener mOnDismissBackListener;
@@ -57,6 +59,7 @@ public class BuildEditDialog extends RxDialogFragment implements BuildEditContra
         binding.setFlag((BuildEditContract.FLAG) getArguments().getSerializable(BuildEditContract.KEY_FLAG));
         binding.setDialog(this);
         mPresenter = new BuildEditPresenter(this, getArguments());
+        selectorEventUtil = RxSelectorEventUtil.getInstance();
         return view;
     }
 
@@ -85,12 +88,15 @@ public class BuildEditDialog extends RxDialogFragment implements BuildEditContra
             binding.selecotrText.setVisibility(View.GONE);
             InputMethodManager inputMethodManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
             inputMethodManager.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+            selectorEventUtil.sendSelectorEvent(R.string.selector_pr);
         } else if (flag == BuildEditContract.FLAG.EDIT) {
             binding.selecotrText.setText(getString(R.string.selector_qa));
             binding.selecotrText.setVisibility(View.VISIBLE);
+            selectorEventUtil.sendSelectorEvent(R.string.selector_qa);
         } else if (flag == BuildEditContract.FLAG.MASTER) {
             binding.selecotrText.setText(getString(R.string.selector_master));
             binding.selecotrText.setVisibility(View.VISIBLE);
+            selectorEventUtil.sendSelectorEvent(R.string.selector_master);
         }
 
         if (flag != BuildEditContract.FLAG.SELECTOR && flag != BuildEditContract.FLAG.PR) {
