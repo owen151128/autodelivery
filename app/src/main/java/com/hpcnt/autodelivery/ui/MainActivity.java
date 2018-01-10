@@ -37,13 +37,16 @@ import com.hpcnt.autodelivery.network.BuildFetcher;
 import com.hpcnt.autodelivery.ui.dialog.BuildEditContract;
 import com.hpcnt.autodelivery.ui.dialog.BuildEditDialog;
 import com.hpcnt.autodelivery.util.ABIWrapper;
+import com.hpcnt.autodelivery.util.RxSelectorEventUtil;
 import com.hpcnt.autodelivery.util.NetworkStateUtil;
 import com.trello.rxlifecycle2.components.support.RxAppCompatActivity;
 
 import java.io.File;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.exceptions.UndeliverableException;
 import io.reactivex.plugins.RxJavaPlugins;
+import io.reactivex.schedulers.Schedulers;
 
 public class MainActivity extends RxAppCompatActivity implements MainContract.View {
 
@@ -55,6 +58,7 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
     private long downloadQueueId;
     private long timer;
     private String apkPath;
+    private RxSelectorEventUtil selectorEventUtil;
     private boolean isShowSelectFragment;
     private ActivityMainBinding binding;
     private MainContract.Presenter mPresenter;
@@ -88,6 +92,12 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
             mPresenter.onLongClickButton();
             return true;
         });
+        selectorEventUtil = RxSelectorEventUtil.getInstance();
+        selectorEventUtil.receiveSelectorEvent()
+                .subscribeOn(Schedulers.single())
+                .compose(this.bindToLifecycle())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(s -> binding.modeText.setText(s));
     }
 
     @Override
@@ -95,8 +105,15 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
         super.onStart();
         checkNetwork();
         BaseApplication.setNormalMode();
+        binding.modeText.setText(getString(R.string.selector_qa));
         mPresenter.setCurrentFlag(BuildEditContract.FLAG.EDIT);
         mPresenter.loadLatestBuild(new BuildFetcher(this));
+    }
+
+    @Override
+    protected void onDestroy() {
+        selectorEventUtil.close();
+        super.onDestroy();
     }
 
     @Override
@@ -167,6 +184,7 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_refresh:
+                binding.modeText.setText(getString(R.string.selector_qa));
                 checkNetwork();
                 mPresenter.loadLatestBuild(new BuildFetcher(this));
                 return true;
