@@ -57,7 +57,7 @@ class MainPresenter implements MainContract.Presenter {
                 .setDescription(mBuild.getDate())
                 .setNotificationVisibility(
                         DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-        if (currentFlag == BuildEditContract.FLAG.MASTER) {
+        if (currentFlag == BuildEditContract.FLAG.MASTER_APK) {
             request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS,
                     mBuild.getMasterDownloadVersionNamePath() + pathSegments.get(pathSegments.size() - 1));
         } else {
@@ -75,7 +75,7 @@ class MainPresenter implements MainContract.Presenter {
     @Override
     public void installApk() {
         if (mState != MainContract.State.INSTALL) return;
-        if (currentFlag == BuildEditContract.FLAG.MASTER) {
+        if (currentFlag == BuildEditContract.FLAG.MASTER_APK) {
             mView.showApkInstall(mBuild.getMasterApkDownloadedPath());
         } else {
             mView.showApkInstall(mBuild.getApkDownloadedPath());
@@ -85,7 +85,7 @@ class MainPresenter implements MainContract.Presenter {
     @Override
     public void deleteApk() {
         if (mState != MainContract.State.INSTALL) return;
-        if (currentFlag == BuildEditContract.FLAG.MASTER) {
+        if (currentFlag == BuildEditContract.FLAG.MASTER_APK) {
             mView.showApkDeleteDialog(mBuild.getVersionName(), mBuild.getMasterApkDownloadedPath());
         } else {
             mView.showApkDeleteDialog(mBuild.getVersionName(), mBuild.getApkDownloadedPath());
@@ -199,7 +199,7 @@ class MainPresenter implements MainContract.Presenter {
     private Single<Boolean> hasLastestFile() {
         return Single.<Boolean>create(e -> {
             File buildFile;
-            if (currentFlag == BuildEditContract.FLAG.MASTER) {
+            if (currentFlag == BuildEditContract.FLAG.MASTER_APK) {
                 buildFile = new File(mBuild.getMasterApkDownloadedPath());
             } else {
                 buildFile = new File(mBuild.getApkDownloadedPath());
