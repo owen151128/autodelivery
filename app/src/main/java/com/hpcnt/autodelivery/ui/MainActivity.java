@@ -37,8 +37,8 @@ import com.hpcnt.autodelivery.network.BuildFetcher;
 import com.hpcnt.autodelivery.ui.dialog.BuildEditContract;
 import com.hpcnt.autodelivery.ui.dialog.BuildEditDialog;
 import com.hpcnt.autodelivery.util.ABIWrapper;
-import com.hpcnt.autodelivery.util.RxSelectorEventUtil;
 import com.hpcnt.autodelivery.util.NetworkStateUtil;
+import com.hpcnt.autodelivery.util.RxSelectorEventUtil;
 import com.trello.rxlifecycle2.components.support.RxAppCompatActivity;
 
 import java.io.File;
@@ -60,6 +60,7 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
     private String apkPath;
     private RxSelectorEventUtil selectorEventUtil;
     private boolean isShowSelectFragment;
+    private boolean isFirst;
     private ActivityMainBinding binding;
     private MainContract.Presenter mPresenter;
 
@@ -104,10 +105,13 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
     protected void onStart() {
         super.onStart();
         checkNetwork();
-        BaseApplication.setNormalMode();
-        binding.modeText.setText(getString(R.string.selector_qa));
-        mPresenter.setCurrentFlag(BuildEditContract.FLAG.EDIT);
-        mPresenter.loadLatestBuild(new BuildFetcher(this));
+        if (!isFirst) {
+            BaseApplication.setNormalMode();
+            binding.modeText.setText(getString(R.string.selector_qa));
+            mPresenter.setCurrentFlag(BuildEditContract.FLAG.EDIT);
+            mPresenter.loadLatestBuild(new BuildFetcher(this));
+            isFirst = true;
+        }
     }
 
     @Override
@@ -177,6 +181,7 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater menuInflater = getMenuInflater();
         menuInflater.inflate(R.menu.menu_main, menu);
+
         return true;
     }
 
@@ -186,6 +191,9 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
             case R.id.menu_refresh:
                 binding.modeText.setText(getString(R.string.selector_qa));
                 checkNetwork();
+                BaseApplication.setNormalMode();
+                binding.modeText.setText(getString(R.string.selector_qa));
+                mPresenter.setCurrentFlag(BuildEditContract.FLAG.EDIT);
                 mPresenter.loadLatestBuild(new BuildFetcher(this));
                 return true;
             case R.id.menu_selector:
@@ -355,11 +363,15 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
                         }
                         mPresenter.selectMyAbiBuild(buildList, versionName);
                     });
-            buildEditDialog.setOnDismissApkListener(apkName -> mPresenter.setApkName(apkName));
+            buildEditDialog.setOnDismissApkListener(apkName -> {
+                mPresenter.setApkName(apkName);
+                mPresenter.stateSetting();
+            });
             buildEditDialog.setOnDismissBuildListener(build -> {
                 InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 inputMethodManager.toggleSoftInput(InputMethodManager.RESULT_UNCHANGED_SHOWN, InputMethodManager.RESULT_UNCHANGED_SHOWN);
                 mPresenter.setBuild(build);
+                mPresenter.stateSetting();
                 showLastestBuild(build);
                 mPresenter.setApkName(build.getApkName());
             });
