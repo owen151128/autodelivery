@@ -21,6 +21,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
+import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -33,10 +34,12 @@ import com.hpcnt.autodelivery.BuildConfig;
 import com.hpcnt.autodelivery.R;
 import com.hpcnt.autodelivery.databinding.ActivityMainBinding;
 import com.hpcnt.autodelivery.model.Build;
+import com.hpcnt.autodelivery.model.BuildList;
 import com.hpcnt.autodelivery.network.BuildFetcher;
 import com.hpcnt.autodelivery.ui.dialog.BuildEditContract;
 import com.hpcnt.autodelivery.ui.dialog.BuildEditDialog;
 import com.hpcnt.autodelivery.util.ABIWrapper;
+import com.hpcnt.autodelivery.util.CurrentBuildWrapper;
 import com.hpcnt.autodelivery.util.NetworkStateUtil;
 import com.hpcnt.autodelivery.util.RxSelectorEventUtil;
 import com.trello.rxlifecycle2.components.support.RxAppCompatActivity;
@@ -55,6 +58,7 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
     private DownloadManager downloadManager;
     private AlertDialog.Builder alertDialogBuilder;
     private NetworkStateUtil networkStateUtil;
+    private CurrentBuildWrapper currentBuildWrapper;
     private long downloadQueueId;
     private long timer;
     private String apkPath;
@@ -87,6 +91,7 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
         networkStateUtil = NetworkStateUtil.getInstance((ConnectivityManager) getApplicationContext()
                         .getSystemService(CONNECTIVITY_SERVICE)
                 , (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE));
+        currentBuildWrapper = CurrentBuildWrapper.getInstance();
         binding.version.setText(BuildConfig.VERSION_NAME);
         binding.mainAdbi.setText(new ABIWrapper().getABI());
         binding.mainBtnAction.setOnLongClickListener(v -> {
@@ -106,11 +111,28 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
         super.onStart();
         checkNetwork();
         if (!isFirst) {
-            BaseApplication.setNormalMode();
-            binding.modeText.setText(getString(R.string.selector_qa));
-            mPresenter.setCurrentFlag(BuildEditContract.FLAG.EDIT);
             mPresenter.loadLatestBuild(new BuildFetcher(this));
             isFirst = true;
+        }
+        if (currentBuildWrapper != null) {
+            switch (currentBuildWrapper.getFlag()) {
+                case ABI:
+                    Pair<BuildList, String> abiBuild = currentBuildWrapper.getAbiBuild();
+                    mPresenter.selectMyAbiBuild(abiBuild.first, abiBuild.second);
+                    break;
+                case APK:
+                    mPresenter.setApkName(currentBuildWrapper.getApkName());
+                    break;
+                case BUILD:
+                    Build currentBuild = currentBuildWrapper.getBuild();
+                    mPresenter.setBuild(currentBuild);
+                    mPresenter.stateSetting();
+                    showLastestBuild(currentBuild);
+                    mPresenter.setApkName(currentBuild.getApkName());
+                    break;
+                default:
+                    break;
+            }
         }
     }
 
@@ -362,15 +384,18 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
                             mPresenter.editCurrentBuild(versionName, BuildEditContract.FLAG.MASTER_APK);
                         }
                         mPresenter.selectMyAbiBuild(buildList, versionName);
+                        currentBuildWrapper.setAbiBuild(CurrentBuildWrapper.FLAG.ABI, buildList, versionName);
                     });
             buildEditDialog.setOnDismissApkListener(apkName -> {
                 mPresenter.setApkName(apkName);
+                currentBuildWrapper.setApkName(CurrentBuildWrapper.FLAG.APK, apkName);
                 mPresenter.stateSetting();
             });
             buildEditDialog.setOnDismissBuildListener(build -> {
                 InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 inputMethodManager.toggleSoftInput(InputMethodManager.RESULT_UNCHANGED_SHOWN, InputMethodManager.RESULT_UNCHANGED_SHOWN);
                 mPresenter.setBuild(build);
+                currentBuildWrapper.setBuild(CurrentBuildWrapper.FLAG.BUILD, build);
                 mPresenter.stateSetting();
                 showLastestBuild(build);
                 mPresenter.setApkName(build.getApkName());
