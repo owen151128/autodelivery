@@ -64,7 +64,6 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
     private String apkPath;
     private RxSelectorEventUtil selectorEventUtil;
     private boolean isShowSelectFragment;
-    private boolean isFirst;
     private ActivityMainBinding binding;
     private MainContract.Presenter mPresenter;
 
@@ -104,16 +103,13 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
                 .compose(this.bindToLifecycle())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(s -> binding.modeText.setText(s));
+        checkNetwork();
+        mPresenter.loadLatestBuild(new BuildFetcher(this));
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        checkNetwork();
-        if (!isFirst) {
-            mPresenter.loadLatestBuild(new BuildFetcher(this));
-            isFirst = true;
-        }
         if (currentBuildWrapper != null) {
             switch (currentBuildWrapper.getFlag()) {
                 case ABI:
