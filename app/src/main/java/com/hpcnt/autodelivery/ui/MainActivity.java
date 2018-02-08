@@ -21,6 +21,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -62,6 +63,7 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
     private long downloadQueueId;
     private long timer;
     private String apkPath;
+    private String currentMode;
     private RxSelectorEventUtil selectorEventUtil;
     private boolean isShowSelectFragment;
     private ActivityMainBinding binding;
@@ -210,6 +212,7 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
                 binding.modeText.setText(getString(R.string.selector_qa));
                 checkNetwork();
                 BaseApplication.setNormalMode();
+                currentMode = getString(R.string.selector_qa);
                 binding.modeText.setText(getString(R.string.selector_qa));
                 mPresenter.setCurrentFlag(BuildEditContract.FLAG.EDIT);
                 mPresenter.loadLatestBuild(new BuildFetcher(this));
@@ -349,13 +352,37 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
             isShowSelectFragment = false;
             buildEditDialog.show(getSupportFragmentManager(), BuildEditDialog.class.getSimpleName());
             buildEditDialog.setOnDismissSelectorListener((result) -> {
-                if (result.equals(getString(R.string.selector_qa))) {
-                    mPresenter.editCurrentBuild("", BuildEditContract.FLAG.EDIT);
-                } else if (result.equals(getString(R.string.selector_master))) {
-                    mPresenter.editCurrentBuild("", BuildEditContract.FLAG.MASTER);
-                } else if (result.equals(getString(R.string.selector_pr))) {
-                    mPresenter.editCurrentBuild("pr/", BuildEditContract.FLAG.PR);
+                        if (result.equals(getString(R.string.selector_qa))) {
+                            mPresenter.editCurrentBuild("", BuildEditContract.FLAG.EDIT);
+                        } else if (result.equals(getString(R.string.selector_master))) {
+                            mPresenter.editCurrentBuild("", BuildEditContract.FLAG.MASTER);
+                        } else if (result.equals(getString(R.string.selector_pr))) {
+                            mPresenter.editCurrentBuild("pr/", BuildEditContract.FLAG.PR);
+                        }
+                    }
+            );
+            buildEditDialog.setmOnDismissBackListener(() -> {
+                Log.e("DEBUG", "BACK");
+                if (currentMode != null) {
+                    Log.e("DEBUG", "BACK_if");
+                    switch (currentMode) {
+                        case "QA 빌드":
+                            BaseApplication.setNormalMode();
+                            binding.modeText.setText(R.string.selector_qa);
+                            break;
+                        case "Master 빌드":
+                            BaseApplication.setMasterBranchMode();
+                            binding.modeText.setText(R.string.selector_master);
+                            break;
+                        case "PR 빌드":
+                            BaseApplication.setNormalMode();
+                            binding.modeText.setText(R.string.selector_pr);
+                            break;
+                        default:
+                    }
+                    Log.e("DEBUG", "BACK_IF_END");
                 }
+                Log.e("DEBUG", "BACK_END");
             });
         } else {
             switch (flag) {
@@ -403,6 +430,8 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
                 }
             });
             buildEditDialog.show(getSupportFragmentManager(), BuildEditDialog.class.getSimpleName());
+            currentMode = binding.modeText.getText().toString();
+            Log.e("DEBUG", "currentMode : " + currentMode);
         }
     }
 
