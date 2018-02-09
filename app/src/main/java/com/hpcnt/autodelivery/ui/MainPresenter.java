@@ -63,7 +63,7 @@ class MainPresenter implements MainContract.Presenter {
                 .setDescription(mBuild.getDate())
                 .setNotificationVisibility(
                         DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-        if (currentFlag == BuildEditContract.FLAG.MASTER) {
+        if (currentFlag == BuildEditContract.FLAG.MASTER_APK) {
             LogWrapper.getInstance().saveUrlAndPath(dateFormat.format(timestamp),
                     apkUri.toString(),
                     Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
@@ -91,10 +91,20 @@ class MainPresenter implements MainContract.Presenter {
     @Override
     public void installApk() {
         if (mState != MainContract.State.INSTALL) return;
-        if (currentFlag == BuildEditContract.FLAG.MASTER) {
+        if (currentFlag == BuildEditContract.FLAG.MASTER_APK) {
             mView.showApkInstall(mBuild.getMasterApkDownloadedPath());
         } else {
             mView.showApkInstall(mBuild.getApkDownloadedPath());
+        }
+    }
+
+    @Override
+    public void deleteApk() {
+        if (mState != MainContract.State.INSTALL) return;
+        if (currentFlag == BuildEditContract.FLAG.MASTER_APK) {
+            mView.showApkDeleteDialog(mBuild.getVersionName(), mBuild.getMasterApkDownloadedPath());
+        } else {
+            mView.showApkDeleteDialog(mBuild.getVersionName(), mBuild.getApkDownloadedPath());
         }
     }
 
@@ -110,6 +120,11 @@ class MainPresenter implements MainContract.Presenter {
     }
 
     @Override
+    public void onLongClickButton() {
+        deleteApk();
+    }
+
+    @Override
     public void editCurrentBuild(String versionPath, BuildEditContract.FLAG flag) {
         mView.showEditDialog(versionPath, flag);
     }
@@ -120,9 +135,6 @@ class MainPresenter implements MainContract.Presenter {
         hasLastestFile().subscribe(hasFile -> {
             if (hasFile) {
                 setState(MainContract.State.INSTALL);
-            } else {
-                setState(MainContract.State.DOWNLOAD);
-                downloadApk();
             }
         });
     }
@@ -160,8 +172,10 @@ class MainPresenter implements MainContract.Presenter {
             }
         }
 
-        if (!hasCorrectApk)
+        if (!hasCorrectApk) {
             apkName = "";
+            mView.showEditDialog(versionName, BuildEditContract.FLAG.APK);
+        }
 
         return new Build(versionName, date, apkName);
     }
@@ -203,7 +217,7 @@ class MainPresenter implements MainContract.Presenter {
     private Single<Boolean> hasLastestFile() {
         return Single.<Boolean>create(e -> {
             File buildFile;
-            if (currentFlag == BuildEditContract.FLAG.MASTER) {
+            if (currentFlag == BuildEditContract.FLAG.MASTER_APK) {
                 buildFile = new File(mBuild.getMasterApkDownloadedPath());
             } else {
                 buildFile = new File(mBuild.getApkDownloadedPath());

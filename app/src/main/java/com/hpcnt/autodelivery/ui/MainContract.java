@@ -36,7 +36,11 @@ interface MainContract {
 
         void showApkInstall(String apkPath);
 
+        void showApkDeleteDialog(String build, String apkPath);
+
         void showEditDialog(String versionPath, BuildEditContract.FLAG flag);
+
+        void checkNetwork();
     }
 
     interface Presenter {
@@ -51,7 +55,11 @@ interface MainContract {
 
         void installApk();
 
+        void deleteApk();
+
         void onClickButton(String viewText);
+
+        void onLongClickButton();
 
         void selectMyAbiBuild(BuildList buildList, String versionName);
 
