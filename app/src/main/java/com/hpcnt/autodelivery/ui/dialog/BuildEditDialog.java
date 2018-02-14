@@ -1,5 +1,6 @@
 package com.hpcnt.autodelivery.ui.dialog;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.databinding.DataBindingUtil;
@@ -8,6 +9,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +22,7 @@ import com.hpcnt.autodelivery.databinding.DialogBuildEditBinding;
 import com.hpcnt.autodelivery.model.Build;
 import com.hpcnt.autodelivery.model.BuildList;
 import com.hpcnt.autodelivery.network.BuildFetcher;
+import com.hpcnt.autodelivery.ui.MainActivity;
 import com.hpcnt.autodelivery.util.RxSelectorEventUtil;
 import com.trello.rxlifecycle2.components.support.RxDialogFragment;
 
@@ -33,6 +36,7 @@ public class BuildEditDialog extends RxDialogFragment implements BuildEditContra
     private DialogBuildEditBinding binding;
     private BuildEditContract.Presenter mPresenter;
     private RxSelectorEventUtil selectorEventUtil;
+    private BuildEditContract.OnBackPressedListener mOnBackPressedListener;
     private BuildEditContract.OnDismissListener mOnDismissListener;
     private BuildEditContract.OnDismissSelectorListener mOnDismissSelectorListener;
     private BuildEditContract.OnDismissBackListener mOnDismissBackListener;
@@ -82,6 +86,15 @@ public class BuildEditDialog extends RxDialogFragment implements BuildEditContra
         BuildEditContract.FLAG flag
                 = (BuildEditContract.FLAG) getArguments().getSerializable(BuildEditContract.KEY_FLAG);
 
+        view.setFocusableInTouchMode(true);
+        view.requestFocus();
+        view.setOnKeyListener((View v, int keyCode, KeyEvent event) -> {
+            if (flag == BuildEditContract.FLAG.SELECTOR && event.getAction() == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_BACK) {
+                mOnBackPressedListener.onBack();
+            }
+            return false;
+        });
+
         if (flag == BuildEditContract.FLAG.SELECTOR) {
             mPresenter.initSelector(getContext());
         } else if (flag == BuildEditContract.FLAG.PR) {
@@ -102,6 +115,14 @@ public class BuildEditDialog extends RxDialogFragment implements BuildEditContra
         if (flag != BuildEditContract.FLAG.SELECTOR && flag != BuildEditContract.FLAG.PR) {
             mPresenter.loadBuildList(new BuildFetcher(this),
                     getArguments().getString(BuildEditContract.KEY_VERSION_PATH));
+        }
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        if (activity instanceof MainActivity) {
+            mOnBackPressedListener = (MainActivity) activity;
         }
     }
 

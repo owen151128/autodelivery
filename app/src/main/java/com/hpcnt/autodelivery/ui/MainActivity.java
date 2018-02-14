@@ -51,7 +51,7 @@ import io.reactivex.exceptions.UndeliverableException;
 import io.reactivex.plugins.RxJavaPlugins;
 import io.reactivex.schedulers.Schedulers;
 
-public class MainActivity extends RxAppCompatActivity implements MainContract.View {
+public class MainActivity extends RxAppCompatActivity implements MainContract.View, BuildEditContract.OnBackPressedListener {
 
     private static final int UNINSTALL_ACTIVITY = 1000;
     private static final String AZAR_PACKAGE = "com.azarlive.android";
@@ -62,6 +62,7 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
     private long downloadQueueId;
     private long timer;
     private String apkPath;
+    private String currentMode;
     private RxSelectorEventUtil selectorEventUtil;
     private boolean isShowSelectFragment;
     private ActivityMainBinding binding;
@@ -105,6 +106,7 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
                 .subscribe(s -> binding.modeText.setText(s));
         checkNetwork();
         mPresenter.loadLatestBuild(new BuildFetcher(this));
+        currentMode = binding.modeText.getText().toString();
     }
 
     @Override
@@ -211,6 +213,7 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
                 checkNetwork();
                 BaseApplication.setNormalMode();
                 binding.modeText.setText(getString(R.string.selector_qa));
+                currentMode = binding.modeText.getText().toString();
                 mPresenter.setCurrentFlag(BuildEditContract.FLAG.EDIT);
                 mPresenter.loadLatestBuild(new BuildFetcher(this));
                 return true;
@@ -338,6 +341,8 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
             }
             BaseApplication.setNormalMode();
             mPresenter.setCurrentFlag(BuildEditContract.FLAG.EDIT);
+            binding.modeText.setText(getString(R.string.selector_qa));
+            currentMode = binding.modeText.getText().toString();
             mPresenter.loadLatestBuild(new BuildFetcher(this));
         }, null);
     }
@@ -381,11 +386,13 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
                         }
                         mPresenter.selectMyAbiBuild(buildList, versionName);
                         currentBuildWrapper.setAbiBuild(CurrentBuildWrapper.FLAG.ABI, buildList, versionName);
+                        currentMode = binding.modeText.getText().toString();
                     });
             buildEditDialog.setOnDismissApkListener(apkName -> {
                 mPresenter.setApkName(apkName);
                 currentBuildWrapper.setApkName(CurrentBuildWrapper.FLAG.APK, apkName);
                 mPresenter.stateSetting();
+                currentMode = binding.modeText.getText().toString();
             });
             buildEditDialog.setOnDismissBuildListener(build -> {
                 InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -395,6 +402,7 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
                 mPresenter.stateSetting();
                 showLastestBuild(build);
                 mPresenter.setApkName(build.getApkName());
+                currentMode = binding.modeText.getText().toString();
             });
             buildEditDialog.setmOnDismissBackListener(() -> {
                 if (flag != BuildEditContract.FLAG.APK && flag != BuildEditContract.FLAG.MASTER_APK) {
@@ -466,6 +474,27 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
             }
         }
     };
+
+    @Override
+    public void onBack() {
+        if (currentMode != null) {
+            switch (currentMode) {
+                case "QA 빌드":
+                    BaseApplication.setNormalMode();
+                    binding.modeText.setText(R.string.selector_qa);
+                    break;
+                case "Master 빌드":
+                    BaseApplication.setMasterBranchMode();
+                    binding.modeText.setText(R.string.selector_master);
+                    break;
+                case "PR 빌드":
+                    BaseApplication.setNormalMode();
+                    binding.modeText.setText(R.string.selector_pr);
+                    break;
+                default:
+            }
+        }
+    }
 
     public ActivityMainBinding getBinding() {
         return binding;
