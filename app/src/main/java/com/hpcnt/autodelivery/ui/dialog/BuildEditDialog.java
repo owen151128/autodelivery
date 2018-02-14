@@ -87,7 +87,8 @@ public class BuildEditDialog extends RxDialogFragment implements BuildEditContra
         view.setFocusableInTouchMode(true);
         view.requestFocus();
         view.setOnKeyListener((View v, int keyCode, KeyEvent event) -> {
-            if (flag == BuildEditContract.FLAG.SELECTOR && event.getAction() == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_BACK) {
+            if ((flag == BuildEditContract.FLAG.SELECTOR || flag == BuildEditContract.FLAG.MASTER_APK)
+                    && event.getAction() == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_BACK) {
                 ((MainActivity) getActivity()).onBuildEditDialogOnBackPressed();
             }
             return false;

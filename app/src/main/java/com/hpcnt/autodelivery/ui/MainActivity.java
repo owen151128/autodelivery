@@ -386,7 +386,9 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
                         }
                         mPresenter.selectMyAbiBuild(buildList, versionName);
                         currentBuildWrapper.setAbiBuild(CurrentBuildWrapper.FLAG.ABI, buildList, versionName);
-                        currentMode = binding.modeText.getText().toString();
+                        if (flag != BuildEditContract.FLAG.MASTER) {
+                            currentMode = binding.modeText.getText().toString();
+                        }
                     });
             buildEditDialog.setOnDismissApkListener(apkName -> {
                 mPresenter.setApkName(apkName);
