@@ -1,6 +1,5 @@
 package com.hpcnt.autodelivery.ui.dialog;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.databinding.DataBindingUtil;
@@ -36,7 +35,6 @@ public class BuildEditDialog extends RxDialogFragment implements BuildEditContra
     private DialogBuildEditBinding binding;
     private BuildEditContract.Presenter mPresenter;
     private RxSelectorEventUtil selectorEventUtil;
-    private BuildEditContract.OnBackPressedListener mOnBackPressedListener;
     private BuildEditContract.OnDismissListener mOnDismissListener;
     private BuildEditContract.OnDismissSelectorListener mOnDismissSelectorListener;
     private BuildEditContract.OnDismissBackListener mOnDismissBackListener;
@@ -90,7 +88,7 @@ public class BuildEditDialog extends RxDialogFragment implements BuildEditContra
         view.requestFocus();
         view.setOnKeyListener((View v, int keyCode, KeyEvent event) -> {
             if (flag == BuildEditContract.FLAG.SELECTOR && event.getAction() == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_BACK) {
-                mOnBackPressedListener.onBack();
+                ((MainActivity) getActivity()).onBuildEditDialogOnBackPressed();
             }
             return false;
         });
@@ -115,14 +113,6 @@ public class BuildEditDialog extends RxDialogFragment implements BuildEditContra
         if (flag != BuildEditContract.FLAG.SELECTOR && flag != BuildEditContract.FLAG.PR) {
             mPresenter.loadBuildList(new BuildFetcher(this),
                     getArguments().getString(BuildEditContract.KEY_VERSION_PATH));
-        }
-    }
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        if (activity instanceof MainActivity) {
-            mOnBackPressedListener = (MainActivity) activity;
         }
     }
 

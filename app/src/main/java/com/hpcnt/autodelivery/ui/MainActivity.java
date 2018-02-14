@@ -51,7 +51,7 @@ import io.reactivex.exceptions.UndeliverableException;
 import io.reactivex.plugins.RxJavaPlugins;
 import io.reactivex.schedulers.Schedulers;
 
-public class MainActivity extends RxAppCompatActivity implements MainContract.View, BuildEditContract.OnBackPressedListener {
+public class MainActivity extends RxAppCompatActivity implements MainContract.View {
 
     private static final int UNINSTALL_ACTIVITY = 1000;
     private static final String AZAR_PACKAGE = "com.azarlive.android";
@@ -475,8 +475,7 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
         }
     };
 
-    @Override
-    public void onBack() {
+    public void onBuildEditDialogOnBackPressed() {
         if (currentMode != null) {
             switch (currentMode) {
                 case "QA 빌드":

@@ -84,8 +84,4 @@ public interface BuildEditContract {
     interface OnDismissBackListener {
         void onDismiss();
     }
-
-    interface OnBackPressedListener {
-        void onBack();
-    }
 }
