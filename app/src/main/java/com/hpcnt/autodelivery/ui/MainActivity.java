@@ -478,22 +478,15 @@ public class MainActivity extends RxAppCompatActivity implements MainContract.Vi
     };
 
     public void onBuildEditDialogOnBackPressed() {
-        if (currentMode != null) {
-            switch (currentMode) {
-                case "QA 빌드":
-                    BaseApplication.setNormalMode();
-                    binding.modeText.setText(R.string.selector_qa);
-                    break;
-                case "Master 빌드":
-                    BaseApplication.setMasterBranchMode();
-                    binding.modeText.setText(R.string.selector_master);
-                    break;
-                case "PR 빌드":
-                    BaseApplication.setNormalMode();
-                    binding.modeText.setText(R.string.selector_pr);
-                    break;
-                default:
-            }
+        if (getString(R.string.selector_qa).equals(currentMode)) {
+            BaseApplication.setNormalMode();
+            binding.modeText.setText(R.string.selector_qa);
+        } else if (getString(R.string.selector_master).equals(currentMode)) {
+            BaseApplication.setMasterBranchMode();
+            binding.modeText.setText(R.string.selector_master);
+        } else if (getString(R.string.selector_pr).equals(currentMode)) {
+            BaseApplication.setNormalMode();
+            binding.modeText.setText(R.string.selector_pr);
         }
     }
 
