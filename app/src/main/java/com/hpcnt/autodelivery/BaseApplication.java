@@ -9,7 +9,7 @@ import com.crashlytics.android.Crashlytics;
 import io.fabric.sdk.android.Fabric;
 
 public class BaseApplication extends Application {
-    private static String buildServerUrl = "http://121.135.235.194:8081/apk/azar/";
+    private static String buildServerUrl = "http://server.owens.kr/apk/azar/";
     private static RequestQueue mQueue;
 
     @Override
@@ -24,12 +24,12 @@ public class BaseApplication extends Application {
     }
 
     public static boolean setNormalMode() {
-        buildServerUrl = "http://121.135.235.194:8081/apk/azar/";
+        buildServerUrl = "http://server.owens.kr:8081/apk/azar/";
         return true;
     }
 
     public static boolean setMasterBranchMode() {
-        buildServerUrl = "http://121.135.235.194:8081/apk/azar/master/";
+        buildServerUrl = "http://server.owens.kr:8081/apk/azar/master/";
         return true;
     }
 
